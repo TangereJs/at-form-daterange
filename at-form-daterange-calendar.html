@@ -66,7 +66,6 @@
     }
   </style>
   <template>
-    <link rel="import" type="css" href="at-form-daterange-calendar.css">
     <div class="calendar">
       <table>
         <thead>
@@ -160,7 +159,6 @@
       this.daysOfWeek = [0, 1, 2, 3, 4, 5, 6].map(function (n) {
         return moment().day(n).format("dd");
       });
-      //      this.calendar = [];
       this.rebuildCalendar();
     },
     moveMonth: function (n) {
@@ -207,7 +205,7 @@
         month: moment.month()
       };
     },
-    yearMonthChanged: function (newYearMonth, oldYearMonth) {\
+    yearMonthChanged: function (newYearMonth, oldYearMonth) {
       // turns out to have the component display correctly we need to rebuild calendar everytime in current infrastructure
       //      if (!oldYearMonth || oldYearMonth.year != newYearMonth.year || oldYearMonth.month != newYearMonth.month) {        
       this.rebuildCalendar();
