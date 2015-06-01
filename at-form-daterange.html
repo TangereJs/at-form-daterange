@@ -303,7 +303,8 @@
         newMomemt = moment(newValue);
 
       if (newMomemt > endMoment) {
-        this.startDate = oldValue;
+        this.startDate = this.endDate;
+        this.endDate = newValue;
       }
     },
     endDateChanged: function (newValue, oldValue) {
@@ -311,7 +312,8 @@
         newMomemt = moment(newValue);
 
       if (newMomemt < startMoment) {
-        this.endDate = oldValue;
+        this.endDate = this.startDate;
+        this.startDate = newValue;
       }
     }
   });
