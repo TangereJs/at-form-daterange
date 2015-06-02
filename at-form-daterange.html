@@ -1,319 +1,153 @@
-<script src="../moment/min/moment.min.js"></script>
-<script src="../moment-timezone/builds/moment-timezone-with-data.min.js"></script>
+<link rel="import" href="at-form-daterange-dropdown.html">
+<link rel="import" href="../at-core-theme/at-core-theme.html">
 
-<link rel="import" href="../polymer/polymer.html" />
-<link rel="import" href="at-form-daterange-calendar.html" />
-<link rel="import" href="at-form-daterange-positioning.html" />
+<!-- This is a new component extracted from the demo.html for polymer 0.5 -->
 
 <dom-module id="at-form-daterange">
-  <!--  css file at-form-daterange.css had to be merged into module because styles were otherwise not working -->
   <style>
-    polymer-date-picker-calendar {
-      display: block;
-      float: left;
-    }
-    
-    #target {
-      font-family: Arial;
-      font-size: 14px;
-      z-index: 1000;
-    }
-    
-    .daterangepicker {
-      background-color: #FFFFFF;
-      display: inline-block;
-      position: relative;
-      left: -225px;
-      top: 4px;
-      min-width: 228px;
-    }
-    
-    .daterangepicker:before {
-      content: '';
-      position: absolute;
-      top: -2px;
-      display: inline-block;
-      border-right: 7px solid transparent;
-      border-bottom: 7px solid #ccc;
-      border-left: 7px solid transparent;
-      border-bottom-color: rgba(0, 0, 0, 0.2);
-    }
-    
-    .daterangepicker:after {
-      position: absolute;
-      top: -1px;
-      display: inline-block;
-      border-right: 6px solid transparent;
-      border-bottom: 6px solid #fff;
-      border-left: 6px solid transparent;
-      content: '';
-    }
-    
-    .daterangepicker.opensleft .ranges {}
-    
-    .daterangepicker.opensleft:before {
-      right: 19px;
-    }
-    
-    .daterangepicker.opensleft:after {
-      right: 20px;
-    }
-    
-    .daterangepicker.opensright .ranges {}
-    
-    .daterangepicker.opensright:before {
-      left: 19px;
-    }
-    
-    .daterangepicker.opensright:after {
-      left: 20px;
-    }
-    
-    .daterangepicker .ranges {
-      padding: 8px;
-      margin: 4px;
+    input.date {
+      border: 1px solid #DDDDDD;
+      background-color: #EEEEEE;
+      color: #555555;
+      min-width: 200px;
+      padding: 8px 10px;
+      margin: 10px;
       border-radius: 4px;
-      border: 1px solid rgba(0, 0, 0, 0.15);
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.176);
     }
     
-    .daterangepicker .ranges ul {
-      margin: 0;
-      padding: 0;
-      list-style-type: none;
-    }
-    
-    .daterangepicker .ranges ul li {
-      padding: 5px 12px;
-      margin-bottom: 8px;
-      font-size: 13px;
+    input.date:hover {
       cursor: pointer;
-      color: #0088CC;
-      border-radius: 5px;
-      background-color: #F5F5F5;
+      border: 1px solid #44B4E4;
+      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px rgba(102, 175, 233, 0.6);
     }
     
-    .daterangepicker .ranges ul li.active,
-    .daterangepicker .ranges ul li:hover {
-      background: #0088CC;
-      color: #FFFFFF;
+    .hidden {
+      display: none;
+      visibility: hidden;
+    }
+    
+    .visible {
+      display: block;
+      visibility: visible;
     }
   </style>
   <template>
-    <div id="target" class="daterangepicker opensright">
-      <template is="dom-if" if="{{range}}">
-        <div hidden="{{!showRanges}}" class="ranges">
-          <ul>
-            <li on-click="menuItemClicked" value="today">Today</li>
-            <li on-click="menuItemClicked" value="yesterday">Yesterday</li>
-            <li on-click="menuItemClicked" value="last7days">Last 7 Days</li>
-            <li on-click="menuItemClicked" value="last30days">Last 30 Days</li>
-            <li on-click="menuItemClicked" value="thisMonth">This Month</li>
-            <li on-click="menuItemClicked" value="lastMonth">Last Month</li>
-            <li on-click="menuItemClicked" value="custom">Custom</li>
-          </ul>
+    <at-core-theme></at-core-theme>
+    <div class="ui form">
+      <div class="field">
+        <label>{{label}}</label>
+      </div>
+    </div>
+    <div id="rangeDiv" class="hidden">
+      <div class="ui form">
+        <div class="field">
+          <div class="ui input">
+            <input id="triggerRange" value="{{value}}" on-click="toggle" readonly class="date">
+          </div>
         </div>
-        <at-form-daterange-calendar start start-date="{{startDate}}" end-date="{{endDate}}" hidden="true"></at-form-daterange-calendar>
-        <at-form-daterange-calendar end start-date="{{startDate}}" end-date="{{endDate}}" hidden="true"></at-form-daterange-calendar>
-      </template>
-      <template is="dom-if" if="{{!range}}">
-        <at-form-daterange-calendar selected-date="{{selectedDate}}"></at-form-daterange-calendar>
-      </template>
+      </div>
+      <at-form-daterange-dropdown id="dateRangePicker" related-target="{{this.$.triggerRange}}" range show-ranges start-date="{{startDate}}" end-date="{{endDate}}" opened="{{opened}}" selected="custom" timezone="America/New_York"></at-form-daterange-dropdown>
+    </div>
+    <div id="nonrangeDiv" class="hidden">
+      <div class="ui form">
+        <div class="field">
+          <div class="ui input">
+            <input id="trigger" value="{{selectedDate}}" on-click="toggle" readonly class="date">
+          </div>
+        </div>
+      </div>
+      <at-form-daterange-dropdown id="datePicker" related-target="{{this.$.trigger}}" selected-date="{{selectedDate}}" opened="{{opened}}"></at-form-daterange-dropdown>
     </div>
   </template>
 </dom-module>
+
 <script>
   Polymer({
-    is: "at-form-daterange",
-    // behavior mixins work so there was no need to merge at-form-daterange-positioning into at-form-daterange
-    behaviors: [AtFormDaterangePositioning],
+    is: 'at-form-daterange',
     properties: {
       range: {
         type: Boolean,
-        value: false
+        value: false,
+        observer: 'rangeChanged'
+      },
+      label: {
+        type: String,
+        value: ''
       },
       selectedDate: {
         type: String,
-        value: '',
-        notify: true
+        value: ''
       },
       startDate: {
         type: String,
-        value: '',
-        notify: true,
-        observer: 'startDateChanged'
+        value: ''
       },
       endDate: {
         type: String,
-        value: '',
-        notify: true,
-        observer: 'endDateChanged'
+        value: ''
       },
-      selected: {
-        type: String,
-        value: 'custom',
-        observer: 'selectedChanged'
-      },
-      showRanges: {
+      opened: {
         type: Boolean,
         value: false
       },
-      timezone: {
+      value: {
         type: String,
-        value: ''
+        computed: 'computeValue(startDate, endDate)'
       }
     },
     _scopeCssViaAttr: true,
-    ready: function () {
-      this.target = this.$.target;
-
-      // Why is this here? Here is why:
-      // 1) without 
-      // self.opened = true;
-      // self.opened = false;
-      // a) when range = true menu whith ranges (today, yesterday, ... , custom) is initially displayed
-      // b) when range = false at-form-daterange-calendar component is diplayed by default at non sensical position 
-      // Both a) and b) happen because dom-if is executed after at-form-daterange is inserted into the DOM
-      // so the result of the dom-if is visible and unaffected by element's (at-form-daterange) state
-      // 2) without 
-      // self.selectedChanged(self.selected, self.selected);
-      // at-form-daterange component is not correctly initialized 
-      // a) in range menu item is not highlighted
-      // b) start and end dates are not initialized
-      // both 1) and 2) are delayed to wait for dom-if to execute and than finish component initialization
-      // this should be reexamined when polymer is FIXED by polymer team because right now its junk (13.052015)
-      var self = this;
-      setTimeout(function (event) {
-        self.opened = true;
-        self.opened = false;
-        self.selectedChanged(self.selected, self.selected);
-      }, 250);
-    },
-    close: function () {
-      this.opened = false;
-    },
-    newMoment: function () {
-      if (this.timezone) return moment().tz(this.timezone);
-      else return moment();
-    },
-    // this function handles the click event on menu items
-    menuItemClicked: function (event) {
-      var value = event.target.getAttribute('value');
-      if (this.selected === value) {
-        this.selectedChanged(value, value);
-      }
-      this.selected = value;
-
-      if (this.selected !== 'custom') {
-        this.close();
-      }
-    },
-    selectedChanged: function (newValue, oldValue) {
-      var activeItem = this.querySelector('li[class=active]');
-
-      if (activeItem) {
-        activeItem.classList.remove('active');
-      }
-
-      var cal;
-      // when 'custom' is selected calendars should be shown
-      // this.querySelector here returns meaningfull result only after tempalte dom-repeat has finished
-      // that is why in ready function setTimeout is used and that is why this.$ is empty here and this.querySelector must be used
-      // this should be changed / reviewed when polymer team FIXES polymer because it sucks now. (13.052015)
-      if (this.selected === 'custom') {
-        cal = this.querySelector('at-form-daterange-calendar[start]');
-        if (cal) {
-          cal.removeAttribute('hidden');
+    computeValue: function (startDate, endDate) {
+      var result = '';
+      if (startDate) {
+        result = startDate + '';
+        if (endDate) {
+          result = result + ' to ' + endDate;
         }
-        cal = this.querySelector('at-form-daterange-calendar[end]');
-        if (cal) {
-          cal.removeAttribute('hidden');
-        }
+      } else if (endDate) {
+        result = endDate + '';
+      }
+
+      return result;
+    },
+    toggle: function () {
+      var datePicker = this._getDatePicker();
+      if (this.range) {
+        var relatedTarget = this.querySelector('input[id=triggerRange]');
+        datePicker.relatedTarget = relatedTarget;
       } else {
-        cal = this.querySelector('at-form-daterange-calendar[start]');
-        if (cal) {
-          cal.setAttribute('hidden', true);
-        }
-        cal = this.querySelector('at-form-daterange-calendar[end]');
-        if (cal) {
-          cal.setAttribute('hidden', true);
-        }
+        var relatedTarget = this.querySelector('input[id=trigger]');
+        datePicker.relatedTarget = relatedTarget;
       }
-
-      switch (this.selected) {
-      case 'today':
-        this.startDate = this.format(this.newMoment());
-        this.endDate = this.format(this.newMoment());
-        break;
-      case 'yesterday':
-        this.startDate = this.format(this.newMoment().subtract(1, "days"));
-        this.endDate = this.format(this.newMoment().subtract(1, "days"));
-        break;
-      case 'last7days':
-        this.startDate = this.format(this.newMoment().subtract(6, "days"));
-        this.endDate = this.format(this.newMoment());
-        break;
-      case 'last30days':
-        this.startDate = this.format(this.newMoment().subtract(30, "days"));
-        this.endDate = this.format(this.newMoment());
-        break;
-      case 'thisMonth':
-        this.startDate = this.format(this.newMoment().startOf("month"));
-        this.endDate = this.format(this.newMoment().endOf("month"));
-        break;
-      case 'lastMonth':
-        this.startDate = this.format(this.newMoment().subtract(1, "months").startOf("month"));
-        this.endDate = this.format(this.newMoment().subtract(1, "months").endOf("month"));
-        break;
-      case 'custom':
-        // for initialization purposes (first time) startDate and endDate are set to today
-        // subject to change
-        if (this.startDate === '') {
-          this.startDate = this.format(this.newMoment());
-        }
-        if (this.endDate === '') {
-          this.endDate = this.format(this.newMoment());
-        }
-        break;
+      datePicker.toggle();
+    },
+    open: function () {
+      var datePicker = this._getDatePicker();
+      if (this.range) {
+        var relatedTarget = this.querySelector('input[id=trigger]');
+        datePicker.relatedTarget = relatedTarget;
       }
+      datePicker.open();
+    },
+    rangeChanged: function (newValue, oldValue) {
+      if (this.range) {
+        this.$.rangeDiv.classList.remove('hidden');
+        this.$.rangeDiv.classList.add('visible');
 
-      // this.querySelector here returns meaningfull result only after tempalte dom-repeat has finished
-      // that is why in ready function setTimeout is used and that is why this.$ is empty here and this.querySelector must be used
-      // this should be changed / reviewed when polymer team FIXES polymer because it sucks now. (13.052015)
-      var liElem = this.querySelector('li[value=' + this.selected + ']');
-      if (liElem) {
-        liElem.classList.add('active');
+        this.$.nonrangeDiv.classList.remove('visible');
+        this.$.nonrangeDiv.classList.add('hidden');
+      } else {
+        this.$.rangeDiv.classList.remove('visible');
+        this.$.rangeDiv.classList.add('hidden');
+
+        this.$.nonrangeDiv.classList.remove('hidden');
+        this.$.nonrangeDiv.classList.add('visible');
       }
     },
-    format: function (moment) {
-      // when component is initialized for unknown reasons timezone property is not deserialized correctly
-      // this is detected with this.timezone === undefined; however attribute is still here and its value can be retreived
-      // in instances after initialization timezone property is ok
-      // if timezone property is null (which happens when timezone attribute is not set) 
-      // I set it to default value of 'America/NewYork'
-      // This should also be reviewed and corrected when polymer team FIXES polymer because it sucks now. (13.052015)
-      this.timezone = this.timezone === undefined ? this.getAttribute('timezone') : this.timezone;
-      if (this.timezone === null) {
-        this.timezone = 'America/New_York';
-      }
-      return moment.tz(this.timezone).format("YYYY-MM-DD");
-    },
-    startDateChanged: function (newValue, oldValue) {
-      var endMoment = moment(this.endDate),
-        newMomemt = moment(newValue);
-
-      if (newMomemt > endMoment) {
-        this.startDate = this.endDate;
-        this.endDate = newValue;
-      }
-    },
-    endDateChanged: function (newValue, oldValue) {
-      var startMoment = moment(this.startDate),
-        newMomemt = moment(newValue);
-
-      if (newMomemt < startMoment) {
-        this.endDate = this.startDate;
-        this.startDate = newValue;
+    _getDatePicker: function(){
+      if (this.range){
+        return this.$.dateRangePicker;
+      } else {
+        return this.$.datePicker;
       }
     }
   });
