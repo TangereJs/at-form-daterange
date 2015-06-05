@@ -38,25 +38,15 @@
         <label>{{label}}</label>
       </div>
     </div>
-    <div id="rangeDiv" class="hidden">
+    <div id="rangeDiv">
       <div class="ui form">
-        <div class="field">
+        <div id="fieldDiv" class="field">
           <div class="ui input">
             <input id="triggerRange" value="{{value}}" on-click="toggle" readonly class="date">
           </div>
         </div>
       </div>
-      <at-form-daterange-dropdown id="dateRangePicker" related-target="{{this.$.triggerRange}}" range show-ranges start-date="{{startDate}}" end-date="{{endDate}}" opened="{{opened}}" selected="custom" timezone="America/New_York"></at-form-daterange-dropdown>
-    </div>
-    <div id="nonrangeDiv" class="hidden">
-      <div class="ui form">
-        <div class="field">
-          <div class="ui input">
-            <input id="trigger" value="{{selectedDate}}" on-click="toggle" readonly class="date">
-          </div>
-        </div>
-      </div>
-      <at-form-daterange-dropdown id="datePicker" related-target="{{this.$.trigger}}" selected-date="{{selectedDate}}" opened="{{opened}}"></at-form-daterange-dropdown>
+      <at-form-daterange-dropdown id="dateRangePicker" related-target="{{this.$.triggerRange}}" show-ranges start-date="{{startDate}}" end-date="{{endDate}}" selected="today" timezone="America/New_York"></at-form-daterange-dropdown>
     </div>
   </template>
 </dom-module>
@@ -65,34 +55,38 @@
   Polymer({
     is: 'at-form-daterange',
     properties: {
-      range: {
-        type: Boolean,
-        value: false,
-        observer: 'rangeChanged'
-      },
       label: {
-        type: String,
-        value: ''
-      },
-      selectedDate: {
         type: String,
         value: ''
       },
       startDate: {
         type: String,
-        value: ''
+        value: '',
+        observer:'startDateChanged'
       },
       endDate: {
         type: String,
-        value: ''
-      },
-      opened: {
-        type: Boolean,
-        value: false
+        value: '',
+        observer: 'endDateChanged'
       },
       value: {
         type: String,
         computed: 'computeValue(startDate, endDate)'
+      },
+      valid: {
+        type: Boolean,
+        value: true,
+        notify: true
+      },
+      required: {
+        type: Boolean,
+        value: false,
+        observer: 'requiredChanged'
+      },
+      disabled: {
+        type: Boolean,
+        value: false,
+        observer: 'disabledChanged'
       }
     },
     _scopeCssViaAttr: true,
@@ -109,46 +103,41 @@
 
       return result;
     },
+    startDateChanged: function(newValue, oldValue){
+      debugger;
+    },
+    endDateChanged: function(newValue, oldValue){
+      debugger;
+    },
     toggle: function () {
-      var datePicker = this._getDatePicker();
-      if (this.range) {
+      if (!this.disabled) {
+        var datePicker = this.$.dateRangePicker;
         var relatedTarget = this.querySelector('input[id=triggerRange]');
         datePicker.relatedTarget = relatedTarget;
-      } else {
-        var relatedTarget = this.querySelector('input[id=trigger]');
-        datePicker.relatedTarget = relatedTarget;
+        datePicker.toggle();
       }
-      datePicker.toggle();
     },
     open: function () {
-      var datePicker = this._getDatePicker();
+      var datePicker = this.$.dateRangePicker;
       if (this.range) {
         var relatedTarget = this.querySelector('input[id=trigger]');
         datePicker.relatedTarget = relatedTarget;
       }
       datePicker.open();
     },
-    rangeChanged: function (newValue, oldValue) {
-      if (this.range) {
-        this.$.rangeDiv.classList.remove('hidden');
-        this.$.rangeDiv.classList.add('visible');
-
-        this.$.nonrangeDiv.classList.remove('visible');
-        this.$.nonrangeDiv.classList.add('hidden');
+    _updateValidState: function () {
+      if (this.required && this.value === '') {
+        this.valid = false;
       } else {
-        this.$.rangeDiv.classList.remove('visible');
-        this.$.rangeDiv.classList.add('hidden');
-
-        this.$.nonrangeDiv.classList.remove('hidden');
-        this.$.nonrangeDiv.classList.add('visible');
+        this.valid = true;
       }
     },
-    _getDatePicker: function(){
-      if (this.range){
-        return this.$.dateRangePicker;
-      } else {
-        return this.$.datePicker;
-      }
+    requiredChanged: function () {
+      this._updateValidState();
+      this.toggleClass('error', !this.valid, this.$.fieldDiv);
+    },
+    disabledChanged: function () {
+
     }
   });
 </script>

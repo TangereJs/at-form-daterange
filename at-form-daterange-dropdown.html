@@ -115,7 +115,7 @@
   </style>
   <template>
     <div id="target" class="daterangepicker opensright">
-      <div id="rangeDiv" class="hidden horizontal layout wrap">
+      <div id="rangeDiv" class="horizontal layout wrap">
         <div hidden="{{!showRanges}}" class="ranges">
           <ul>
             <li on-click="menuItemClicked" value="today">Today</li>
@@ -134,9 +134,6 @@
           <at-form-daterange-calendar id="calendarEnd" end start-date="{{startDate}}" end-date="{{endDate}}" hidden="true"></at-form-daterange-calendar>
         </div>
       </div>
-      <div id="nonrangeDiv" class="hidden">
-        <at-form-daterange-calendar selected-date="{{selectedDate}}"></at-form-daterange-calendar>
-      </div>
     </div>
   </template>
 </dom-module>
@@ -145,17 +142,7 @@
     is: "at-form-daterange-dropdown",
     // behavior mixins work so there was no need to merge at-form-daterange-positioning into at-form-daterange
     behaviors: [AtFormDaterangePositioning],
-    properties: {
-      range: {
-        type: Boolean,
-        value: false,
-        observer: 'rangeChanged'
-      },
-      selectedDate: {
-        type: String,
-        value: '',
-        notify: true
-      },
+    properties: {      
       startDate: {
         type: String,
         value: '',
@@ -185,17 +172,14 @@
     _scopeCssViaAttr: true,
     ready: function () {
       this.target = this.$.target;
-    },
-    rangeChanged: function (newValue, oldValue) {
-      this.toggleClass('hidden', !this.range, this.$.rangeDiv);
-      this.toggleClass('hidden', this.range, this.$.nonrangeDiv);
+      this.selectedChanged(this.selected, this.selected);
     },
     close: function () {
       this.opened = false;
     },
     newMoment: function () {
-      if (this.timezone) return moment().tz(this.timezone);
-      else return moment();
+      if (this.timezone) { return moment().tz(this.timezone); }
+      else { return moment(); }
     },
     // this function handles the click event on menu items
     menuItemClicked: function (event) {
