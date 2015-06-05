@@ -42,11 +42,11 @@
       <div class="ui form">
         <div id="fieldDiv" class="field">
           <div class="ui input">
-            <input id="triggerRange" value="{{value}}" on-click="toggle" readonly class="date">
+            <input id="triggerRange" value="{{value}}" on-click="toggle" on-blur="close" readonly class="date">
           </div>
         </div>
       </div>
-      <at-form-daterange-dropdown id="dateRangePicker" related-target="{{this.$.triggerRange}}" show-ranges start-date="{{startDate}}" end-date="{{endDate}}" selected="today" timezone="America/New_York"></at-form-daterange-dropdown>
+      <at-form-daterange-dropdown id="dateRangePicker" disabled$={{disabled}} show-ranges start-date="{{startDate}}" end-date="{{endDate}}" selected="today" timezone="America/New_York"></at-form-daterange-dropdown>
     </div>
   </template>
 </dom-module>
@@ -61,17 +61,17 @@
       },
       startDate: {
         type: String,
-        value: '',
-        observer:'startDateChanged'
+        value: ''
       },
       endDate: {
         type: String,
-        value: '',
-        observer: 'endDateChanged'
+        value: ''
       },
       value: {
         type: String,
-        computed: 'computeValue(startDate, endDate)'
+        computed: 'computeValue(startDate, endDate)',
+        notify: true,
+        observer: 'valueChanged'
       },
       valid: {
         type: Boolean,
@@ -85,8 +85,7 @@
       },
       disabled: {
         type: Boolean,
-        value: false,
-        observer: 'disabledChanged'
+        value: false
       }
     },
     _scopeCssViaAttr: true,
@@ -103,12 +102,6 @@
 
       return result;
     },
-    startDateChanged: function(newValue, oldValue){
-      debugger;
-    },
-    endDateChanged: function(newValue, oldValue){
-      debugger;
-    },
     toggle: function () {
       if (!this.disabled) {
         var datePicker = this.$.dateRangePicker;
@@ -117,13 +110,9 @@
         datePicker.toggle();
       }
     },
-    open: function () {
-      var datePicker = this.$.dateRangePicker;
-      if (this.range) {
-        var relatedTarget = this.querySelector('input[id=trigger]');
-        datePicker.relatedTarget = relatedTarget;
-      }
-      datePicker.open();
+    close: function (event) {
+//      debugger;
+//      this.$.dateRangePicker.async(this.$.dateRangePicker.close, 100);
     },
     _updateValidState: function () {
       if (this.required && this.value === '') {
@@ -132,12 +121,15 @@
         this.valid = true;
       }
     },
-    requiredChanged: function () {
+    _validate: function() {
       this._updateValidState();
       this.toggleClass('error', !this.valid, this.$.fieldDiv);
     },
-    disabledChanged: function () {
-
+    requiredChanged: function () {
+      this._validate();      
+    },
+    valueChanged: function (newValue, oldValue) {
+      this._validate();
     }
   });
 </script>

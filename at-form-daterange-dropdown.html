@@ -114,7 +114,7 @@
     }
   </style>
   <template>
-    <div id="target" class="daterangepicker opensright">
+    <div id="target" class="daterangepicker opensright" style="display: none;" on-blur="close">
       <div id="rangeDiv" class="horizontal layout wrap">
         <div hidden="{{!showRanges}}" class="ranges">
           <ul>
@@ -140,9 +140,7 @@
 <script>
   Polymer({
     is: "at-form-daterange-dropdown",
-    // behavior mixins work so there was no need to merge at-form-daterange-positioning into at-form-daterange
-    behaviors: [AtFormDaterangePositioning],
-    properties: {      
+    properties: {
       startDate: {
         type: String,
         value: '',
@@ -170,16 +168,26 @@
       }
     },
     _scopeCssViaAttr: true,
-    ready: function () {
-      this.target = this.$.target;
+    open: function () {
+      this.$.target.style.display = "block";
       this.selectedChanged(this.selected, this.selected);
     },
     close: function () {
-      this.opened = false;
+      this.$.target.style.display = "none";
+    },
+    toggle: function () {
+      if (this.$.target.style.display === "none") {
+        this.open();
+      } else {
+        this.close();
+      }
     },
     newMoment: function () {
-      if (this.timezone) { return moment().tz(this.timezone); }
-      else { return moment(); }
+      if (this.timezone) {
+        return moment().tz(this.timezone);
+      } else {
+        return moment();
+      }
     },
     // this function handles the click event on menu items
     menuItemClicked: function (event) {
