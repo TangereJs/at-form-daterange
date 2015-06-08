@@ -115,7 +115,7 @@
   </style>
   <template>
     <div id="target" class="daterangepicker opensright" style="display: none;" on-blur="close">
-      <div id="rangeDiv" class="horizontal layout wrap">
+      <div id="rangeDiv" class="horizontal layout">
         <div hidden="{{!showRanges}}" class="ranges">
           <ul>
             <li on-click="menuItemClicked" value="today">Today</li>
@@ -165,9 +165,17 @@
       timezone: {
         type: String,
         value: ''
+      },
+      orientation: {
+        type: String,
+        value: 'horizontal'
       }
     },
     _scopeCssViaAttr: true,
+    ready: function(){
+      this.toggleClass('horizontal', this.orientation === 'horizontal', this.$.rangeDiv);
+      this.toggleClass('vertical', this.orientation === 'vertical', this.$.rangeDiv);
+    },    
     open: function () {
       this.$.target.style.display = "block";
       this.selectedChanged(this.selected, this.selected);

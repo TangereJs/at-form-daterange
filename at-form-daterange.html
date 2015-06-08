@@ -42,16 +42,31 @@
       <div class="ui form">
         <div id="fieldDiv" class="field">
           <div class="ui input">
-            <input id="triggerRange" value="{{value}}" on-click="toggle" on-blur="close" readonly class="date">
+            <input id="triggerRange" value="{{value}}" on-focus="open" on-mousedown="toggle" on-blur="close" readonly class="date">
           </div>
         </div>
       </div>
-      <at-form-daterange-dropdown id="dateRangePicker" disabled$={{disabled}} show-ranges start-date="{{startDate}}" end-date="{{endDate}}" selected="today" timezone="America/New_York"></at-form-daterange-dropdown>
+      <at-form-daterange-dropdown id="dateRangePicker" disabled$={{disabled}} orientation={{orientation}} show-ranges start-date="{{startDate}}" end-date="{{endDate}}" timezone="America/New_York"></at-form-daterange-dropdown>
     </div>
   </template>
 </dom-module>
 
 <script>
+  (function (utils) {
+    utils.isChildOf = function (child, parent) {
+      var isChild = false;
+      var iterElem = child ? child : null;
+
+      while (!isChild && iterElem !== null && iterElem.nodeType !== 9) {
+        isChild = iterElem === parent;
+        iterElem = iterElem.parentElement;
+      }
+
+      return isChild;
+    }
+  }(window.afDateRangeUtils = window.afDateRangeUtils || {}));
+
+
   Polymer({
     is: 'at-form-daterange',
     properties: {
@@ -86,9 +101,32 @@
       disabled: {
         type: Boolean,
         value: false
+      },
+      orientation: {
+        type: String,
+        value: 'horizontal'
       }
     },
     _scopeCssViaAttr: true,
+    ready: function () {
+      var _self = this;
+
+      // why is this here?
+      // when function is invoked as event handler "this" for that function is window object
+      // polymer context is not available; also variables from enclosing function scope (ie from ready function)
+      //  are not available; yes - not available;
+      // that is why bind must be used; and bound function passed as an event listener
+      // unbound function is bound to "this" of polymer element
+      var unboundFunction = function (event) {
+        if (this.$.triggerRange !== event.target && afDateRangeUtils.isChildOf(event.target, this)) {
+          event.preventDefault();
+        }
+      }
+      var boundHandler = unboundFunction.bind(this);
+
+      var body = document.getElementsByTagName('body')[0];
+      body.addEventListener('mousedown', boundHandler);
+    },
     computeValue: function (startDate, endDate) {
       var result = '';
       if (startDate) {
@@ -111,8 +149,12 @@
       }
     },
     close: function (event) {
-//      debugger;
-//      this.$.dateRangePicker.async(this.$.dateRangePicker.close, 100);
+      this.$.dateRangePicker.close();
+    },
+    open: function (evnet) {
+      if (!this.disabled) {
+        this.$.dateRangePicker.open();
+      }
     },
     _updateValidState: function () {
       if (this.required && this.value === '') {
@@ -121,12 +163,12 @@
         this.valid = true;
       }
     },
-    _validate: function() {
+    _validate: function () {
       this._updateValidState();
       this.toggleClass('error', !this.valid, this.$.fieldDiv);
     },
     requiredChanged: function () {
-      this._validate();      
+      this._validate();
     },
     valueChanged: function (newValue, oldValue) {
       this._validate();
