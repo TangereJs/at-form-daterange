@@ -49,7 +49,7 @@
           </div>
         </div>
       </div>
-      <at-form-daterange-dropdown id="dateRangePicker" disabled$={{disabled}} orientation={{orientation}} show-ranges start-date="{{startDate}}" end-date="{{endDate}}" timezone="America/New_York"></at-form-daterange-dropdown>
+      <at-form-daterange-dropdown id="dateRangePicker" disabled$={{disabled}} show-ranges start-date="{{startDate}}" end-date="{{endDate}}" timezone="America/New_York"></at-form-daterange-dropdown>
     </div>
   </template>
 </dom-module>
@@ -104,10 +104,6 @@
       disabled: {
         type: Boolean,
         value: false
-      },
-      orientation: {
-        type: String,
-        value: 'horizontal'
       }
     },
     _scopeCssViaAttr: true,
