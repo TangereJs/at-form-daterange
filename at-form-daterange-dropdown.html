@@ -172,10 +172,38 @@
       }
     },
     _scopeCssViaAttr: true,
-    ready: function(){
+    ready: function () {
       this.toggleClass('horizontal', this.orientation === 'horizontal', this.$.rangeDiv);
       this.toggleClass('vertical', this.orientation === 'vertical', this.$.rangeDiv);
-    },    
+
+      var resizeUnboundHandler = function (event) {
+        var windowWidth = window.innerWidth;
+        var dropdownWidth = this.$.rangeDiv.getBoundingClientRect().width;
+        var dropdownLeft = this.$.rangeDiv.getBoundingClientRect().left;
+        if (this.orientation === 'horizontal') {
+          if (dropdownWidth + dropdownLeft > windowWidth) {
+            this.toggleClass('horizontal', false, this.$.rangeDiv);
+            this.toggleClass('vertical', true, this.$.rangeDiv);
+            this.orientation = 'vertical';
+          } else {
+            this.toggleClass('horizontal', true, this.$.rangeDiv);
+            this.toggleClass('vertical', false, this.$.rangeDiv);
+          }
+        } else if (this.orientation === 'vertical') {
+          if (dropdownWidth * 3 + dropdownLeft > windowWidth) {
+            this.toggleClass('horizontal', false, this.$.rangeDiv);
+            this.toggleClass('vertical', true, this.$.rangeDiv);
+          } else {
+            this.toggleClass('horizontal', true, this.$.rangeDiv);
+            this.toggleClass('vertical', false, this.$.rangeDiv);
+            this.orientation = 'horizontal';
+          }
+        }
+      }
+
+      var boundResizeHandler = resizeUnboundHandler.bind(this);
+      window.addEventListener('resize', boundResizeHandler);
+    },
     open: function () {
       this.$.target.style.display = "block";
       this.selectedChanged(this.selected, this.selected);

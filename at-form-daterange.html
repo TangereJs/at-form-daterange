@@ -1,5 +1,6 @@
 <link rel="import" href="at-form-daterange-dropdown.html">
 <link rel="import" href="../at-core-theme/at-core-theme.html">
+<link rel="import" href="../at-carbon-icon/at-carbon-icon.html">
 
 <!-- This is a new component extracted from the demo.html for polymer 0.5 -->
 
@@ -9,7 +10,8 @@
       border: 1px solid #DDDDDD;
       background-color: #EEEEEE;
       color: #555555;
-      min-width: 200px;
+      max-width: 100%;
+      width: inherit;
       padding: 8px 10px;
       margin: 10px;
       border-radius: 4px;
@@ -41,8 +43,9 @@
     <div id="rangeDiv">
       <div class="ui form">
         <div id="fieldDiv" class="field">
-          <div class="ui input">
+          <div class="ui action input" style="display: inline-flex">
             <input id="triggerRange" value="{{value}}" on-focus="open" on-mousedown="toggle" on-blur="close" readonly class="date">
+            <button class="ui button" on-mousedown="toggle"><at-carbon-icon icon="now:calendar"></at-carbon-icon></button>
           </div>
         </div>
       </div>
@@ -125,7 +128,7 @@
       var boundHandler = unboundFunction.bind(this);
 
       var body = document.getElementsByTagName('body')[0];
-      body.addEventListener('mousedown', boundHandler);
+      body.addEventListener('mousedown', boundHandler);  
     },
     computeValue: function (startDate, endDate) {
       var result = '';
