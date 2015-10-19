@@ -55,10 +55,14 @@
       border-top-left-radius: 0;
       border-bottom-left-radius: 0;
     }
+
+    .hide-label {
+      display: none;
+    }
   </style>
   <template>
     <at-core-theme></at-core-theme>
-    <div class="ui form">
+    <div class="ui form" id="labelContainer">
       <div class="field">
         <label>{{label}}</label>
       </div>
@@ -101,6 +105,11 @@
       label: {
         type: String,
         value: ''
+      },
+      hideTitle: {
+        type: Boolean,
+        value: false,
+        observer: 'hideTitleChanged'
       },
       startDate: {
         type: String,
@@ -150,6 +159,9 @@
 
       var body = document.getElementsByTagName('body')[0];
       body.addEventListener('mousedown', boundHandler);
+    },
+    hideTitleChanged: function (newValue, oldValue) {
+      this.toggleClass("hide-label", newValue, this.$.labelContainer);
     },
     computeValue: function(startDate, endDate) {
       var result = '';
