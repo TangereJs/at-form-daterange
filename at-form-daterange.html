@@ -140,6 +140,12 @@
         value: false
       }
     },
+    $meta: {
+      title: "Daterange",
+      form: {
+        type: "daterange"
+      }
+    },
     _scopeCssViaAttr: true,
     ready: function() {
       var _self = this;
@@ -160,7 +166,7 @@
       var body = document.getElementsByTagName('body')[0];
       body.addEventListener('mousedown', boundHandler);
     },
-    hideTitleChanged: function (newValue, oldValue) {
+    hideTitleChanged: function(newValue, oldValue) {
       this.toggleClass("hide-label", newValue, this.$.labelContainer);
     },
     computeValue: function(startDate, endDate) {
