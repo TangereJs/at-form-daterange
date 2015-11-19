@@ -229,7 +229,11 @@
     },
     newMoment: function () {
       if (this.timezone) {
-        return moment().tz(this.timezone);
+        if (moment.tz) {
+          return moment().tz(this.timezone);
+        } else {
+          return moment();
+        }
       } else {
         return moment();
       }
@@ -314,7 +318,12 @@
       if (this.timezone === null) {
         this.timezone = 'America/New_York';
       }
-      return moment.tz(this.timezone).format("YYYY-MM-DD");
+      if (moment.tz) {
+        console.log('moment.tz function is undefined');
+        return moment.tz(this.timezone).format("YYYY-MM-DD");
+      } else {
+        return moment.format("YYYY-MM-DD");
+      }
     },
     startDateChanged: function (newValue, oldValue) {
       var endMoment = moment(this.endDate),
