@@ -56,29 +56,31 @@
       border-bottom-left-radius: 0;
     }
 
-    .hide-label {
+    .hidden {
       display: none;
     }
   </style>
   <template>
     <at-core-theme></at-core-theme>
-    <div class="ui form" id="labelContainer">
-      <div class="field">
-        <label>{{label}}</label>
-      </div>
-    </div>
-    <div id="rangeDiv">
-      <div class="ui form">
-        <div id="fieldDiv" class="field">
-          <div class="ui action input loc-input-wrapper" style="display: inline-flex">
-            <input id="triggerRange" value="{{value}}" on-focus="open" on-mousedown="toggle" on-blur="close" readonly class="date">
-            <i class="icon locicon-background" on-mousedown="toggle">
-              <at-carbon-icon icon="now:calendar"></at-carbon-icon>
-            </i>
-          </div>
+    <div id="atFormDaterangeWrapper">
+      <div class="ui form" id="labelContainer">
+        <div class="field">
+          <label>{{label}}</label>
         </div>
       </div>
-      <at-form-daterange-dropdown id="dateRangePicker" disabled$={{disabled}} show-ranges start-date="{{startDate}}" end-date="{{endDate}}" timezone="America/New_York"></at-form-daterange-dropdown>
+      <div id="rangeDiv">
+        <div class="ui form">
+          <div id="fieldDiv" class="field">
+            <div class="ui action input loc-input-wrapper" style="display: inline-flex">
+              <input id="triggerRange" value="{{value}}" on-focus="open" on-mousedown="toggle" on-blur="close" readonly class="date">
+              <i class="icon locicon-background" on-mousedown="toggle">
+              <at-carbon-icon icon="now:calendar"></at-carbon-icon>
+            </i>
+            </div>
+          </div>
+        </div>
+        <at-form-daterange-dropdown id="dateRangePicker" disabled$={{disabled}} show-ranges start-date="{{startDate}}" end-date="{{endDate}}" timezone="America/New_York"></at-form-daterange-dropdown>
+      </div>
     </div>
   </template>
 </dom-module>
@@ -138,6 +140,17 @@
       disabled: {
         type: Boolean,
         value: false
+      },
+      /**
+       * Hides the element. When hidden nothing is displayed for the element
+       * @property hide
+       * @type Boolean
+       * @default false
+       */
+      hide: {
+        type: Boolean,
+        value: false,
+        observer: 'hideChanged'
       }
     },
     $meta: [{
@@ -164,8 +177,12 @@
       var body = document.getElementsByTagName('body')[0];
       body.addEventListener('mousedown', boundHandler);
     },
+    hideChanged: function (newValue, oldValue) {
+      var wrapper = this.$.atFormDaterangeWrapper;
+      this.toggleClass('hidden', newValue, wrapper);
+    },
     hideLabelChanged: function(newValue, oldValue) {
-      this.toggleClass("hide-label", newValue, this.$.labelContainer);
+      this.toggleClass("hidden", newValue, this.$.labelContainer);
     },
     computeValue: function(startDate, endDate) {
       var result = '';
