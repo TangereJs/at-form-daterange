@@ -115,15 +115,18 @@
       },
       startDate: {
         type: String,
-        value: ''
+        value: '',
+        notify: true
       },
       endDate: {
         type: String,
-        value: ''
+        value: '',
+        notify: true
       },
       value: {
         type: String,
         computed: 'computeValue(startDate, endDate)',
+        isReadOnly: true,
         notify: true,
         observer: 'valueChanged'
       },
@@ -174,7 +177,7 @@
       }
       var boundHandler = unboundFunction.bind(this);
 
-      var body = document.getElementsByTagName('body')[0];
+      var body = document.body;
       body.addEventListener('mousedown', boundHandler);
     },
     hideChanged: function (newValue, oldValue) {
