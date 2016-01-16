@@ -1,6 +1,7 @@
 <link rel="import" href="at-form-daterange-dropdown.html">
 <link rel="import" href="../at-core-theme/at-core-theme.html">
 <link rel="import" href="../at-carbon-icon/at-carbon-icon.html">
+<link rel="import" href="../at-form-behaviors/at-form-behaviors-validation.html">
 
 <!-- This is a new component extracted from the demo.html for polymer 0.5 -->
 
@@ -34,7 +35,6 @@
     }
 
     .loc-input-wrapper {
-      margin-bottom: 15px;
       height: 34px;
     }
 
@@ -56,21 +56,46 @@
       border-bottom-left-radius: 0;
     }
 
+    :host {
+      --error-color: #e41e2b;
+    }
+
+    .label-container.error {
+      color: var(--error-color);
+    }
+
+    .hint-container.error {
+      color: var(--error-color);
+    }
+
     .hidden {
       display: none;
+    }
+
+    #contentContainer.field {
+      margin: 0;
+    }
+
+    #contentContainer.field.error {
+      margin: 0 0 2px;
+    }
+
+    #contentContainer.field.error > .loc-input-wrapper > .locicon-background {
+      color: var(--error-color);
+      border-color: var(--error-color);
     }
   </style>
   <template>
     <at-core-theme></at-core-theme>
     <div id="atFormDaterangeWrapper">
-      <div class="ui form" id="labelContainer">
-        <div class="field">
+      <div class="ui form">
+        <div id="labelContainer" class="field label-container">
           <label>{{label}}</label>
         </div>
       </div>
       <div id="rangeDiv">
         <div class="ui form">
-          <div id="fieldDiv" class="field">
+          <div id="contentContainer" class="field">
             <div class="ui action input loc-input-wrapper" style="display: inline-flex">
               <input id="triggerRange" value="{{value}}" on-focus="open" on-mousedown="toggle" on-blur="close" readonly class="date">
               <i class="icon locicon-background" on-mousedown="toggle">
@@ -80,6 +105,9 @@
           </div>
         </div>
         <at-form-daterange-dropdown id="dateRangePicker" disabled$={{disabled}} show-ranges start-date="{{startDate}}" end-date="{{endDate}}" timezone="America/New_York"></at-form-daterange-dropdown>
+        <div id="hintContainer" class="hint-container">
+          <p id="errorHtml" class="hint"></p>
+        </div>
       </div>
     </div>
   </template>
@@ -103,6 +131,7 @@
 
   Polymer({
     is: 'at-form-daterange',
+    behaviors: [ AtFormBehaviors.AtFormBehaviorsValidation ],
     properties: {
       label: {
         type: String,
@@ -116,23 +145,19 @@
       startDate: {
         type: String,
         value: '',
-        notify: true
+        notify: true,
+        observer: 'startDateChanged'
       },
       endDate: {
         type: String,
         value: '',
-        notify: true
+        notify: true,
+        observer: 'startDateChanged'
       },
       value: {
         type: String,
         computed: 'computeValue(startDate, endDate)',
         isReadOnly: true,
-        notify: true,
-        observer: 'valueChanged'
-      },
-      valid: {
-        type: Boolean,
-        value: true,
         notify: true
       },
       required: {
@@ -142,7 +167,8 @@
       },
       disabled: {
         type: Boolean,
-        value: false
+        value: false,
+        observer: 'disabledChanged'
       },
       /**
        * Hides the element. When hidden nothing is displayed for the element
@@ -162,31 +188,36 @@
     }],
     _scopeCssViaAttr: true,
     ready: function() {
-      var _self = this;
+      this._isReady = false;
 
-      // why is this here?
-      // when function is invoked as event handler "this" for that function is window object
-      // polymer context is not available; also variables from enclosing function scope (ie from ready function)
-      //  are not available; yes - not available;
-      // that is why bind must be used; and bound function passed as an event listener
-      // unbound function is bound to "this" of polymer element
+      var self = this;
+      var triggerRange = this.$.triggerRange;
       var unboundFunction = function(event) {
-        if (this.$.triggerRange !== event.target && afDateRangeUtils.isChildOf(event.target, this)) {
+        if (triggerRange !== event.target && afDateRangeUtils.isChildOf(event.target, self)) {
           event.preventDefault();
         }
       }
-      var boundHandler = unboundFunction.bind(this);
 
-      var body = document.body;
-      body.addEventListener('mousedown', boundHandler);
+      document.body.addEventListener('mousedown', unboundFunction);
+
+      this._validationFunctions.push(this._validateValueFormat.bind(this));
+
+      this._isReady = true;
     },
     hideChanged: function (newValue, oldValue) {
       var wrapper = this.$.atFormDaterangeWrapper;
       this.toggleClass('hidden', newValue, wrapper);
+      if (this._isReady) {
+        this.validate();
+      }
     },
     hideLabelChanged: function(newValue, oldValue) {
-      this.toggleClass("hidden", newValue, this.$.labelContainer);
+      var labelContainer = this.$.labelContainer;
+      this.toggleClass("hidden", newValue, labelContainer);
     },
+    // value is read only
+    set value(newValue) {},
+    // compute value computes the value from startDate and endDate
     computeValue: function(startDate, endDate) {
       var result = '';
       if (startDate) {
@@ -200,35 +231,78 @@
 
       return result;
     },
-    toggle: function() {
-      if (!this.disabled) {
-        this.$.triggerRange.focus();
-      }
-    },
-    close: function(event) {
-      this.$.dateRangePicker.close();
-    },
     open: function(evnet) {
       if (!this.disabled) {
         this.$.dateRangePicker.open();
       }
     },
-    _updateValidState: function() {
-      if (this.required && this.value === '') {
-        this.valid = false;
-      } else {
-        this.valid = true;
+    close: function(event) {
+      this.$.dateRangePicker.close();
+    },
+    toggle: function() {
+      if (!this.disabled) {
+        this.$.triggerRange.focus();
       }
     },
-    _validate: function() {
-      this._updateValidState();
-      this.toggleClass('error', !this.valid, this.$.fieldDiv);
+    disabledChanged: function(newValue, oldValue) {
+      if (this._isReady) {
+        this.validate();
+      }
     },
-    requiredChanged: function() {
-      this._validate();
+    requiredChanged: function(newValue, oldValue) {
+      if (this._isReady) {
+        this.validate();
+      }
     },
-    valueChanged: function(newValue, oldValue) {
-      this._validate();
+    _updateUIValidState: function(isValid) {
+      var labelContainer = this.$.labelContainer;
+      this.toggleClass('error', !isValid, labelContainer);
+      var contentContainer = this.$.contentContainer;
+      this.toggleClass('error', !isValid, contentContainer);
+      var hintContainer = this.$.hintContainer;
+      this.toggleClass('error', !isValid, hintContainer);
+    },
+    startDateChanged: function (newValue, oldValue) {
+      if (this._isReady) {
+        this.validate();
+      }
+    },
+    endDateChanged: function (newValue, oldValue) {
+      if (this._isReady) {
+        this.validate();
+      }
+    },
+    // *ij* the main purpose of this function is to validate startDate and endDate format
+    // when they are programmatically set
+    _validateValueFormat: function (value) {
+      var result = true;
+      var valueParts = value.split(' to ');
+      var startDate = valueParts[0];
+      var endDate = valueParts[1];
+      var dateFormat = "YYYY-MM-DD";
+
+      var startDateValid = true;
+      var endDateValid = true;
+
+      if (value === '') { return true; }
+
+      if (startDate !== undefined && startDate !== '') {
+        startDateValid = moment(startDate, dateFormat).isValid();
+      }
+
+      if (endDate !== undefined && endDate !== '') {
+        endDateValid = moment(endDate, dateFormat).isValid();
+      }
+
+      result = result && startDateValid && endDateValid;
+
+      if (!startDateValid) {
+        this._errorMessage = 'Start date is in invalid format. Enter start date in format ' + dateFormat;
+      } else if (!endDateValid) {
+        this._errorMessage = 'End date is in invalid format. Enter end date in format ' + dateFormat;
+      }
+
+      return result;
     }
   });
 </script>
