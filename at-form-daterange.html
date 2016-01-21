@@ -204,6 +204,10 @@
 
       this._isReady = true;
     },
+    focus: function () {
+      var trigger = this.$.triggerRange;
+      trigger.focus();
+    },
     hideChanged: function (newValue, oldValue) {
       var wrapper = this.$.atFormDaterangeWrapper;
       this.toggleClass('hidden', newValue, wrapper);
