@@ -1,92 +1,312 @@
+<link rel="import" href="at-form-daterange-dropdown.html">
+<link rel="import" href="../at-core-theme/at-core-theme.html">
+<link rel="import" href="../at-carbon-icon/at-carbon-icon.html">
+<link rel="import" href="../at-form-behaviors/at-form-behaviors-validation.html">
 
-<link rel="import" href="../polymer/polymer.html"/>
-<link rel="import" href="../core-style/core-style.html"/>
-<link rel="import" href="at-form-daterange-calendar.html" />
-<link rel="import" href="at-form-daterange-positioning.html" />
-<script src="../moment/min/moment.min.js"></script>
-<script src="../moment-timezone/builds/moment-timezone-with-data.min.js"></script>
-<polymer-element name="at-form-daterange" extends="at-form-daterange-positioning" attributes="range selectedDate startDate endDate opened halign relatedTarget selected showRanges timezone">
+<!-- This is a new component extracted from the demo.html for polymer 0.5 -->
+
+<dom-module id="at-form-daterange">
+  <style>
+    input.date {
+      border: 1px solid #DDDDDD;
+      background-color: #EEEEEE;
+      color: #555555;
+      max-width: 100%;
+      width: inherit;
+      padding: 8px 10px;
+      margin: 10px;
+      border-radius: 4px;
+    }
+
+    input.date:hover {
+      cursor: pointer;
+      border: 1px solid #44B4E4;
+      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px rgba(102, 175, 233, 0.6);
+    }
+
+    .hidden {
+      display: none;
+      visibility: hidden;
+    }
+
+    .visible {
+      display: block;
+      visibility: visible;
+    }
+
+    .loc-input-wrapper {
+      height: 34px;
+    }
+
+    #triggerRange {
+      font-size: 14px;
+    }
+
+    .locicon-background {
+      padding: 6px 12px;
+      font-size: 14px;
+      font-weight: normal;
+      line-height: 1;
+      color: #555;
+      text-align: center;
+      background-color: #eee;
+      border: 1px solid rgba(39, 41, 43, 0.15);
+      border-radius: 2px;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+
+    :host {
+      --error-color: #e41e2b;
+    }
+
+    .label-container.error {
+      color: var(--error-color);
+    }
+
+    .hint-container.error {
+      color: var(--error-color);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #contentContainer.field {
+      margin: 0;
+    }
+
+    #contentContainer.field.error {
+      margin: 0 0 2px;
+    }
+
+    #contentContainer.field.error > .loc-input-wrapper > .locicon-background {
+      color: var(--error-color);
+      border-color: var(--error-color);
+    }
+  </style>
   <template>
-    <link rel="stylesheet" href="at-form-daterange.css" />
-    <core-style ref="at-form-daterange"></core-style>
-    <div id="target" class="daterangepicker opensright">
-      <template if="{{range != null}}">
-        <div hidden?="{{!showRanges}}" class="ranges">
-          <ul>
-            <li on-click="{{todayClicked}}" class="{{ {active: (selected == 'today') } | tokenList }}">Today</li>
-            <li on-click="{{yesterdayClicked}}" class="{{ {active: (selected == 'yesterday') } | tokenList }}">Yesterday</li>
-            <li on-click="{{last7DaysClicked}}" class="{{ {active: (selected == 'last7Days') } | tokenList }}">Last 7 Days</li>
-            <li on-click="{{last30DaysClicked}}" class="{{ {active: (selected == 'last30Days') } | tokenList }}">Last 30 Days</li>
-            <li on-click="{{thisMonthClicked}}" class="{{ {active: (selected == 'thisMonth') } | tokenList }}">This Month</li>
-            <li on-click="{{lastMonthClicked}}" class="{{ {active: (selected == 'lastMonth') } | tokenList }}">Last Month</li>
-            <li on-click="{{customClicked}}" class="{{ {active: (selected == 'custom') } | tokenList }}">Custom</li>
-          </ul>
+    <at-core-theme></at-core-theme>
+    <div id="atFormDaterangeWrapper">
+      <div class="ui form">
+        <div id="labelContainer" class="field label-container">
+          <label>{{label}}</label>
         </div>
-        <at-form-daterange-calendar start="start" startdate="{{startDate}}" enddate="{{endDate}}" hidden?="{{selected != 'custom'}}"></at-form-daterange-calendar>
-        <at-form-daterange-calendar end="end" startdate="{{startDate}}" enddate="{{endDate}}" hidden?="{{selected != 'custom'}}"></at-form-daterange-calendar>
-      </template>
-      <template if="{{range == null}}">
-        <at-form-daterange-calendar selecteddate="{{selectedDate}}"></at-form-daterange-calendar>
-      </template>
+      </div>
+      <div id="rangeDiv">
+        <div class="ui form">
+          <div id="contentContainer" class="field">
+            <div class="ui action input loc-input-wrapper" style="display: inline-flex">
+              <input id="triggerRange" value="{{value}}" on-focus="open" on-mousedown="toggle" on-blur="close" readonly class="date">
+              <i class="icon locicon-background" on-mousedown="toggle">
+              <at-carbon-icon icon="now:calendar"></at-carbon-icon>
+            </i>
+            </div>
+          </div>
+        </div>
+        <at-form-daterange-dropdown id="dateRangePicker" disabled$={{disabled}} show-ranges start-date="{{startDate}}" end-date="{{endDate}}" timezone="America/New_York"></at-form-daterange-dropdown>
+        <div id="hintContainer" class="hint-container">
+          <p id="errorHtml" class="hint"></p>
+        </div>
+      </div>
     </div>
   </template>
-  <script>
-    Polymer("at-form-daterange", {
-      halign: 'middle',
-      selected: "",
-      ready: function () {
-        this.target = this.$.target;
-        this.super();
-      },
-      close: function () {
-        this.opened = false;
-      },
-      newMoment: function () {
-        if (this.timezone) return moment().tz(this.timezone);
-        else return moment();
-      },
-      todayClicked: function (e) {
-        this.startDate = this.format(this.newMoment());
-        this.endDate = this.format(this.newMoment());
-        this.selected = "today";
-        this.close();
-      },
-      yesterdayClicked: function () {
-        this.startDate = this.format(this.newMoment().subtract(1, "days"));
-        this.endDate = this.format(this.newMoment().subtract(1, "days"));
-        this.selected = "yesterday";
-        this.close();
-      },
-      last7DaysClicked: function () {
-        this.startDate = this.format(this.newMoment().subtract(6, "days"));
-        this.endDate = this.format(this.newMoment());
-        this.selected = "last7Days";
-        this.close();
-      },
-      last30DaysClicked: function () {
-        this.startDate = this.format(this.newMoment().subtract(30, "days"));
-        this.endDate = this.format(this.newMoment());
-        this.selected = "last30Days";
-        this.close();
-      },
-      thisMonthClicked: function () {
-        this.startDate = this.format(this.newMoment().startOf("month"));
-        this.endDate = this.format(this.newMoment().endOf("month"));
-        this.selected = "thisMonth";
-        this.close();
-      },
-      lastMonthClicked: function () {
-        this.startDate = this.format(this.newMoment().subtract(1, "months").startOf("month"));
-        this.endDate = this.format(this.newMoment().subtract(1, "months").endOf("month"));
-        this.selected = "lastMonth";
-        this.close();
-      },
-      customClicked: function () {
-        this.selected = "custom"
-      },
-      format: function (moment) {
-        return moment.tz(this.timezone).format("YYYY-MM-DD");
+</dom-module>
+
+<script>
+  (function(utils) {
+    utils.isChildOf = function(child, parent) {
+      var isChild = false;
+      var iterElem = child ? child : null;
+
+      while (!isChild && iterElem !== null && iterElem.nodeType !== 9) {
+        isChild = iterElem === parent;
+        iterElem = iterElem.parentElement;
       }
-    });
-  </script>
-</polymer-element>
+
+      return isChild;
+    }
+  }(window.afDateRangeUtils = window.afDateRangeUtils || {}));
+
+
+  Polymer({
+    is: 'at-form-daterange',
+    behaviors: [ AtFormBehaviors.AtFormBehaviorsValidation ],
+    properties: {
+      label: {
+        type: String,
+        value: ''
+      },
+      hideLabel: {
+        type: Boolean,
+        value: false,
+        observer: 'hideLabelChanged'
+      },
+      startDate: {
+        type: String,
+        value: '',
+        notify: true,
+        observer: 'startDateChanged'
+      },
+      endDate: {
+        type: String,
+        value: '',
+        notify: true,
+        observer: 'startDateChanged'
+      },
+      value: {
+        type: String,
+        computed: 'computeValue(startDate, endDate)',
+        isReadOnly: true,
+        notify: true
+      },
+      required: {
+        type: Boolean,
+        value: false,
+        observer: 'requiredChanged'
+      },
+      disabled: {
+        type: Boolean,
+        value: false,
+        observer: 'disabledChanged'
+      },
+      /**
+       * Hides the element. When hidden nothing is displayed for the element
+       * @property hide
+       * @type Boolean
+       * @default false
+       */
+      hide: {
+        type: Boolean,
+        value: false,
+        observer: 'hideChanged'
+      }
+    },
+    $meta: [{
+      title: "Daterange",
+      type: "daterange"
+    }],
+    _scopeCssViaAttr: true,
+    ready: function() {
+      this._isReady = false;
+
+      var self = this;
+      var triggerRange = this.$.triggerRange;
+      var unboundFunction = function(event) {
+        if (triggerRange !== event.target && afDateRangeUtils.isChildOf(event.target, self)) {
+          event.preventDefault();
+        }
+      }
+
+      document.body.addEventListener('mousedown', unboundFunction);
+
+      this._validationFunctions.push(this._validateValueFormat.bind(this));
+
+      this._isReady = true;
+    },
+    focus: function () {
+      var trigger = this.$.triggerRange;
+      trigger.focus();
+    },
+    hideChanged: function (newValue, oldValue) {
+      var wrapper = this.$.atFormDaterangeWrapper;
+      this.toggleClass('hidden', newValue, wrapper);
+      if (this._isReady) {
+        this.validate();
+      }
+    },
+    hideLabelChanged: function(newValue, oldValue) {
+      var labelContainer = this.$.labelContainer;
+      this.toggleClass("hidden", newValue, labelContainer);
+    },
+    // value is read only
+    set value(newValue) {},
+    // compute value computes the value from startDate and endDate
+    computeValue: function(startDate, endDate) {
+      var result = '';
+      if (startDate) {
+        result = startDate + '';
+        if (endDate) {
+          result = result + ' to ' + endDate;
+        }
+      } else if (endDate) {
+        result = endDate + '';
+      }
+
+      return result;
+    },
+    open: function(evnet) {
+      if (!this.disabled) {
+        this.$.dateRangePicker.open();
+      }
+    },
+    close: function(event) {
+      this.$.dateRangePicker.close();
+    },
+    toggle: function() {
+      if (!this.disabled) {
+        this.$.triggerRange.focus();
+      }
+    },
+    disabledChanged: function(newValue, oldValue) {
+      if (this._isReady) {
+        this.validate();
+      }
+    },
+    requiredChanged: function(newValue, oldValue) {
+      if (this._isReady) {
+        this.validate();
+      }
+    },
+    _updateUIValidState: function(isValid) {
+      var labelContainer = this.$.labelContainer;
+      this.toggleClass('error', !isValid, labelContainer);
+      var contentContainer = this.$.contentContainer;
+      this.toggleClass('error', !isValid, contentContainer);
+      var hintContainer = this.$.hintContainer;
+      this.toggleClass('error', !isValid, hintContainer);
+    },
+    startDateChanged: function (newValue, oldValue) {
+      if (this._isReady) {
+        this.validate();
+      }
+    },
+    endDateChanged: function (newValue, oldValue) {
+      if (this._isReady) {
+        this.validate();
+      }
+    },
+    // *ij* the main purpose of this function is to validate startDate and endDate format
+    // when they are programmatically set
+    _validateValueFormat: function (value) {
+      var result = true;
+      var valueParts = value.split(' to ');
+      var startDate = valueParts[0];
+      var endDate = valueParts[1];
+      var dateFormat = "YYYY-MM-DD";
+
+      var startDateValid = true;
+      var endDateValid = true;
+
+      if (value === '') { return true; }
+
+      if (startDate !== undefined && startDate !== '') {
+        startDateValid = moment(startDate, dateFormat).isValid();
+      }
+
+      if (endDate !== undefined && endDate !== '') {
+        endDateValid = moment(endDate, dateFormat).isValid();
+      }
+
+      result = result && startDateValid && endDateValid;
+
+      if (!startDateValid) {
+        this._errorMessage = 'Start date is in invalid format. Enter start date in format ' + dateFormat;
+      } else if (!endDateValid) {
+        this._errorMessage = 'End date is in invalid format. Enter end date in format ' + dateFormat;
+      }
+
+      return result;
+    }
+  });
+</script>
