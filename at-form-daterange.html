@@ -1,113 +1,89 @@
 <link rel="import" href="at-form-daterange-dropdown.html">
-<link rel="import" href="../at-core-theme/at-core-theme.html">
+<link rel="import" href="../at-theme/at-theme.html">
 <link rel="import" href="../at-carbon-icon/at-carbon-icon.html">
 <link rel="import" href="../at-form-behaviors/at-form-behaviors-validation.html">
 
 <!-- This is a new component extracted from the demo.html for polymer 0.5 -->
 
 <dom-module id="at-form-daterange">
-  <style>
-    input.date {
-      border: 1px solid #DDDDDD;
-      background-color: #EEEEEE;
-      color: #555555;
-      max-width: 100%;
-      width: inherit;
-      padding: 8px 10px;
-      margin: 10px;
-      border-radius: 4px;
-    }
-
-    input.date:hover {
-      cursor: pointer;
-      border: 1px solid #44B4E4;
-      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px rgba(102, 175, 233, 0.6);
-    }
-
-    .hidden {
-      display: none;
-      visibility: hidden;
-    }
-
-    .visible {
-      display: block;
-      visibility: visible;
-    }
-
-    .loc-input-wrapper {
-      height: 34px;
-    }
-
-    #triggerRange {
-      font-size: 14px;
-    }
-
-    .locicon-background {
-      padding: 6px 12px;
-      font-size: 14px;
-      font-weight: normal;
-      line-height: 1;
-      color: #555;
-      text-align: center;
-      background-color: #eee;
-      border: 1px solid rgba(39, 41, 43, 0.15);
-      border-radius: 2px;
-      border-top-left-radius: 0;
-      border-bottom-left-radius: 0;
-    }
-
-    :host {
-      --error-color: #e41e2b;
-    }
-
-    .label-container.error {
-      color: var(--error-color);
-    }
-
-    .hint-container.error {
-      color: var(--error-color);
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    #contentContainer.field {
-      margin: 0;
-    }
-
-    #contentContainer.field.error {
-      margin: 0 0 2px;
-    }
-
-    #contentContainer.field.error > .loc-input-wrapper > .locicon-background {
-      color: var(--error-color);
-      border-color: var(--error-color);
-    }
-  </style>
   <template>
-    <at-core-theme></at-core-theme>
-    <div id="atFormDaterangeWrapper">
-      <div class="ui form">
-        <div id="labelContainer" class="field label-container">
-          <label>{{label}}</label>
-        </div>
+    <style>
+      :host * {
+        box-sizing: border-box;
+      }
+
+      :host {
+        @apply(--at-form-host);
+      }
+
+      #triggerRange {
+        @apply(--at-form-input-common);
+      }
+
+      #triggerRange:focus {
+        @apply(--at-form-input-focus);
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .error {
+        color: var(--at-error-color);
+      }
+
+      .disabled {
+        @apply(--at-form-disabled);
+      }
+
+      #atContainer {
+        @apply(--at-form-element);
+      }
+
+      #label {
+        @apply(--at-form-label);
+      }
+
+      #contentContainer.error {
+        @apply(--at-form-error-margins);
+      }
+
+      #contentContainer.error #triggerRange {
+        @apply(--at-form-content-error);
+      }
+
+      #errorHtml {
+        @apply(--at-form-error-font);
+      }
+
+      #triggerContainer {
+        @apply(--layout-horizontal);
+      }
+
+      .icon-background {
+        padding: 6px 12px;
+        color: #555;
+        background-color: #eee;
+        @apply(--at-form-border-1);
+        @apply(at-form-border-radius0220);
+      }
+
+    </style>
+    <div id="atContainer">
+      <div id="labelContainer">
+        <label id="label">{{label}}</label>
       </div>
-      <div id="rangeDiv">
-        <div class="ui form">
-          <div id="contentContainer" class="field">
-            <div class="ui action input loc-input-wrapper" style="display: inline-flex">
-              <input id="triggerRange" value="{{value}}" on-focus="open" on-mousedown="toggle" on-blur="close" readonly class="date">
-              <i class="icon locicon-background" on-mousedown="toggle">
-              <at-carbon-icon icon="now:calendar"></at-carbon-icon>
-            </i>
-            </div>
-          </div>
+      <div id="contentContainer">
+        <div id="triggerContainer">
+          <input id="triggerRange" value="{{value}}" on-focus="open" on-mousedown="toggle" on-blur="close" readonly class="date">
+          <i class="icon-background" on-mousedown="toggle">
+            <at-carbon-icon icon="now:calendar"></at-carbon-icon>
+          </i>
         </div>
         <at-form-daterange-dropdown id="dateRangePicker" disabled$={{disabled}} show-ranges start-date="{{startDate}}" end-date="{{endDate}}" timezone="America/New_York"></at-form-daterange-dropdown>
-        <div id="hintContainer" class="hint-container">
-          <p id="errorHtml" class="hint"></p>
-        </div>
+      </div>
+      <div id="hintContainer">
+        <p id="errorHtml"></p>
       </div>
     </div>
   </template>
@@ -131,7 +107,7 @@
 
   Polymer({
     is: 'at-form-daterange',
-    behaviors: [ AtFormBehaviors.AtFormBehaviorsValidation ],
+    behaviors: [AtFormBehaviors.AtFormBehaviorsValidation],
     properties: {
       label: {
         type: String,
@@ -186,7 +162,6 @@
       title: "Daterange",
       type: "daterange"
     }],
-    _scopeCssViaAttr: true,
     ready: function() {
       this._isReady = false;
 
@@ -204,12 +179,12 @@
 
       this._isReady = true;
     },
-    focus: function () {
+    focus: function() {
       var trigger = this.$.triggerRange;
       trigger.focus();
     },
-    hideChanged: function (newValue, oldValue) {
-      var wrapper = this.$.atFormDaterangeWrapper;
+    hideChanged: function(newValue, oldValue) {
+      var wrapper = this.$.atContainer;
       this.toggleClass('hidden', newValue, wrapper);
       if (this._isReady) {
         this.validate();
@@ -245,7 +220,7 @@
     },
     toggle: function() {
       if (!this.disabled) {
-        this.$.triggerRange.focus();
+        this.$.dateRangePicker.toggle();
       }
     },
     disabledChanged: function(newValue, oldValue) {
@@ -266,19 +241,19 @@
       var hintContainer = this.$.hintContainer;
       this.toggleClass('error', !isValid, hintContainer);
     },
-    startDateChanged: function (newValue, oldValue) {
+    startDateChanged: function(newValue, oldValue) {
       if (this._isReady) {
         this.validate();
       }
     },
-    endDateChanged: function (newValue, oldValue) {
+    endDateChanged: function(newValue, oldValue) {
       if (this._isReady) {
         this.validate();
       }
     },
     // *ij* the main purpose of this function is to validate startDate and endDate format
     // when they are programmatically set
-    _validateValueFormat: function (value) {
+    _validateValueFormat: function(value) {
       var result = true;
       var valueParts = value.split(' to ');
       var startDate = valueParts[0];
@@ -288,7 +263,9 @@
       var startDateValid = true;
       var endDateValid = true;
 
-      if (value === '') { return true; }
+      if (value === '') {
+        return true;
+      }
 
       if (startDate !== undefined && startDate !== '') {
         startDateValid = moment(startDate, dateFormat).isValid();
