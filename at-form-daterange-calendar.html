@@ -5,22 +5,22 @@
   <!--  css file at-form-daterange-calendar.css had to be merged into module because styles were otherwise not working -->
   <style>
     .calendar {
-      margin: 4px;
-      border: 1px solid #DDDDDD;
       padding: 4px;
-      background: #FFFFFF;
+      margin: 4px;
+      @apply(--at-form-daterange-calendar-border);
+      background: var(--at-form-daterange-calendar-background-color);
       box-shadow: 0 6px 12px rgba(0, 0, 0, 0.176);
     }
-    
+
     .calendar .dtTable {
       width: 100%;
       border-collapse: collapse;
     }
-    
+
     .bold {
       font-weight: bold;
     }
-    
+
     .calendar .calHead > .calRow > .calTh,
     .calendar .calBody > .calRow > .calRow > .calTd {
       text-align: center;
@@ -29,45 +29,45 @@
       white-space: nowrap;
       padding: 5px;
     }
-    
+
     .calendar > .calHead > .calRow > .calTh {
-      /* *ij* this css property is not recognized in Chrome 43 */      
+      /* *ij* this css property is not recognized in Chrome 43 */
       font-size-adjust: 0.488;
       font-weight: bold;
     }
-    
+
     .calendar .calBody > .calRow > .calRow > .calTd.disabled,
     .calendar .calBody > .calRow > .calRow > .calTd.off {
-      color: #999999;
+      color: var(--at-form-daterange-calendar-disabled-item-color);
     }
-    
-    .calendar .calBody > .calRow > .calRow > .calTd.available:hover {    
-      background: #EEEEEE;
+
+    .calendar .calBody > .calRow > .calRow > .calTd.available:hover {
+      background: var(--at-form-daterange-calendar-item-hover-background-color);
     }
-    
-    
+
+
     .calendar .calBody > .calRow > .calRow > .calTd.available + .calendar .calBody > .calRow > .calRow > .calTd.available.start-date {
       border-radius: 4px 0 0 4px;
     }
-        
-    .calendar .calBody > .calRow > .calRow > .calTd.start-date.end-date {   
+
+    .calendar .calBody > .calRow > .calRow > .calTd.start-date.end-date {
       border-radius: 4px;
     }
-    
+
     .calendar .calBody > .calRow > .calRow > .calTd.in-range {
-      background: #EBF4F8;
+      background: var(--at-form-daterange-calendar-item-in-range-background-color);
       border-radius: 0;
     }
-    
+
     .calendar .calBody > .calRow > .calRow > .calTd.in-range + .calendar .calBody > .calRow > .calRow > .calTd.available.in-range.end-date {
       border-radius: 0 4px 4px 0;
     }
 
     .calendar .calBody > .calRow > .calRow > .calTd.active,
-    .calendar .calBody > .calRow > .calRow > .calTd.active:hover {    
-      background-color: #357EBD;
-      border-color: #3071a9;      
-      color: #fff;
+    .calendar .calBody > .calRow > .calRow > .calTd.active:hover {
+      background-color: var(--at-form-daterange-calendar-active-item-background-color);
+      border-color: var(--at-form-daterange-calendar-active-item-border-color);
+      color: var(--at-form-daterange-calendar-active-item-text-color);
     }
   </style>
   <template>
@@ -228,7 +228,7 @@
     },
     yearMonthChanged: function (newYearMonth, oldYearMonth) {
       // turns out to have the component display correctly we need to rebuild calendar everytime in current infrastructure
-      //      if (!oldYearMonth || oldYearMonth.year != newYearMonth.year || oldYearMonth.month != newYearMonth.month) {        
+      //      if (!oldYearMonth || oldYearMonth.year != newYearMonth.year || oldYearMonth.month != newYearMonth.month) {
       this.rebuildCalendar();
       //      }
     },
