@@ -15,8 +15,6 @@
     }
 
     #target {
-      font-family: Arial;
-      font-size: 14px;
       z-index: 1000;
     }
 
@@ -29,7 +27,7 @@
     }
 
     .daterangepicker {
-      background-color: #FFFFFF;
+      background-color: var(--at-form-daterange-dropdown-background-color);
       position: relative;
       top: 4px;
       min-width: 228px;
@@ -40,20 +38,15 @@
       position: absolute;
       top: -2px;
       display: inline-block;
-      border-right: 7px solid transparent;
-      border-bottom: 7px solid #ccc;
-      border-left: 7px solid transparent;
-      border-bottom-color: rgba(0, 0, 0, 0.2);
+      @apply(--at-form-daterange-dropdown-border-before);
     }
 
     .daterangepicker:after {
+      content: '';
       position: absolute;
       top: -1px;
       display: inline-block;
-      border-right: 6px solid transparent;
-      border-bottom: 6px solid #fff;
-      border-left: 6px solid transparent;
-      content: '';
+      @apply(--at-form-daterange-dropdown-border-after);
     }
 
     .daterangepicker.opensleft .ranges {}
@@ -79,10 +72,9 @@
     .daterangepicker .ranges {
       padding: 8px;
       margin: 4px;
-      border-radius: 4px;
-      border: 1px solid rgba(0, 0, 0, 0.15);
+      background-color: var(--at-form-daterange-ranges-background-color);
+      @apply(--at-form-daterange-ranges-border);
       box-shadow: 0 6px 12px rgba(0, 0, 0, 0.176);
-      background-color: #FFFFFF;
       min-width: 207px;
     }
 
@@ -97,15 +89,15 @@
       margin-bottom: 8px;
       font-size: 13px;
       cursor: pointer;
-      color: #0088CC;
       border-radius: 5px;
-      background-color: #F5F5F5;
+      color: var(--at-form-daterange-ranges-list-item-text-color);
+      background-color: var(--at-form-daterange-ranges-list-item-text-background-color);
     }
 
     .daterangepicker .ranges ul li.active,
     .daterangepicker .ranges ul li:hover {
-      background: #0088CC;
-      color: #FFFFFF;
+      color: var(--at-form-daterange-ranges-list-item-text-color-active);
+      background: var(--at-form-daterange-ranges-list-item-text-background-color-active);
     }
 
     .hidden {

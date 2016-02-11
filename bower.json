@@ -4,6 +4,7 @@
   "dependencies": {
     "moment": "TangereJs/moment#master",
     "moment-timezone": "TangereJs/moment-timezone#master",
-    "at-form-behaviors": "TangereJs/at-form-behaviors#0.8-preview"
+    "at-form-behaviors": "TangereJs/at-form-behaviors#0.8-preview",
+    "at-theme": "TangereJs/at-theme#0.8-preview"
   }
 }
