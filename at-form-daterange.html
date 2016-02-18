@@ -196,8 +196,6 @@
       this.toggleClass('error', !isValid, label);
       var contentContainer = this.$.contentContainer;
       this.toggleClass('error', !isValid, contentContainer);
-      var hint = this.$.hint;
-      this.toggleClass('error', !isValid, hint);
     },
     startDateChanged: function(newValue, oldValue) {
       if (this._isReady) {
@@ -244,6 +242,10 @@
       }
 
       return result;
+    },
+    _getFocusableElement: function () {
+      var focusable = this.$.triggerRange;
+      return focusable;
     }
   });
 </script>
