@@ -71,24 +71,23 @@
     }
   </style>
   <template>
-
     <div class="calendar vertical layout dtTable">
       <div class="calHead">
         <div class="horizontal layout calRow">
-          <div class="flex-1" on-tap="backClicked">
+          <div class="flex-1" on-tap="_backClicked">
             <at-carbon-icon icon="arrow-left" size="20"></at-carbon-icon>
           </div>
           <div class="flex-5">
             <div class="horizontal layout center-justified">
-              <span class="bold">{{monthName}}</span>&nbsp;<span class="bold">{{yearMonth.year}}</span>
+              <span class="bold">{{_monthName}}</span>&nbsp;<span class="bold">{{_year}}</span>
             </div>
           </div>
-          <div class="flex-1" on-tap="nextClicked">
+          <div class="flex-1" on-tap="_nextClicked">
             <at-carbon-icon icon="arrow-right" size="20"></at-carbon-icon>
           </div>
         </div>
         <div class="horizontal layout calRow">
-          <template is="dom-repeat" items="{{daysOfWeek}}">
+          <template is="dom-repeat" items="{{_daysOfWeek}}">
             <span class="flex-1 calTh">{{item}}</span>
           </template>
         </div>
@@ -98,7 +97,7 @@
           <template is="dom-repeat" items="{{calendar}}">
             <div class="horizontal layout calRow">
               <template is="dom-repeat" items="{{item}}">
-                <span on-tap="dateClicked" row$="{{item.row}}" col$="{{item.col}}" class$="{{item.classList}}">{{item.day}}</span>
+                <span on-tap="_dateClicked" row$="{{item.row}}" col$="{{item.col}}" class$="{{item.classList}}">{{item.day}}</span>
               </template>
             </div>
           </template>
@@ -119,38 +118,19 @@
         type: Boolean,
         value: false
       },
-      selectedDate: {
-        type: String,
-        value: '',
-        observer: 'selectedDateChanged'
-      },
       startDate: {
         type: String,
-        value: '',
-        notify: true,
-        observer: 'startDateChanged'
+        value: ''
       },
       endDate: {
         type: String,
-        value: '',
-        notify: true,
-        observer: 'endDateChanged'
+        value: ''
       },
-      date: {
-        type: Object,
-        value: function () {
-          return {};
-        },
-        observer: 'dateChanged'
+      _year: {
+        type: Number,
+        value: 2016
       },
-      yearMonth: {
-        type: Object,
-        value: function () {
-          return {};
-        },
-        observer: 'yearMonthChanged'
-      },
-      monthName: {
+      _monthName: {
         type: String,
         value: ''
       },
@@ -159,91 +139,98 @@
         value: function () {
           return [];
         }
+      },
+      _daysOfWeek: {
+        type: Array,
+        value: function () {
+          return [];
+        }
       }
     },
-    _scopeCssViaAttr: true,
     ready: function () {
-      if (!this.selectedDate) {
-        this.selectedDate = moment().format("YYYY-MM-DD");
-      }
-      this.daysOfWeek = [0, 1, 2, 3, 4, 5, 6].map(function (n) {
+      this._daysOfWeek = [0, 1, 2, 3, 4, 5, 6].map(function (n) {
         return moment().day(n).format("dd");
       });
-      this.rebuildCalendar();
+
+      var nowMoment = moment().format("YYYY-MM-DD");
+      this.initializeDates(nowMoment, nowMoment);
     },
-    moveMonth: function (n) {
-      this.firstOfMonth.add(n, 'month');
-      this.rebuildYearMonth(this.firstOfMonth);
+    _moveMonth: function (n) {
+      this._firstOfMonth.add(n, 'month');
+      this._initFirstOfMonth
+      this.rebuildCalendar(this.startDate, this.endDate, this._getSelectedDate(), this._firstOfMonth);
     },
-    backClicked: function () {
-      this.moveMonth(-1);
+    _backClicked: function () {
+      this._moveMonth(-1);
     },
-    nextClicked: function () {
-      this.moveMonth(1);
+    _nextClicked: function () {
+      this._moveMonth(1);
     },
-    dateClicked: function (e) {
+    _dateClicked: function (e) {
       var element = e.target;
       var row = element.getAttribute("row");
       var col = element.getAttribute("col");
-      this.selectedDate = this.calendar[row][col].identifier;
+      var selectedDate = this.calendar[row][col].identifier;
+      this._selectDate(selectedDate);
     },
-    startDateChanged: function () {
+    initializeDates: function (startDate, endDate) {
+      this.startDate = startDate;
+      this.endDate = endDate;
+
       if (this.start) {
-        this.selectedDate = this.startDate;
-      }
-      if (this.selectedDate !== '') {
-        this.date = moment(this.selectedDate);
-      }
-    },
-    endDateChanged: function () {
-      if (this.end) {
-        this.selectedDate = this.endDate;
-      }
-      if (this.selectedDate !== '') {
-        this.date = moment(this.selectedDate);
-      }
-    },
-    selectedDateChanged: function () {
-      if (this.selectedDate === '') {
-        return;
-      }
-      if (this.start) {
-        this.startDate = this.selectedDate;
+        this._initFirstOfMonth(startDate);
+        this.rebuildCalendar(startDate, endDate, startDate, this._firstOfMonth);
       } else if (this.end) {
-        this.endDate = this.selectedDate;
+        this._initFirstOfMonth(endDate);
+        this.rebuildCalendar(startDate, endDate, endDate, this._firstOfMonth);
       }
-      this.date = moment(this.selectedDate);
     },
-    dateChanged: function (newDate, oldDate) {
-      if (newDate._isAMomentObject === undefined || newDate._isAMomentObject === false) {
+    _initFirstOfMonth: function (forDate) {
+      var dateMoment = moment(forDate);
+      var year = dateMoment.year();
+      var month = dateMoment.month();
+      this._firstOfMonth = moment([year, month, 1]);
+    },
+    _selectDate: function (newValue) {
+      if (newValue === '') {
         return;
       }
-      this.rebuildYearMonth(newDate);
+
+      if (this.start) {
+        this.startDate = newValue;
+      } else if (this.end) {
+        this.endDate = newValue;
+      }
+      this._initFirstOfMonth(newValue);
+      this.rebuildCalendar(this.startDate, this.endDate, newValue, this._firstOfMonth);
+
+      this.fire('dates-updated', { value: {
+        startDate: this.startDate,
+        endDate: this.endDate
+      }});
     },
-    rebuildYearMonth: function (moment) {
-      this.yearMonth = {
-        year: moment.year(),
-        month: moment.month()
-      };
+    _getSelectedDate: function () {
+      if (this.start) {
+        return this.startDate;
+      } else if (this.end) {
+        return this.endDate;
+      }
+      return '';
     },
-    yearMonthChanged: function (newYearMonth, oldYearMonth) {
-      // turns out to have the component display correctly we need to rebuild calendar everytime in current infrastructure
-      //      if (!oldYearMonth || oldYearMonth.year != newYearMonth.year || oldYearMonth.month != newYearMonth.month) {
-      this.rebuildCalendar();
-      //      }
-    },
-    rebuildCalendar: function () {
+    rebuildCalendar: function (startDate, endDate, selectedDate, firstOfMonth) {
+      // these two lines update the UI
+      this._year = firstOfMonth.year();
+      this._monthName = firstOfMonth.format("MMMM");
+
       var rowIndex, columnIndex, date, index = 0;
       var newCalendar = [];
-      this.firstOfMonth = moment([this.yearMonth.year, this.yearMonth.month, 1]);
-      this.monthName = this.firstOfMonth.format("MMMM");
-      this.firstDayOfMonthOffset = this.firstOfMonth.day();
+      var firstDayOfMonthOffset = firstOfMonth.day();
       var column = [];
 
       for (rowIndex = 0; rowIndex < 6; rowIndex += 1) {
         column = [];
         for (columnIndex = 0; columnIndex < 7; columnIndex += 1) {
-          date = this.firstOfMonth.clone().add(index - this.firstDayOfMonthOffset, 'days');
+          date = firstOfMonth.clone().add(index - firstDayOfMonthOffset, 'days');
 
           var cell = {
             date: date,
@@ -258,22 +245,22 @@
           // tokenList filter is not present in polymer 0.8 so we build the class list for each cell
           // programmatically
           var classList = ['flex-1', 'calTd'];
-          if (cell.identifier === this.selectedDate) {
+          if (cell.identifier === selectedDate) {
             classList.push('active');
           }
-          if (cell.month !== this.yearMonth.month) {
+          if (cell.month !== firstOfMonth.month()) {
             classList.push('disabled');
           }
-          if (cell.month === this.yearMonth.month) {
+          if (cell.month === firstOfMonth.month()) {
             classList.push('available');
           }
-          if (cell.identifier === this.startDate) {
+          if (cell.identifier === startDate) {
             classList.push('start-date');
           }
-          if (cell.identifier === this.endDate) {
+          if (cell.identifier === endDate) {
             classList.push('end-date');
           }
-          if (cell.identifier >= this.startDate && cell.identifier <= this.endDate) {
+          if (cell.identifier >= startDate && cell.identifier <= endDate) {
             classList.push('in-range');
           }
 

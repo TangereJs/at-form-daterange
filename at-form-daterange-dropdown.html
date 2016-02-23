@@ -7,108 +7,108 @@
 <link rel="import" href="../layout/layout.html">
 
 <dom-module id="at-form-daterange-dropdown">
-  <!--  css file at-form-daterange.css had to be merged into module because styles were otherwise not working -->
-  <style>
-    polymer-date-picker-calendar {
-      display: block;
-      float: left;
-    }
-
-    #target {
-      z-index: 1000;
-    }
-
-    #rangeDiv {
-      position: absolute;
-    }
-
-    #nonrangeDiv {
-      position: absolute;
-    }
-
-    .daterangepicker {
-      background-color: var(--at-form-daterange-dropdown-background-color);
-      position: relative;
-      top: 4px;
-      min-width: 228px;
-    }
-
-    .daterangepicker:before {
-      content: '';
-      position: absolute;
-      top: -2px;
-      display: inline-block;
-      @apply(--at-form-daterange-dropdown-border-before);
-    }
-
-    .daterangepicker:after {
-      content: '';
-      position: absolute;
-      top: -1px;
-      display: inline-block;
-      @apply(--at-form-daterange-dropdown-border-after);
-    }
-
-    .daterangepicker.opensleft .ranges {}
-
-    .daterangepicker.opensleft:before {
-      right: 19px;
-    }
-
-    .daterangepicker.opensleft:after {
-      right: 20px;
-    }
-
-    .daterangepicker.opensright .ranges {}
-
-    .daterangepicker.opensright:before {
-      left: 19px;
-    }
-
-    .daterangepicker.opensright:after {
-      left: 20px;
-    }
-
-    .daterangepicker .ranges {
-      padding: 8px;
-      margin: 4px;
-      background-color: var(--at-form-daterange-ranges-background-color);
-      @apply(--at-form-daterange-ranges-border);
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.176);
-      min-width: 207px;
-    }
-
-    .daterangepicker .ranges ul {
-      margin: 0;
-      padding: 0;
-      list-style-type: none;
-    }
-
-    .daterangepicker .ranges ul li {
-      padding: 5px 12px;
-      margin-bottom: 8px;
-      font-size: 13px;
-      cursor: pointer;
-      border-radius: 5px;
-      color: var(--at-form-daterange-ranges-list-item-text-color);
-      background-color: var(--at-form-daterange-ranges-list-item-text-background-color);
-    }
-
-    .daterangepicker .ranges ul li.active,
-    .daterangepicker .ranges ul li:hover {
-      color: var(--at-form-daterange-ranges-list-item-text-color-active);
-      background: var(--at-form-daterange-ranges-list-item-text-background-color-active);
-    }
-
-    .hidden {
-      display: none;
-      visibility: hidden;
-    }
-  </style>
   <template>
+    <style>
+      polymer-date-picker-calendar {
+        display: block;
+        float: left;
+      }
+
+      #target {
+        z-index: 1000;
+      }
+
+      #rangeDiv {
+        position: absolute;
+      }
+
+      #nonrangeDiv {
+        position: absolute;
+      }
+
+      .daterangepicker {
+        background-color: var(--at-form-daterange-dropdown-background-color);
+        position: relative;
+        top: 4px;
+        min-width: 228px;
+      }
+
+      .daterangepicker:before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        display: inline-block;
+        @apply(--at-form-daterange-dropdown-border-before);
+      }
+
+      .daterangepicker:after {
+        content: '';
+        position: absolute;
+        top: -1px;
+        display: inline-block;
+        @apply(--at-form-daterange-dropdown-border-after);
+      }
+
+      .daterangepicker.opensleft .ranges {}
+
+      .daterangepicker.opensleft:before {
+        right: 19px;
+      }
+
+      .daterangepicker.opensleft:after {
+        right: 20px;
+      }
+
+      .daterangepicker.opensright .ranges {}
+
+      .daterangepicker.opensright:before {
+        left: 19px;
+      }
+
+      .daterangepicker.opensright:after {
+        left: 20px;
+      }
+
+      .daterangepicker .ranges {
+        padding: 8px;
+        margin: 4px;
+        background-color: var(--at-form-daterange-ranges-background-color);
+        @apply(--at-form-daterange-ranges-border);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.176);
+        min-width: 207px;
+      }
+
+      .daterangepicker .ranges ul {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+      }
+
+      .daterangepicker .ranges ul li {
+        padding: 5px 12px;
+        margin-bottom: 8px;
+        font-size: 13px;
+        cursor: pointer;
+        border-radius: 5px;
+        color: var(--at-form-daterange-ranges-list-item-text-color);
+        background-color: var(--at-form-daterange-ranges-list-item-text-background-color);
+      }
+
+      .daterangepicker .ranges ul li.active,
+      .daterangepicker .ranges ul li:hover {
+        color: var(--at-form-daterange-ranges-list-item-text-color-active);
+        background: var(--at-form-daterange-ranges-list-item-text-background-color-active);
+      }
+
+      .hidden {
+        display: none;
+        visibility: hidden;
+      }
+    </style>
+
     <div id="target" class="daterangepicker opensright" style="display: none;" on-blur="close">
       <div id="rangeDiv" class="horizontal layout">
-        <div hidden="{{!showRanges}}" class="ranges">
+        <div hidden$="{{!showRanges}}" class="ranges">
           <ul>
             <li on-click="menuItemClicked" value="today">Today</li>
             <li on-click="menuItemClicked" value="yesterday">Yesterday</li>
@@ -120,10 +120,10 @@
           </ul>
         </div>
         <div>
-          <at-form-daterange-calendar id="calendarStart" start start-date="{{startDate}}" end-date="{{endDate}}" hidden="true"></at-form-daterange-calendar>
+          <at-form-daterange-calendar id="calendarStart" start hidden="true"></at-form-daterange-calendar>
         </div>
         <div>
-          <at-form-daterange-calendar id="calendarEnd" end start-date="{{startDate}}" end-date="{{endDate}}" hidden="true"></at-form-daterange-calendar>
+          <at-form-daterange-calendar id="calendarEnd" end hidden="true"></at-form-daterange-calendar>
         </div>
       </div>
     </div>
@@ -137,15 +137,11 @@
     properties: {
       startDate: {
         type: String,
-        value: '',
-        notify: true,
-        observer: 'startDateChanged'
+        value: ''
       },
       endDate: {
         type: String,
-        value: '',
-        notify: true,
-        observer: 'endDateChanged'
+        value: ''
       },
       selected: {
         type: String,
@@ -165,9 +161,9 @@
         value: 'horizontal'
       }
     },
-    _scopeCssViaAttr: true,
-    _boundResizeHandler: function() {},
     ready: function() {
+      this._boundResizeHandler = function() {};
+
       this.toggleClass('horizontal', this.orientation === 'horizontal', this.$.rangeDiv);
       this.toggleClass('vertical', this.orientation === 'vertical', this.$.rangeDiv);
 
@@ -199,10 +195,30 @@
       var boundResizeHandler = resizeUnboundHandler.bind(this);
       window.addEventListener('resize', boundResizeHandler);
       this._boundResizeHandler = boundResizeHandler;
+
+      var calendarStart = this.$.calendarStart;
+      var calendarEnd = this.$.calendarEnd;
+      var self = this;
+      calendarStart.addEventListener('dates-updated', function(event) {
+        event.stopPropagation();
+        var newValue = event.detail.value;
+        self._updateStartDate(newValue.startDate);
+        calendarStart.initializeDates(self.startDate, self.endDate);
+        calendarEnd.initializeDates(self.startDate, self.endDate);
+        self._fireDatesUpdatedEvent();
+      });
+      calendarEnd.addEventListener('dates-updated', function(event) {
+        event.stopPropagation();
+        var newValue = event.detail.value;
+        self._updateEndDate(newValue.endDate);
+        calendarStart.initializeDates(self.startDate, self.endDate);
+        calendarEnd.initializeDates(self.startDate, self.endDate);
+        self._fireDatesUpdatedEvent();
+      });
     },
     open: function() {
       this.$.target.style.display = "block";
-      this.selectedChanged(this.selected, this.selected);
+      // this.selectedChanged(this.selected, this.selected);
       this._boundResizeHandler();
     },
     close: function() {
@@ -241,19 +257,15 @@
       this.selected = value;
     },
     selectedChanged: function(newValue, oldValue) {
-      var activeItem = this.querySelector('li[class=active]');
+      var activeItem = this.$$('li.active');
 
       if (activeItem) {
-        activeItem.classList.remove('active');
+        Polymer.dom(activeItem).classList.remove('active');
       }
-
-      if (this.selected === 'custom') {
-        this.$.calendarStart.removeAttribute('hidden');
-        this.$.calendarEnd.removeAttribute('hidden');
-      } else {
-        this.$.calendarStart.setAttribute('hidden', true);
-        this.$.calendarEnd.setAttribute('hidden', true);
-      }
+      var calendarStart = this.$.calendarStart;
+      this.toggleAttribute('hidden', this.selected !== 'custom', calendarStart);
+      var calendarEnd = this.$.calendarEnd;
+      this.toggleAttribute('hidden', this.selected !== 'custom', calendarEnd);
 
       switch (this.selected) {
         case 'today':
@@ -293,11 +305,16 @@
       }
 
       if (this.selected) {
-        var liElem = this.querySelector('li[value=' + this.selected + ']');
+        var liElem = this.$$('li[value=' + this.selected + ']');
         if (liElem) {
-          liElem.classList.add('active');
+          Polymer.dom(liElem).classList.add('active');
         }
       }
+
+      calendarStart.initializeDates(this.startDate, this.endDate);
+      calendarEnd.initializeDates(this.startDate, this.endDate);
+
+      this._fireDatesUpdatedEvent();
     },
     format: function(moment) {
       // when component is initialized for unknown reasons timezone property is not deserialized correctly
@@ -317,23 +334,48 @@
         return moment.format("YYYY-MM-DD");
       }
     },
-    startDateChanged: function(newValue, oldValue) {
-      var endMoment = moment(this.endDate),
-        newMomemt = moment(newValue);
+    _updateStartDate: function (newValue) {
+      this.startDate = newValue;
+      var startMomemt = moment(newValue);
+      var endMoment = moment(this.endDate);
 
-      if (newMomemt > endMoment) {
+      if (startMomemt > endMoment) {
         this.startDate = this.endDate;
         this.endDate = newValue;
       }
     },
-    endDateChanged: function(newValue, oldValue) {
-      var startMoment = moment(this.startDate),
-        newMomemt = moment(newValue);
+    _updateEndDate: function (newValue) {
+      this.endDate = newValue;
+      var startMoment = moment(this.startDate);
+      var newMomemt = moment(newValue);
 
       if (newMomemt < startMoment) {
         this.endDate = this.startDate;
         this.startDate = newValue;
       }
+    },
+    _fireDatesUpdatedEvent: function () {
+      this.fire('dates-updated', {
+        value: {
+          startDate: this.startDate,
+          endDate: this.endDate
+        }
+      });
+    },
+    initializeDates: function (startDate, endDate) {
+      var startMoment = moment(startDate);
+      var endMoment = moment(endDate);
+
+      if (startMoment > endMoment) {
+        this.startDate = endDate;
+        this.endDate = startDate;
+      } else if (endMoment < startMoment) {
+        this.startDate = endDate;
+        this.endDate = startDate;
+      }
+
+      this.$.calendarStart.initializeDates(this.startDate, this.endDate);
+      this.$.calendarEnd.initializeDates(this.startDate, this.endDate);
     }
   });
 </script>
