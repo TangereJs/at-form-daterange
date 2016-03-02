@@ -1,3 +1,5 @@
+<link rel="import" href="../tangere/Tangere.html">
+<link rel="import" href="../at-i18n/at-i18n-behavior.html">
 <link rel="import" href="../at-carbon-icon/at-carbon-icon.html" />
 <link rel="import" href="../layout/layout.html" />
 
@@ -109,6 +111,7 @@
 <script>
   Polymer({
     is: "at-form-daterange-calendar",
+    behaviors: [ Tangere.behaviors.i18n ],
     properties: {
       start: {
         type: Boolean,
@@ -145,19 +148,45 @@
         value: function () {
           return [];
         }
+      },
+      format: {
+        type: String,
+        value: '',
+        observer: 'formatChanged'
       }
     },
     ready: function () {
+      if (this.format === "") {
+        this.format = this._localizedFormat("date");
+      }
       this._daysOfWeek = [0, 1, 2, 3, 4, 5, 6].map(function (n) {
         return moment().day(n).format("dd");
       });
 
-      var nowMoment = moment().format("YYYY-MM-DD");
+      var nowMoment = moment().format(this.format);
       this.initializeDates(nowMoment, nowMoment);
+    },
+    formatChanged: function (newValue, oldValue) {
+      var format = newValue;
+      if (!format) {
+        format = this._localizedFormat("date");
+      }
+      if (!oldValue) {
+        oldValue = format;
+      }
+      var startMoment = moment(this.startDate, oldValue);
+      var endMoment = moment(this.endDate, oldValue);
+      this.startDate = startMoment.format(newValue);
+      this.endDate = endMoment.format(newValue);
+
+      this.fire('dates-updated', { value: {
+        startDate: this.startDate,
+        endDate: this.endDate
+      }});
     },
     _moveMonth: function (n) {
       this._firstOfMonth.add(n, 'month');
-      this._initFirstOfMonth
+      this._initFirstOfMonth(this._firstOfMonth);
       this.rebuildCalendar(this.startDate, this.endDate, this._getSelectedDate(), this._firstOfMonth);
     },
     _backClicked: function () {
@@ -186,10 +215,11 @@
       }
     },
     _initFirstOfMonth: function (forDate) {
-      var dateMoment = moment(forDate);
+      var dateMoment = moment(forDate, this.format);
       var year = dateMoment.year();
       var month = dateMoment.month();
       this._firstOfMonth = moment([year, month, 1]);
+      // debugger;
     },
     _selectDate: function (newValue) {
       if (newValue === '') {
@@ -237,7 +267,7 @@
             year: date.year(),
             month: date.month(),
             day: date.date(),
-            identifier: date.format("YYYY-MM-DD"),
+            identifier: date.format(this.format),
             row: rowIndex,
             col: columnIndex
           };
@@ -260,7 +290,10 @@
           if (cell.identifier === endDate) {
             classList.push('end-date');
           }
-          if (cell.identifier >= startDate && cell.identifier <= endDate) {
+          var identMoment = moment(cell.identifier, this.format);
+          var startMoment = moment(startDate, this.format);
+          var endMoment = moment(endDate, this.format);
+          if ((identMoment.isSame(startMoment) || identMoment.isAfter(startMoment)) && (identMoment.isSame(endMoment) || identMoment.isBefore(endMoment))) {
             classList.push('in-range');
           }
 

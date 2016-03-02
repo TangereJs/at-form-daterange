@@ -1,7 +1,8 @@
 <script src="../moment/min/moment.min.js"></script>
 <script src="../moment-timezone/builds/moment-timezone-with-data.min.js"></script>
 
-<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../tangere/Tangere.html">
+<link rel="import" href="../at-i18n/at-i18n-behavior.html">
 <link rel="import" href="at-form-daterange-calendar.html">
 <link rel="import" href="at-form-daterange-positioning.html">
 <link rel="import" href="../layout/layout.html">
@@ -110,20 +111,20 @@
       <div id="rangeDiv" class="horizontal layout">
         <div hidden$="{{!showRanges}}" class="ranges">
           <ul>
-            <li on-click="menuItemClicked" value="today">Today</li>
-            <li on-click="menuItemClicked" value="yesterday">Yesterday</li>
-            <li on-click="menuItemClicked" value="last7days">Last 7 Days</li>
-            <li on-click="menuItemClicked" value="last30days">Last 30 Days</li>
-            <li on-click="menuItemClicked" value="thisMonth">This Month</li>
-            <li on-click="menuItemClicked" value="lastMonth">Last Month</li>
-            <li on-click="menuItemClicked" value="custom">Custom</li>
+            <li on-click="menuItemClicked" value="today">{{T("Today")}}</li>
+            <li on-click="menuItemClicked" value="yesterday">{{T("Yesterday")}}</li>
+            <li on-click="menuItemClicked" value="last7days">{{T("Last 7 Days")}}</li>
+            <li on-click="menuItemClicked" value="last30days">{{T("Last 30 Days")}}</li>
+            <li on-click="menuItemClicked" value="thisMonth">{{T("This Month")}}</li>
+            <li on-click="menuItemClicked" value="lastMonth">{{T("Last Month")}}</li>
+            <li on-click="menuItemClicked" value="custom">{{T("Custom")}}</li>
           </ul>
         </div>
         <div>
-          <at-form-daterange-calendar id="calendarStart" start hidden="true"></at-form-daterange-calendar>
+          <at-form-daterange-calendar id="calendarStart" start hidden="true" format="[[format]]"></at-form-daterange-calendar>
         </div>
         <div>
-          <at-form-daterange-calendar id="calendarEnd" end hidden="true"></at-form-daterange-calendar>
+          <at-form-daterange-calendar id="calendarEnd" end hidden="true" format="[[format]]"></at-form-daterange-calendar>
         </div>
       </div>
     </div>
@@ -134,6 +135,7 @@
 <script>
   Polymer({
     is: "at-form-daterange-dropdown",
+    behaviors: [ Tangere.behaviors.i18n ],
     properties: {
       startDate: {
         type: String,
@@ -159,9 +161,17 @@
       orientation: {
         type: String,
         value: 'horizontal'
+      },
+      format: {
+        type: String,
+        value: ''
       }
     },
     ready: function() {
+      if (this.format === "") {
+        this.format = this._localizedFormat("date");
+      }
+
       this._boundResizeHandler = function() {};
 
       this.toggleClass('horizontal', this.orientation === 'horizontal', this.$.rangeDiv);
@@ -257,6 +267,8 @@
       this.selected = value;
     },
     selectedChanged: function(newValue, oldValue) {
+      if (newValue === "") { return; }
+
       var activeItem = this.$$('li.active');
 
       if (activeItem) {
@@ -269,37 +281,37 @@
 
       switch (this.selected) {
         case 'today':
-          this.startDate = this.format(this.newMoment());
-          this.endDate = this.format(this.newMoment());
+          this.startDate = this._formatDate(this.newMoment());
+          this.endDate = this._formatDate(this.newMoment());
           break;
         case 'yesterday':
-          this.startDate = this.format(this.newMoment().subtract(1, "days"));
-          this.endDate = this.format(this.newMoment().subtract(1, "days"));
+          this.startDate = this._formatDate(this.newMoment().subtract(1, "days"));
+          this.endDate = this._formatDate(this.newMoment().subtract(1, "days"));
           break;
         case 'last7days':
-          this.startDate = this.format(this.newMoment().subtract(6, "days"));
-          this.endDate = this.format(this.newMoment());
+          this.startDate = this._formatDate(this.newMoment().subtract(6, "days"));
+          this.endDate = this._formatDate(this.newMoment());
           break;
         case 'last30days':
-          this.startDate = this.format(this.newMoment().subtract(30, "days"));
-          this.endDate = this.format(this.newMoment());
+          this.startDate = this._formatDate(this.newMoment().subtract(30, "days"));
+          this.endDate = this._formatDate(this.newMoment());
           break;
         case 'thisMonth':
-          this.startDate = this.format(this.newMoment().startOf("month"));
-          this.endDate = this.format(this.newMoment().endOf("month"));
+          this.startDate = this._formatDate(this.newMoment().startOf("month"));
+          this.endDate = this._formatDate(this.newMoment().endOf("month"));
           break;
         case 'lastMonth':
-          this.startDate = this.format(this.newMoment().subtract(1, "months").startOf("month"));
-          this.endDate = this.format(this.newMoment().subtract(1, "months").endOf("month"));
+          this.startDate = this._formatDate(this.newMoment().subtract(1, "months").startOf("month"));
+          this.endDate = this._formatDate(this.newMoment().subtract(1, "months").endOf("month"));
           break;
         case 'custom':
           // for initialization purposes (first time) startDate and endDate are set to today
           // subject to change
           if (this.startDate === '') {
-            this.startDate = this.format(this.newMoment());
+            this.startDate = this._formatDate(this.newMoment());
           }
           if (this.endDate === '') {
-            this.endDate = this.format(this.newMoment());
+            this.endDate = this._formatDate(this.newMoment());
           }
           break;
       }
@@ -316,7 +328,10 @@
 
       this._fireDatesUpdatedEvent();
     },
-    format: function(moment) {
+    _formatDate: function(moment) {
+      if (this.format === "") {
+        this.format = this._localizedFormat("date");
+      }
       // when component is initialized for unknown reasons timezone property is not deserialized correctly
       // this is detected with this.timezone === undefined; however attribute is still here and its value can be retreived
       // in instances after initialization timezone property is ok
@@ -328,28 +343,28 @@
         this.timezone = 'America/New_York';
       }
       if (moment.tz) {
-        console.log('moment.tz function is undefined');
-        return moment.tz(this.timezone).format("YYYY-MM-DD");
+        return moment.tz(this.timezone).format(this.format);
       } else {
-        return moment.format("YYYY-MM-DD");
+        console.log('moment.tz function is undefined');
+        return moment.format(this.format);
       }
     },
     _updateStartDate: function (newValue) {
       this.startDate = newValue;
-      var startMomemt = moment(newValue);
-      var endMoment = moment(this.endDate);
+      var startMomemt = moment(newValue, this.format);
+      var endMoment = moment(this.endDate, this.format);
 
-      if (startMomemt > endMoment) {
+      if (startMomemt.isAfter(endMoment)) {
         this.startDate = this.endDate;
         this.endDate = newValue;
       }
     },
     _updateEndDate: function (newValue) {
       this.endDate = newValue;
-      var startMoment = moment(this.startDate);
-      var newMomemt = moment(newValue);
+      var startMoment = moment(this.startDate, this.format);
+      var newMomemt = moment(newValue, this.format);
 
-      if (newMomemt < startMoment) {
+      if (newMomemt.isBefore(startMoment)) {
         this.endDate = this.startDate;
         this.startDate = newValue;
       }

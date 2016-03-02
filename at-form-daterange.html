@@ -14,8 +14,7 @@
       :host * {
         box-sizing: border-box;
       }
-
-      :host {
+       :host {
         @apply(--at-form-host);
       }
 
@@ -27,6 +26,7 @@
         color: var(--at-form-daterange-icon-text-color);
         @apply(at-form-border-radius0220);
       }
+
     </style>
     <div id="atContainer" class="at-container">
       <label id="label">{{label}}</label>
@@ -37,7 +37,7 @@
             <at-carbon-icon icon="now:calendar"></at-carbon-icon>
           </i>
         </div>
-        <at-form-daterange-dropdown id="dateRangePicker" disabled$={{disabled}} show-ranges start-date="[[startDate]]" end-date="[[endDate]]" timezone="America/New_York"></at-form-daterange-dropdown>
+        <at-form-daterange-dropdown id="dateRangePicker" disabled$={{disabled}} show-ranges format="[[format]]" start-date="[[startDate]]" end-date="[[endDate]]" timezone="America/New_York"></at-form-daterange-dropdown>
       </div>
       <div id="hint"></div>
     </div>
@@ -45,10 +45,12 @@
 </dom-module>
 
 <script>
-  (function(utils) {
-    utils.isChildOf = function(child, parent) {
+  (function (utils) {
+    utils.isChildOf = function (child, parent) {
       var isChild = false;
-      var iterElem = child ? child : null;
+      var iterElem = child
+        ? child
+        : null;
 
       while (!isChild && iterElem !== null && iterElem.nodeType !== 9) {
         isChild = iterElem === parent;
@@ -59,10 +61,11 @@
     }
   }(window.afDateRangeUtils = window.afDateRangeUtils || {}));
 
-
   Polymer({
     is: 'at-form-daterange',
-    behaviors: [ Tangere.behaviors.formValidation, Tangere.behaviors.i18n ],
+    behaviors: [
+      Tangere.behaviors.formValidation, Tangere.behaviors.i18n
+    ],
     properties: {
       label: {
         type: String,
@@ -110,18 +113,25 @@
         type: Boolean,
         value: false,
         observer: 'hideChanged'
+      },
+      format: {
+        type: String,
+        value: '',
+        observer: 'formatChanged'
       }
     },
-    $meta: [{
-      title: "Daterange",
-      type: "daterange"
-    }],
-    ready: function() {
+    $meta: [
+      {
+        title: "Daterange",
+        type: "daterange"
+      }
+    ],
+    ready: function () {
       this._isReady = false;
-
+      this._internalFormat = this._localizedFormat("date");
       var self = this;
       var triggerRange = this.$.triggerRange;
-      var unboundFunction = function(event) {
+      var unboundFunction = function (event) {
         if (triggerRange !== event.target && afDateRangeUtils.isChildOf(event.target, self)) {
           event.preventDefault();
         }
@@ -132,7 +142,7 @@
       this._validationFunctions.push(this._validateValueFormat.bind(this));
 
       var dateRangePicker = this.$.dateRangePicker;
-      dateRangePicker.addEventListener('dates-updated', function(event) {
+      dateRangePicker.addEventListener('dates-updated', function (event) {
         var newValue = event.detail.value;
         // debugger;
         self._isInternalUpdate = true;
@@ -143,46 +153,43 @@
 
       this._isReady = true;
     },
-    focus: function() {
+    focus: function () {
       var trigger = this.$.triggerRange;
       trigger.focus();
     },
-    hideChanged: function(newValue, oldValue) {
+    hideChanged: function (newValue, oldValue) {
       var wrapper = this.$.atContainer;
       this.toggleClass('hidden', newValue, wrapper);
       if (this._isReady) {
         this.validate();
       }
     },
-    hideLabelChanged: function(newValue, oldValue) {
+    hideLabelChanged: function (newValue, oldValue) {
       var label = this.$.label;
       this.toggleClass("hidden", newValue, label);
     },
     // value is read only
     set value(newValue) {},
     // compute value computes the value from startDate and endDate
-    computeValue: function(startDate, endDate) {
+    computeValue: function (startDate, endDate) {
+      var valueStringTemplate = this.T("{startDate} to {endDate}");
       var result = '';
-      if (startDate) {
-        result = startDate + '';
-        if (endDate) {
-          result = result + ' to ' + endDate;
-        }
-      } else if (endDate) {
-        result = endDate + '';
+
+      if (startDate && endDate) {
+        result = valueStringTemplate.replace("{startDate}", startDate).replace("{endDate}", endDate);
       }
 
       return result;
     },
-    open: function(evnet) {
+    open: function (evnet) {
       if (!this.disabled) {
         this.$.dateRangePicker.open();
       }
     },
-    close: function(event) {
+    close: function (event) {
       this.$.dateRangePicker.close();
     },
-    toggle: function(event) {
+    toggle: function (event) {
       if (!this.disabled) {
         this.$.dateRangePicker.toggle();
       }
@@ -192,50 +199,75 @@
         this.$.triggerRange.focus();
       }
     },
-    disabledChanged: function(newValue, oldValue) {
+    disabledChanged: function (newValue, oldValue) {
       var atContainer = this.$.atContainer;
       this.toggleClass('disabled', newValue, atContainer);
       if (this._isReady) {
         this.validate();
       }
     },
-    requiredChanged: function(newValue, oldValue) {
+    requiredChanged: function (newValue, oldValue) {
       if (this._isReady) {
         this.validate();
       }
     },
-    _updateUIValidState: function(isValid) {
+    _updateUIValidState: function (isValid) {
       var label = this.$.label;
       this.toggleClass('error', !isValid, label);
       var contentContainer = this.$.contentContainer;
       this.toggleClass('error', !isValid, contentContainer);
     },
-    startDateChanged: function(newValue, oldValue) {
+    startDateChanged: function (newValue, oldValue) {
       if (this._isReady) {
         if (!this._isInternalUpdate) {
           this.$.dateRangePicker.initializeDates(newValue, this.endDate);
         }
         this.validate();
-        this.fire('value-changed', { value: this.value });
+        this.fire('value-changed', {value: this.value});
       }
     },
-    endDateChanged: function(newValue, oldValue) {
+    endDateChanged: function (newValue, oldValue) {
       if (this._isReady) {
         if (!this._isInternalUpdate) {
           this.$.dateRangePicker.initializeDates(this.startDate, newValue);
         }
         this.validate();
-        this.fire('value-changed', { value: this.value });
+        this.fire('value-changed', {value: this.value});
       }
     },
-    // *ij* the main purpose of this function is to validate startDate and endDate format
-    // when they are programmatically set
+    formatChanged: function (newValue, oldValue) {
+      var format = newValue;
+      if (format) {
+        if (!this._containsChars(['Y', 'M', 'D'], format) || this._containsChars(['h', 'm', 's'], format)) {
+          // set format to the default format for date
+          format = this._internalFormat;
+          // log the error
+          console.log('Value ' + newValue + ' is not a valid format for date. Using default, ' + format + ', format instead.');
+        }
+        this.format = format;
+        this.fire('format-changed', {value: format});
+        this._internalFormat = format;
+      }
+    },
+    /**
+     * checks if source contains any of the chars
+     * @param {Array} chars
+     * @param {String} source
+     */
+    _containsChars: function (chars, source) {
+      var result = false;
+      chars.forEach(function (char, index) {
+        result = result || source.indexOf(char) !== -1;
+      });
+      return result;
+    },
+    // *ij* the main purpose of this function is to validate startDate and endDate format when they are programmatically set
     _validateValueFormat: function (value) {
       var result = true;
       var valueParts = value.split(' to ');
       var startDate = valueParts[0];
       var endDate = valueParts[1];
-      var dateFormat = "YYYY-MM-DD";
+      var dateFormat = this._internalFormat;
 
       var startDateValid = true;
       var endDateValid = true;
