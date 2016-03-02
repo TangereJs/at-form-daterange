@@ -7,7 +7,6 @@
   <!--  css file at-form-daterange-calendar.css had to be merged into module because styles were otherwise not working -->
   <style>
     .calendar {
-
       padding: 4px;
       margin: 4px;
       @apply(--at-form-daterange-calendar-border);
@@ -174,10 +173,18 @@
       if (!oldValue) {
         oldValue = format;
       }
+
+      if (this.startDate === "") {
+        this.startDate = moment().format(format);
+      }
+      if (this.endDate === "") {
+        this.endDate = moment().format(format);
+      }
+
       var startMoment = moment(this.startDate, oldValue);
       var endMoment = moment(this.endDate, oldValue);
-      this.startDate = startMoment.format(newValue);
-      this.endDate = endMoment.format(newValue);
+      this.startDate = startMoment.format(format);
+      this.endDate = endMoment.format(format);
 
       this.fire('dates-updated', { value: {
         startDate: this.startDate,

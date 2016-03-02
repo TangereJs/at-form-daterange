@@ -352,7 +352,10 @@
     _updateStartDate: function (newValue) {
       this.startDate = newValue;
       var startMomemt = moment(newValue, this.format);
-      var endMoment = moment(this.endDate, this.format);
+      var endMoment = moment();
+      if (this.endDate) {
+        endMoment = moment(this.endDate, this.format);
+      }
 
       if (startMomemt.isAfter(endMoment)) {
         this.startDate = this.endDate;
@@ -361,7 +364,10 @@
     },
     _updateEndDate: function (newValue) {
       this.endDate = newValue;
-      var startMoment = moment(this.startDate, this.format);
+      var startMoment = moment();
+      if (this.startDate) {
+        startMoment = moment(this.startDate, this.format);
+      }
       var newMomemt = moment(newValue, this.format);
 
       if (newMomemt.isBefore(startMoment)) {
