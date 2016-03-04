@@ -287,9 +287,11 @@
       result = result && startDateValid && endDateValid;
 
       if (!startDateValid) {
-        this._errorMessage = 'Start date is in invalid format. Enter start date in format ' + dateFormat;
+        var startDateErrorMessageTemplate = this.T('Start date is in invalid format. Enter start date in format {0}');
+        this._errorMessage = startDateErrorMessageTemplate.replace('{0}', dateFormat);
       } else if (!endDateValid) {
-        this._errorMessage = 'End date is in invalid format. Enter end date in format ' + dateFormat;
+        var endDateErrorMessageTemplate = this.T('End date is in invalid format. Enter end date in format {0}');
+        this._errorMessage = endDateErrorMessageTemplate.replace('{0}', dateFormat);
       }
 
       return result;
