@@ -37,7 +37,7 @@
             <at-carbon-icon icon="now:calendar"></at-carbon-icon>
           </i>
         </div>
-        <at-form-daterange-dropdown id="dateRangePicker" disabled$={{disabled}} show-ranges format="[[format]]" start-date="[[startDate]]" end-date="[[endDate]]" timezone="America/New_York"></at-form-daterange-dropdown>
+        <at-form-daterange-dropdown id="dateRangePicker" disabled$={{disabled}} show-ranges format="[[format]]" start-date="{{startDate}}" end-date="{{endDate}}" timezone="America/New_York"></at-form-daterange-dropdown>
       </div>
       <div id="hint"></div>
     </div>
@@ -91,6 +91,7 @@
       value: {
         type: String,
         computed: 'computeValue(startDate, endDate)',
+        notify: true,
         isReadOnly: true
       },
       required: {
@@ -141,16 +142,6 @@
 
       this._validationFunctions.push(this._validateValueFormat.bind(this));
 
-      var dateRangePicker = this.$.dateRangePicker;
-      dateRangePicker.addEventListener('dates-updated', function (event) {
-        var newValue = event.detail.value;
-        // debugger;
-        self._isInternalUpdate = true;
-        self.startDate = newValue.startDate;
-        self.endDate = newValue.endDate;
-        self._isInternalUpdate = false;
-      });
-
       this._isReady = true;
     },
     focus: function () {
@@ -172,11 +163,11 @@
     set value(newValue) {},
     // compute value computes the value from startDate and endDate
     computeValue: function (startDate, endDate) {
-      var valueStringTemplate = this.T("{startDate} to {endDate}");
+      var valueStringTemplate = this.T("{0} to {1}");
       var result = '';
-
+      if (startDate === "" || endDate === "") { return result; }
       if (startDate && endDate) {
-        result = valueStringTemplate.replace("{startDate}", startDate).replace("{endDate}", endDate);
+        result = valueStringTemplate.replace("{0}", startDate).replace("{1}", endDate);
       }
 
       return result;
@@ -219,20 +210,12 @@
     },
     startDateChanged: function (newValue, oldValue) {
       if (this._isReady) {
-        if (!this._isInternalUpdate) {
-          this.$.dateRangePicker.initializeDates(newValue, this.endDate);
-        }
         this.validate();
-        this.fire('value-changed', {value: this.value});
       }
     },
     endDateChanged: function (newValue, oldValue) {
       if (this._isReady) {
-        if (!this._isInternalUpdate) {
-          this.$.dateRangePicker.initializeDates(this.startDate, newValue);
-        }
         this.validate();
-        this.fire('value-changed', {value: this.value});
       }
     },
     formatChanged: function (newValue, oldValue) {

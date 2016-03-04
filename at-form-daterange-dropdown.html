@@ -3,8 +3,8 @@
 
 <link rel="import" href="../tangere/Tangere.html">
 <link rel="import" href="../at-i18n/at-i18n-behavior.html">
-<link rel="import" href="at-form-daterange-calendar.html">
-<link rel="import" href="at-form-daterange-positioning.html">
+<link rel="import" href="../at-carbon-date-picker/at-carbon-date-picker.html">
+
 <link rel="import" href="../layout/layout.html">
 
 <dom-module id="at-form-daterange-dropdown">
@@ -121,10 +121,10 @@
           </ul>
         </div>
         <div>
-          <at-form-daterange-calendar id="calendarStart" start hidden="true" format="[[format]]"></at-form-daterange-calendar>
+          <at-carbon-date-picker id="calendarStart" hidden="true" start-date="{{startDate}}" end-date="{{endDate}}" format="[[format]]"></at-carbon-date-picker>
         </div>
         <div>
-          <at-form-daterange-calendar id="calendarEnd" end hidden="true" format="[[format]]"></at-form-daterange-calendar>
+          <at-carbon-date-picker id="calendarEnd" end hidden="true" start-date="{{startDate}}" end-date="{{endDate}}" format="[[format]]"></at-carbon-date-picker>
         </div>
       </div>
     </div>
@@ -139,11 +139,15 @@
     properties: {
       startDate: {
         type: String,
-        value: ''
+        value: '',
+        notify: true,
+        observer: 'startDateChanged'
       },
       endDate: {
         type: String,
-        value: ''
+        value: '',
+        notify: true,
+        observer: 'endDateChanged'
       },
       selected: {
         type: String,
@@ -168,7 +172,7 @@
       }
     },
     ready: function() {
-      if (this.format === "") {
+      if (!this.format) {
         this.format = this._localizedFormat("date");
       }
 
@@ -205,26 +209,6 @@
       var boundResizeHandler = resizeUnboundHandler.bind(this);
       window.addEventListener('resize', boundResizeHandler);
       this._boundResizeHandler = boundResizeHandler;
-
-      var calendarStart = this.$.calendarStart;
-      var calendarEnd = this.$.calendarEnd;
-      var self = this;
-      calendarStart.addEventListener('dates-updated', function(event) {
-        event.stopPropagation();
-        var newValue = event.detail.value;
-        self._updateStartDate(newValue.startDate);
-        calendarStart.initializeDates(self.startDate, self.endDate);
-        calendarEnd.initializeDates(self.startDate, self.endDate);
-        self._fireDatesUpdatedEvent();
-      });
-      calendarEnd.addEventListener('dates-updated', function(event) {
-        event.stopPropagation();
-        var newValue = event.detail.value;
-        self._updateEndDate(newValue.endDate);
-        calendarStart.initializeDates(self.startDate, self.endDate);
-        calendarEnd.initializeDates(self.startDate, self.endDate);
-        self._fireDatesUpdatedEvent();
-      });
     },
     open: function() {
       this.$.target.style.display = "block";
@@ -279,6 +263,7 @@
       var calendarEnd = this.$.calendarEnd;
       this.toggleAttribute('hidden', this.selected !== 'custom', calendarEnd);
 
+      this._isInternalUpdate = true;
       switch (this.selected) {
         case 'today':
           this.startDate = this._formatDate(this.newMoment());
@@ -315,6 +300,7 @@
           }
           break;
       }
+      this._isInternalUpdate = false;
 
       if (this.selected) {
         var liElem = this.$$('li[value=' + this.selected + ']');
@@ -322,14 +308,9 @@
           Polymer.dom(liElem).classList.add('active');
         }
       }
-
-      calendarStart.initializeDates(this.startDate, this.endDate);
-      calendarEnd.initializeDates(this.startDate, this.endDate);
-
-      this._fireDatesUpdatedEvent();
     },
     _formatDate: function(moment) {
-      if (this.format === "") {
+      if (!this.format) {
         this.format = this._localizedFormat("date");
       }
       // when component is initialized for unknown reasons timezone property is not deserialized correctly
@@ -349,54 +330,37 @@
         return moment.format(this.format);
       }
     },
-    _updateStartDate: function (newValue) {
-      this.startDate = newValue;
+    startDateChanged: function (newValue) {
+      if (this._isInternalUpdate) { return; }
+      if (newValue === "") { return; }
       var startMomemt = moment(newValue, this.format);
-      var endMoment = moment();
-      if (this.endDate) {
-        endMoment = moment(this.endDate, this.format);
-      }
+      if (startMomemt.isValid()) {
+        if (this.endDate) {
+          endMoment = moment(this.endDate, this.format);
 
-      if (startMomemt.isAfter(endMoment)) {
-        this.startDate = this.endDate;
-        this.endDate = newValue;
+          if (startMomemt.isAfter(endMoment)) {
+            this._isInternalUpdate = true;
+            this.startDate = this.endDate;
+            this.endDate = newValue;
+            this._isInternalUpdate = false;
+          }
+        }
       }
     },
-    _updateEndDate: function (newValue) {
-      this.endDate = newValue;
-      var startMoment = moment();
+    endDateChanged: function (newValue) {
+      if (this._isInternalUpdate) { return; }
+      if (newValue === "") { return; }
+      var endMomemt = moment(newValue, this.format);
       if (this.startDate) {
         startMoment = moment(this.startDate, this.format);
-      }
-      var newMomemt = moment(newValue, this.format);
 
-      if (newMomemt.isBefore(startMoment)) {
-        this.endDate = this.startDate;
-        this.startDate = newValue;
-      }
-    },
-    _fireDatesUpdatedEvent: function () {
-      this.fire('dates-updated', {
-        value: {
-          startDate: this.startDate,
-          endDate: this.endDate
+        if (endMomemt.isBefore(startMoment)) {
+          this._isInternalUpdate = true;
+          this.endDate = this.startDate;
+          this.startDate = newValue;
+          this._isInternalUpdate = false;
         }
-      });
-    },
-    initializeDates: function (startDate, endDate) {
-      var startMoment = moment(startDate);
-      var endMoment = moment(endDate);
-
-      if (startMoment > endMoment) {
-        this.startDate = endDate;
-        this.endDate = startDate;
-      } else if (endMoment < startMoment) {
-        this.startDate = endDate;
-        this.endDate = startDate;
       }
-
-      this.$.calendarStart.initializeDates(this.startDate, this.endDate);
-      this.$.calendarEnd.initializeDates(this.startDate, this.endDate);
     }
   });
 </script>
