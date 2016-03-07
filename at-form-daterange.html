@@ -69,7 +69,8 @@
     properties: {
       label: {
         type: String,
-        value: ''
+        value: '',
+        title: 'Label'
       },
       hideLabel: {
         type: Boolean,
@@ -92,17 +93,20 @@
         type: String,
         computed: 'computeValue(startDate, endDate)',
         notify: true,
-        isReadOnly: true
+        isReadOnly: true,
+        title: 'Value'
       },
       required: {
         type: Boolean,
         value: false,
-        observer: 'requiredChanged'
+        observer: 'requiredChanged',
+        title: 'Input requred'
       },
       disabled: {
         type: Boolean,
         value: false,
-        observer: 'disabledChanged'
+        observer: 'disabledChanged',
+        title: 'Field value can not be changed'
       },
       /**
        * Hides the element. When hidden nothing is displayed for the element
@@ -113,7 +117,8 @@
       hide: {
         type: Boolean,
         value: false,
-        observer: 'hideChanged'
+        observer: 'hideChanged',
+        title: 'Field is invisible'
       },
       format: {
         type: String,
