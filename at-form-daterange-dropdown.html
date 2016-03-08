@@ -23,15 +23,11 @@
         position: absolute;
       }
 
-      #nonrangeDiv {
-        position: absolute;
-      }
-
       .daterangepicker {
         background-color: var(--at-form-daterange-dropdown-background-color);
         position: relative;
         top: 4px;
-        min-width: 228px;
+        min-width: 175px;
       }
 
       .daterangepicker:before {
@@ -76,7 +72,7 @@
         background-color: var(--at-form-daterange-ranges-background-color);
         @apply(--at-form-daterange-ranges-border);
         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.176);
-        min-width: 207px;
+        min-width: 175px;
       }
 
       .daterangepicker .ranges ul {
@@ -88,17 +84,16 @@
       .daterangepicker .ranges ul li {
         padding: 5px 12px;
         margin-bottom: 8px;
-        font-size: 13px;
         cursor: pointer;
         border-radius: 5px;
-        color: var(--at-form-daterange-ranges-list-item-text-color);
-        background-color: var(--at-form-daterange-ranges-list-item-text-background-color);
+        @apply(--at-form-label-font);
+        background-color: var(--at-form-daterange-calendar-item-hover-background-color);
       }
 
       .daterangepicker .ranges ul li.active,
       .daterangepicker .ranges ul li:hover {
-        color: var(--at-form-daterange-ranges-list-item-text-color-active);
-        background: var(--at-form-daterange-ranges-list-item-text-background-color-active);
+        color: var(--at-form-daterange-calendar-active-item-text-color);
+        background: var(--at-form-daterange-calendar-active-item-background-color);
       }
 
       .hidden {
