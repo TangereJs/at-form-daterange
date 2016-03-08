@@ -67,7 +67,11 @@
       }
 
       .daterangepicker .ranges {
-        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        min-height: 255px;
+        padding: 4px 8px;
         margin: 4px;
         background-color: var(--at-form-daterange-ranges-background-color);
         @apply(--at-form-daterange-ranges-border);
@@ -75,23 +79,16 @@
         min-width: 175px;
       }
 
-      .daterangepicker .ranges ul {
-        margin: 0;
-        padding: 0;
-        list-style-type: none;
-      }
-
-      .daterangepicker .ranges ul li {
-        padding: 5px 12px;
-        margin-bottom: 8px;
+      .range-item {
+        padding: 4px 8px;
         cursor: pointer;
         border-radius: 5px;
         @apply(--at-form-label-font);
         background-color: var(--at-form-daterange-calendar-item-hover-background-color);
       }
 
-      .daterangepicker .ranges ul li.active,
-      .daterangepicker .ranges ul li:hover {
+      .daterangepicker .ranges .range-item.active,
+      .daterangepicker .ranges .range-item:hover {
         color: var(--at-form-daterange-calendar-active-item-text-color);
         background: var(--at-form-daterange-calendar-active-item-background-color);
       }
@@ -105,15 +102,13 @@
     <div id="target" class="daterangepicker opensright" style="display: none;" on-blur="close">
       <div id="rangeDiv" class="horizontal layout">
         <div hidden$="{{!showRanges}}" class="ranges">
-          <ul>
-            <li on-click="menuItemClicked" value="today">{{T("Today")}}</li>
-            <li on-click="menuItemClicked" value="yesterday">{{T("Yesterday")}}</li>
-            <li on-click="menuItemClicked" value="last7days">{{T("Last 7 Days")}}</li>
-            <li on-click="menuItemClicked" value="last30days">{{T("Last 30 Days")}}</li>
-            <li on-click="menuItemClicked" value="thisMonth">{{T("This Month")}}</li>
-            <li on-click="menuItemClicked" value="lastMonth">{{T("Last Month")}}</li>
-            <li on-click="menuItemClicked" value="custom">{{T("Custom")}}</li>
-          </ul>
+          <div class="range-item" on-click="menuItemClicked" value="today">{{T("Today")}}</div>
+          <div class="range-item" on-click="menuItemClicked" value="yesterday">{{T("Yesterday")}}</div>
+          <div class="range-item" on-click="menuItemClicked" value="last7days">{{T("Last 7 Days")}}</div>
+          <div class="range-item" on-click="menuItemClicked" value="last30days">{{T("Last 30 Days")}}</div>
+          <div class="range-item" on-click="menuItemClicked" value="thisMonth">{{T("This Month")}}</div>
+          <div class="range-item" on-click="menuItemClicked" value="lastMonth">{{T("Last Month")}}</div>
+          <div class="range-item" on-click="menuItemClicked" value="custom">{{T("Custom")}}</div>
         </div>
         <div>
           <at-carbon-date-picker id="calendarStart" hidden="true" start-date="{{startDate}}" end-date="{{endDate}}" format="[[format]]"></at-carbon-date-picker>
@@ -130,7 +125,7 @@
 <script>
   Polymer({
     is: "at-form-daterange-dropdown",
-    behaviors: [ Tangere.behaviors.i18n ],
+    behaviors: [Tangere.behaviors.i18n],
     properties: {
       startDate: {
         type: String,
@@ -246,9 +241,11 @@
       this.selected = value;
     },
     selectedChanged: function(newValue, oldValue) {
-      if (newValue === "") { return; }
+      if (newValue === "") {
+        return;
+      }
 
-      var activeItem = this.$$('li.active');
+      var activeItem = this.$$('.range-item.active');
 
       if (activeItem) {
         Polymer.dom(activeItem).classList.remove('active');
@@ -298,7 +295,7 @@
       this._isInternalUpdate = false;
 
       if (this.selected) {
-        var liElem = this.$$('li[value=' + this.selected + ']');
+        var liElem = this.$$('.range-item[value=' + this.selected + ']');
         if (liElem) {
           Polymer.dom(liElem).classList.add('active');
         }
@@ -325,9 +322,13 @@
         return moment.format(this.format);
       }
     },
-    startDateChanged: function (newValue) {
-      if (this._isInternalUpdate) { return; }
-      if (newValue === "") { return; }
+    startDateChanged: function(newValue) {
+      if (this._isInternalUpdate) {
+        return;
+      }
+      if (newValue === "") {
+        return;
+      }
       var startMomemt = moment(newValue, this.format);
       if (startMomemt.isValid()) {
         if (this.endDate) {
@@ -342,9 +343,13 @@
         }
       }
     },
-    endDateChanged: function (newValue) {
-      if (this._isInternalUpdate) { return; }
-      if (newValue === "") { return; }
+    endDateChanged: function(newValue) {
+      if (this._isInternalUpdate) {
+        return;
+      }
+      if (newValue === "") {
+        return;
+      }
       var endMomemt = moment(newValue, this.format);
       if (this.startDate) {
         startMoment = moment(this.startDate, this.format);
