@@ -111,10 +111,10 @@
           <div class="range-item" on-click="menuItemClicked" value="custom">{{T("Custom")}}</div>
         </div>
         <div>
-          <at-carbon-date-picker id="calendarStart" hidden="true" start-date="{{startDate}}" end-date="{{endDate}}" format="[[format]]"></at-carbon-date-picker>
+          <at-carbon-date-picker id="calendarStart" mode="start-range" hidden="true" start-date="{{startDate}}" end-date="{{endDate}}" format="[[format]]"></at-carbon-date-picker>
         </div>
         <div>
-          <at-carbon-date-picker id="calendarEnd" end hidden="true" start-date="{{startDate}}" end-date="{{endDate}}" format="[[format]]"></at-carbon-date-picker>
+          <at-carbon-date-picker id="calendarEnd"  mode="end-range" hidden="true" start-date="{{startDate}}" end-date="{{endDate}}" format="[[format]]"></at-carbon-date-picker>
         </div>
       </div>
     </div>
