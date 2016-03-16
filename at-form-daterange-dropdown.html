@@ -4,7 +4,7 @@
 <link rel="import" href="../tangere/tangere.html">
 <link rel="import" href="../at-i18n/at-i18n-behavior.html">
 <link rel="import" href="../at-carbon-date-picker/at-carbon-date-picker.html">
-
+<link rel="import" href="../paper-shadow/paper-shadow.html">
 <link rel="import" href="../layout/layout.html">
 
 <dom-module id="at-form-daterange-dropdown">
@@ -24,7 +24,7 @@
       }
 
       .daterangepicker {
-        background-color: var(--at-form-daterange-dropdown-background-color);
+        @apply(--at-picker-background);
         position: relative;
         top: 4px;
         min-width: 175px;
@@ -67,14 +67,13 @@
       }
 
       .daterangepicker .ranges {
+        @apply(--at-picker-background);
         display: flex;
         flex-direction: column;
         justify-content: space-around;
         padding: 4px 8px;
         margin: 4px;
-        background-color: var(--at-form-daterange-ranges-background-color);
-        @apply(--at-form-daterange-ranges-border);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.176);
+        position:relative; /* required by paper-shadow */
         min-width: 175px;
       }
 
@@ -84,24 +83,23 @@
         cursor: pointer;
         border-radius: 5px;
         @apply(--at-form-label-font);
-        background-color: var(--at-form-daterange-calendar-item-hover-background-color);
+        @apply(--at-text-selected);
       }
 
       .daterangepicker .ranges .range-item.active,
       .daterangepicker .ranges .range-item:hover {
-        color: var(--at-form-daterange-calendar-active-item-text-color);
-        background: var(--at-form-daterange-calendar-active-item-background-color);
+        @apply(--at-text-primary-selected);
       }
 
       .hidden {
         display: none;
-        visibility: hidden;
       }
     </style>
 
     <div id="target" class="daterangepicker opensright" style="display: none;" on-blur="close">
       <div id="rangeDiv" class="horizontal layout">
         <div hidden$="{{!showRanges}}" class="ranges">
+          <paper-shadow z="2"></paper-shadow>
           <div class="range-item" on-click="menuItemClicked" value="today">{{T("Today")}}</div>
           <div class="range-item" on-click="menuItemClicked" value="yesterday">{{T("Yesterday")}}</div>
           <div class="range-item" on-click="menuItemClicked" value="last7days">{{T("Last 7 Days")}}</div>

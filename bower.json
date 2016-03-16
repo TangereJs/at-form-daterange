@@ -5,7 +5,8 @@
     "moment": "TangereJs/moment#master",
     "moment-timezone": "TangereJs/moment-timezone#master",
     "at-form-behaviors": "TangereJs/at-form-behaviors#0.8-preview",
-    "at-theme": "TangereJs/at-theme#0.8-preview"
+    "at-theme": "TangereJs/at-theme#0.8-preview",
+    "paper-shadow": "Polymer/paper-shadow#master"
   },
   "version": "0.0.1.2"
 }
