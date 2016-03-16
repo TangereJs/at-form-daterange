@@ -252,7 +252,8 @@
       this.toggleAttribute('hidden', this.selected !== 'custom', calendarStart);
       var calendarEnd = this.$.calendarEnd;
       this.toggleAttribute('hidden', this.selected !== 'custom', calendarEnd);
-
+      this._boundResizeHandler();
+      
       this._isInternalUpdate = true;
       switch (this.selected) {
         case 'today':
