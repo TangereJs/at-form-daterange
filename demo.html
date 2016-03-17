@@ -37,7 +37,11 @@
     <div class="vertical layout">
       <div class="horizontal lyaout">
         <h4>Daterange picker with initial value set as attributes</h4>
-        <at-form-daterange id="drPickerInitValue" start-date="2014-08-01" end-date="2014-08-15"></at-form-daterange>
+        <!--
+          start-date and end-date must be gived in at-i18n.localized format, because at-carbon-date-picker doesn't have format property
+          and it doens't recognize dates that are not in localized format
+        -->
+        <at-form-daterange id="drPickerInitValue" start-date="01.08.2014" end-date="15.08.2014"></at-form-daterange>
       </div>
     </div>
     <div class="vertical layout">

@@ -1,9 +1,7 @@
-<script src="../moment/min/moment.min.js"></script>
-<script src="../moment-timezone/builds/moment-timezone-with-data.min.js"></script>
-
 <link rel="import" href="../tangere/tangere.html">
 <link rel="import" href="../at-i18n/at-i18n-behavior.html">
 <link rel="import" href="../at-carbon-date-picker/at-carbon-date-picker.html">
+<link rel="import" href="../at-carbon-moment/momentjs-import.html">
 <link rel="import" href="../paper-shadow/paper-shadow.html">
 <link rel="import" href="../layout/layout.html">
 
@@ -146,10 +144,6 @@
         type: Boolean,
         value: false
       },
-      timezone: {
-        type: String,
-        value: ''
-      },
       orientation: {
         type: String,
         value: 'horizontal'
@@ -159,11 +153,14 @@
         value: ''
       }
     },
-    ready: function() {
+    _getFormat: function () {
       if (!this.format) {
         this.format = this._localizedFormat("date");
       }
-
+      return this.format;
+    },
+    ready: function() {
+      this.format = this._getFormat();
       this._boundResizeHandler = function() {};
 
       this.toggleClass('horizontal', this.orientation === 'horizontal', this.$.rangeDiv);
@@ -218,15 +215,7 @@
       }
     },
     newMoment: function() {
-      if (this.timezone) {
-        if (moment.tz) {
-          return moment().tz(this.timezone);
-        } else {
-          return moment();
-        }
-      } else {
-        return moment();
-      }
+      return moment();
     },
     // this function handles the click event on menu items
     menuItemClicked: function(event) {
@@ -252,8 +241,8 @@
       this.toggleAttribute('hidden', this.selected !== 'custom', calendarStart);
       var calendarEnd = this.$.calendarEnd;
       this.toggleAttribute('hidden', this.selected !== 'custom', calendarEnd);
-      this._boundResizeHandler();
-      
+      if (this._boundResizeHandler !== undefined) { this._boundResizeHandler(); }
+
       this._isInternalUpdate = true;
       switch (this.selected) {
         case 'today':
@@ -304,22 +293,8 @@
       if (!this.format) {
         this.format = this._localizedFormat("date");
       }
-      // when component is initialized for unknown reasons timezone property is not deserialized correctly
-      // this is detected with this.timezone === undefined; however attribute is still here and its value can be retreived
-      // in instances after initialization timezone property is ok
-      // if timezone property is null (which happens when timezone attribute is not set)
-      // I set it to default value of 'America/NewYork'
-      // This should also be reviewed and corrected when polymer team FIXES polymer because it sucks now. (13.052015)
-      this.timezone = this.timezone === undefined ? this.getAttribute('timezone') : this.timezone;
-      if (this.timezone === null) {
-        this.timezone = 'America/New_York';
-      }
-      if (moment.tz) {
-        return moment.tz(this.timezone).format(this.format);
-      } else {
-        console.log('moment.tz function is undefined');
-        return moment.format(this.format);
-      }
+
+      return moment.format(this.format);
     },
     startDateChanged: function(newValue) {
       if (this._isInternalUpdate) {
@@ -328,10 +303,11 @@
       if (newValue === "") {
         return;
       }
-      var startMomemt = moment(newValue, this.format);
+      var format = this._getFormat();
+      var startMomemt = moment(newValue, format);
       if (startMomemt.isValid()) {
         if (this.endDate) {
-          endMoment = moment(this.endDate, this.format);
+          endMoment = moment(this.endDate, format);
 
           if (startMomemt.isAfter(endMoment)) {
             this._isInternalUpdate = true;
@@ -341,6 +317,7 @@
           }
         }
       }
+      this._setSelected();
     },
     endDateChanged: function(newValue) {
       if (this._isInternalUpdate) {
@@ -349,9 +326,10 @@
       if (newValue === "") {
         return;
       }
-      var endMomemt = moment(newValue, this.format);
+      var format = this._getFormat();
+      var endMomemt = moment(newValue, format);
       if (this.startDate) {
-        startMoment = moment(this.startDate, this.format);
+        startMoment = moment(this.startDate, format);
 
         if (endMomemt.isBefore(startMoment)) {
           this._isInternalUpdate = true;
@@ -359,6 +337,12 @@
           this.startDate = newValue;
           this._isInternalUpdate = false;
         }
+      }
+      this._setSelected();
+    },
+    _setSelected:function () {
+      if (this.startDate !== "" && this.endDate !== ""){
+        this.selected = "custom";
       }
     }
   });
