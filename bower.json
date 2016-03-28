@@ -9,7 +9,6 @@
     "at-form-behaviors": "TangereJs/at-form-behaviors#0.8-preview",
     "at-carbon-date-picker": "TangereJs/at-carbon-date-picker#0.8-preview",
     "at-carbon-moment": "TangereJs/at-carbon-moment#0.8-preview",
-    "paper-shadow": "Polymer/paper-shadow#master",
     "layout": "Polymer/layout#master"
   },
   "version": "0.0.1.3"

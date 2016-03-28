@@ -2,7 +2,6 @@
 <link rel="import" href="../at-i18n/at-i18n-behavior.html">
 <link rel="import" href="../at-carbon-date-picker/at-carbon-date-picker.html">
 <link rel="import" href="../at-carbon-moment/momentjs-import.html">
-<link rel="import" href="../paper-shadow/paper-shadow.html">
 <link rel="import" href="../layout/layout.html">
 
 <dom-module id="at-form-daterange-dropdown">
@@ -22,7 +21,6 @@
       }
 
       .daterangepicker {
-        @apply(--at-picker-background);
         position: relative;
         top: 4px;
         min-width: 175px;
@@ -65,13 +63,12 @@
       }
 
       .daterangepicker .ranges {
-        @apply(--at-picker-background);
+        @apply(--shadow-elevation-2dp);
         display: flex;
         flex-direction: column;
         justify-content: space-around;
         padding: 4px 8px;
         margin: 4px;
-        position:relative; /* required by paper-shadow */
         min-width: 175px;
       }
 
@@ -97,7 +94,6 @@
     <div id="target" class="daterangepicker opensright" style="display: none;" on-blur="close">
       <div id="rangeDiv" class="horizontal layout">
         <div hidden$="{{!showRanges}}" class="ranges">
-          <paper-shadow z="2"></paper-shadow>
           <div class="range-item" on-click="menuItemClicked" value="today">{{T("Today")}}</div>
           <div class="range-item" on-click="menuItemClicked" value="yesterday">{{T("Yesterday")}}</div>
           <div class="range-item" on-click="menuItemClicked" value="last7days">{{T("Last 7 Days")}}</div>
