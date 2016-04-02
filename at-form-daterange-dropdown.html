@@ -90,6 +90,12 @@
       .hidden {
         display: none;
       }
+
+      .at-carbon-picker-container {
+        @apply(--at-picker-background);
+        @apply(--shadow-elevation-2dp);
+        margin: 4px;
+      }
     </style>
 
     <div id="target" class="daterangepicker opensright" style="display: none;" on-blur="close">
@@ -103,11 +109,11 @@
           <div class="range-item" on-click="menuItemClicked" value="lastMonth">{{T("Last Month")}}</div>
           <div class="range-item" on-click="menuItemClicked" value="custom">{{T("Custom")}}</div>
         </div>
-        <div>
-          <at-carbon-date-picker id="calendarStart" mode="start-range" hidden="true" start-date="{{startDate}}" end-date="{{endDate}}" format="[[format]]"></at-carbon-date-picker>
+        <div class="at-carbon-picker-container">
+          <at-carbon-date-picker id="calendarStart"mode="start-range" hidden="true" start-date="{{startDate}}" end-date="{{endDate}}" format="[[format]]"></at-carbon-date-picker>
         </div>
-        <div>
-          <at-carbon-date-picker id="calendarEnd"  mode="end-range" hidden="true" start-date="{{startDate}}" end-date="{{endDate}}" format="[[format]]"></at-carbon-date-picker>
+        <div class="at-carbon-picker-container">
+          <at-carbon-date-picker id="calendarEnd" mode="end-range" hidden="true" start-date="{{startDate}}" end-date="{{endDate}}" format="[[format]]"></at-carbon-date-picker>
         </div>
       </div>
     </div>
