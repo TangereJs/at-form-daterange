@@ -179,20 +179,20 @@
 
       return result;
     },
-    open: function (evnet) {
+    open: function (event) {
       if (!this.disabled) {
-        this.$.dateRangePicker.open();
+        this.$.dateRangePicker.open(event);
       }
     },
     close: function (event) {
-      this.$.dateRangePicker.close();
+      this.$.dateRangePicker.close(event);
     },
     toggle: function (event) {
       if (!this.disabled) {
-        this.$.dateRangePicker.toggle();
+        // this.$.dateRangePicker.toggle(event);
       }
     },
-    _buttonIconClick: function () {
+    _buttonIconClick: function (event) {
       if (!this.disabled) {
         this.$.triggerRange.focus();
       }
