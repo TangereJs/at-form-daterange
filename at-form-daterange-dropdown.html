@@ -71,11 +71,7 @@
     </style>
 
     <at-core-dropdown id="coreDropdown" class="daterangepicker" position="bottomRight">
-      <div class="">        Item 1      </div>
-      <div class="">        Item 2      </div>
-      <div class="">        Item 3      </div>
-      <div class="">        Item 4      </div>
-      <!-- <div id="rangeDiv" class="horizontal layout">
+      <div id="rangeDiv" class="horizontal layout">
         <div hidden$="{{!showRanges}}" class="ranges">
           <div class="range-item" on-click="menuItemClicked" value="today">{{T("Today")}}</div>
           <div class="range-item" on-click="menuItemClicked" value="yesterday">{{T("Yesterday")}}</div>
@@ -91,7 +87,7 @@
         <div class="at-carbon-picker-container">
           <at-carbon-date-picker id="calendarEnd" mode="end-range" hidden="true" start-date="{{startDate}}" end-date="{{endDate}}" format="[[format]]"></at-carbon-date-picker>
         </div>
-      </div> -->
+      </div>
     </at-core-dropdown>
   </template>
 </dom-module>
@@ -176,20 +172,18 @@
     open: function(event) {
       var self = this;
       var coreDropdown = this.$.coreDropdown;
-      this.debounce('task1', function () {
-        console.log('open');
-
-        Polymer.dom(coreDropdown).setAttribute('dropdown-open', true);
-        coreDropdown._updateDropdownPosition(event.target || event.srcElement);
-        coreDropdown.show(event);
-
-        // self._boundResizeHandler();
-
-      }, 50);
+      if (coreDropdown.hasAttribute('dropdown-open')) {
+        return;
+      }
+      Polymer.dom(coreDropdown).setAttribute('dropdown-open', true);
+      coreDropdown._updateDropdownPosition(event.target || event.srcElement);
+      coreDropdown.show(event);
+      self._boundResizeHandler();
     },
     close: function(event) {
-      console.log('close');
-
+      if (!coreDropdown.hasAttribute('dropdown-open')) {
+        return;
+      }
       Polymer.dom(coreDropdown).removeAttribute('dropdown-open');
       coreDropdown.hide();
     },
@@ -209,7 +203,7 @@
       var value = event.target.getAttribute('value');
 
       if (value !== 'custom') {
-        this.close();
+        this.close(event);
       }
 
       this.selected = value;

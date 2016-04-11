@@ -32,7 +32,7 @@
       <label id="label">{{label}}</label>
       <div id="contentContainer" class="at-content-container">
         <div id="triggerContainer" class="input-group">
-          <input id="triggerRange" class="at-content has-placeholder" value="{{value}}" on-focus="open" on-mousedown="toggle" on-blur="close" readonly class="date">
+          <input id="triggerRange" class="at-content has-placeholder" value="{{value}}" on-focus="open" on-blur="close" readonly class="date">
           <i class="icon-background input-group-addon" on-mousedown="_buttonIconClick">
             <at-carbon-icon icon="now:calendar"></at-carbon-icon>
           </i>
@@ -180,11 +180,13 @@
       return result;
     },
     open: function (event) {
+      console.log('open');
       if (!this.disabled) {
         this.$.dateRangePicker.open(event);
       }
     },
     close: function (event) {
+      console.log('close');
       this.$.dateRangePicker.close(event);
     },
     toggle: function (event) {
