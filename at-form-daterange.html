@@ -184,14 +184,6 @@
       var self = this;
       var coreDropdown = this.$.coreDropdown;
 
-      document.body.addEventListener('mousedown', function (event) {
-        if (!afDateRangeUtils.isChildOf(event.target, self)) {
-          if (coreDropdown.isOpen()) {
-            coreDropdown.hide();
-          }
-        }
-      });
-
       this._validationFunctions.push(this._validateValueFormat.bind(this));
 
       this._boundResizeHandler = function() {};
