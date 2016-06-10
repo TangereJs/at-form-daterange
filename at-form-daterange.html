@@ -65,7 +65,7 @@
       <div id="contentContainer" class="at-content-container">
         <div id="triggerContainer" class="input-group">
           <input id="triggerRange" class="at-content has-placeholder" value="{{value}}" on-mousedown="toggle" readonly class="date">
-          <at-carbon-icon-button class="icon-background input-group-addon" on-mousedown="_buttonIconClick" icon="now:calendar"></at-carbon-icon-button>
+          <at-carbon-icon-button id="triggerRangeIcon" class="icon-background input-group-addon" on-mousedown="_buttonIconClick" icon="now:calendar"></at-carbon-icon-button>
         </div>
         <at-core-dropdown id="coreDropdown" class="daterangepicker" position="bottomRight">
           <div id="dropdown" class="layout horizontal">
@@ -104,6 +104,9 @@
       }
 
       return isChild;
+    }
+    utils.isString = function (obj) {
+      return Object.prototype.toString.call(obj) === "[object String]";
     }
   }(window.afDateRangeUtils = window.afDateRangeUtils || {}));
 
@@ -181,6 +184,7 @@
     ready: function() {
       this._isReady = false;
       this._internalFormat = this._localizedFormat("date");
+      this._lastFormatUsedForParsing = this._internalFormat;
       var self = this;
       var coreDropdown = this.$.coreDropdown;
 
@@ -247,11 +251,16 @@
     set value(newValue) {},
     // compute value computes the value from startDate and endDate
     computeValue: function(startDate, endDate) {
-      var valueStringTemplate = this.T("{0} to {1}");
       var result = '';
-      if (startDate === "" || endDate === "") {
+      var invalidStrings = [ "undefined", "null", "" ];
+      // if start date or end date are any of [undefined, null, "undefined", "null" or ""] return empty string
+      if (!afDateRangeUtils.isString(startDate) ||
+          !afDateRangeUtils.isString(endDate) ||
+          invalidStrings.indexOf(startDate) != -1 ||
+          invalidStrings.indexOf(endDate) !== -1) {
         return result;
       }
+      var valueStringTemplate = this.T("{0} to {1}");
       if (startDate && endDate) {
         result = valueStringTemplate.replace("{0}", startDate).replace("{1}", endDate);
       }
@@ -281,8 +290,13 @@
       }
     },
     disabledChanged: function(newValue, oldValue) {
+      var input = this.$.triggerRange;
+      this.toggleAttribute('disabled', newValue, input);
+      var triggerRangeIcon = this.$.triggerRangeIcon;
+      this.toggleAttribute('disabled', newValue, triggerRangeIcon);
       var atContainer = this.$.atContainer;
       this.toggleClass('disabled', newValue, atContainer);
+
       if (this._isReady) {
         this.validate();
       }
@@ -381,42 +395,38 @@
       this.toggleClass('error', !isValid, contentContainer);
     },
     startDateChanged: function(newValue, oldValue) {
-      if (this._isReady) {
-        if (this._isInternalUpdate) {
-          return;
-        }
-        if (newValue === "") {
-          return;
-        }
-        var format = this._internalFormat;
-        var startMomemt = moment(newValue, format);
-        if (startMomemt.isValid()) {
-          if (this.endDate) {
-            endMoment = moment(this.endDate, format);
+      if (!this._isReady || this._isInternalUpdate || !afDateRangeUtils.isString(newValue) || newValue === "") {
+        return;
+      }
 
-            if (startMomemt.isAfter(endMoment)) {
-              this._isInternalUpdate = true;
-              this.startDate = this.endDate;
-              this.endDate = newValue;
-              this._isInternalUpdate = false;
-            }
+      var format = this._internalFormat;
+      var startMomemt = moment(newValue, format);
+      if (startMomemt.isValid()) {
+        if (this.endDate) {
+          endMoment = moment(this.endDate, format);
+
+          if (startMomemt.isAfter(endMoment)) {
+            this._isInternalUpdate = true;
+            this.startDate = this.endDate;
+            this.endDate = newValue;
+            this._isInternalUpdate = false;
           }
         }
-        this._setSelected();
-
-        this.validate();
+      } else {
+        this.startDate = "";
       }
+      this._setSelected();
+
+      this.validate();
     },
     endDateChanged: function(newValue, oldValue) {
-      if (this._isReady) {
-        if (this._isInternalUpdate) {
-          return;
-        }
-        if (newValue === "") {
-          return;
-        }
-        var format = this._internalFormat;
-        var endMomemt = moment(newValue, format);
+      if (!this._isReady || this._isInternalUpdate || !afDateRangeUtils.isString(newValue) || newValue === "") {
+        return;
+      }
+
+      var format = this._internalFormat;
+      var endMomemt = moment(newValue, format);
+      if (endMomemt.isValid()) {
         if (this.startDate) {
           startMoment = moment(this.startDate, format);
 
@@ -427,10 +437,12 @@
             this._isInternalUpdate = false;
           }
         }
-        this._setSelected();
-
-        this.validate();
+      } else {
+        this.endDate = "";
       }
+      this._setSelected();
+
+      this.validate();
     },
     _setSelected: function() {
       if (this.startDate !== "" && this.endDate !== "") {
@@ -438,11 +450,15 @@
       }
     },
     formatChanged: function(newValue, oldValue) {
+      if (!afDateRangeUtils.isString(newValue) || ["undefined", "null", ""].indexOf(newValue)!== -1) {
+        return;
+      }
       var format = newValue;
       if (format) {
         if (!this._containsChars(['Y', 'M', 'D'], format) || this._containsChars(['h', 'm', 's'], format)) {
           // set format to the default format for date
           format = this._internalFormat;
+          this._lastFormatUsedForParsing = this._internalFormat;
           // log the error
           console.log('Value ' + newValue + ' is not a valid format for date. Using default, ' + format + ', format instead.');
         }
@@ -451,6 +467,26 @@
           value: format
         });
         this._internalFormat = format;
+
+        /*
+         * reformat startDate and endDate to match new format
+         */
+        if (this._lastFormatUsedForParsing) {
+          var newStartDate;
+          var startMoment = moment(this.startDate, this._lastFormatUsedForParsing);
+          if (startMoment.isValid()) {
+            newStartDate = startMoment.format(format);
+          }
+
+          var newEndDate;
+          var endMoment = moment(this.endDate, this._lastFormatUsedForParsing);
+          if (endMoment.isValid()) {
+            newEndDate = endMoment.format(format);
+          }
+          this._lastFormatUsedForParsing = format;
+          this.startDate = newStartDate;
+          this.endDate = newEndDate;
+        }
       }
     },
     /**

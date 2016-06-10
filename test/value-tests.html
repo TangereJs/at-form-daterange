@@ -1,0 +1,201 @@
+<!doctype html>
+<html>
+<head>
+
+  <title>at-form-daterange tests</title>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+  <script src="../../web-component-tester/browser.js"></script>
+  <script src="../../iron-test-helpers/test-helpers.js"></script>
+  <script src="../../iron-test-helpers/mock-interactions.js"></script>
+
+  <link rel="import" href="../at-form-daterange.html">
+
+</head>
+<body>
+
+  <test-fixture id="valueAttrTests">
+    <template>
+      <at-form-daterange></at-form-daterange>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="valueProgrammaticTests">
+    <template>
+      <at-form-daterange></at-form-daterange>
+    </template>
+  </test-fixture>
+
+  <script>
+
+    suite('value tests', function() {
+
+      function GenericAttributeTestFunction(input, startDates, endDates, expectedValue) {
+        var sdIndex;
+        var edIndex;
+        var startDate;
+        var endDate;
+
+        for (var sdIndex = 0; sdIndex < startDates.length; sdIndex++) {
+          startDate = startDates[sdIndex];
+          Polymer.dom(input).setAttribute('start-date', startDate);
+          for (var edIndex = 0; edIndex < endDates.length; edIndex++) {
+            endDate = endDates[edIndex];
+            Polymer.dom(input).setAttribute('end-date', endDate);
+
+            assert.equal(input.value, expectedValue, "value is not calculated correctly");
+          }
+        }
+      }
+
+      test('start date and end date as attribute -> invalid values test', function() {
+        var input = fixture('valueAttrTests');
+        input.format = "YYYY-MM-DD";
+
+        assert.equal(input.value, "", 'value is not initially empty');
+
+        var startDates = [ undefined, null, false, true, [], {}, "", "lorem ipsum", "2016-06-10" ];
+        var endDates = [ undefined, null, false, true, [], {}, "", "lorem ipsum" ];
+        var expectedValue = "";
+
+        GenericAttributeTestFunction(input, startDates, endDates, expectedValue);
+
+        var startDates = [ undefined, null, false, true, [], {}, "", "lorem ipsum" ];
+        var endDates = [ undefined, null, false, true, [], {}, "", "lorem ipsum", "2016-06-10" ];
+
+        GenericAttributeTestFunction(input, startDates, endDates, expectedValue);
+      });
+
+      test('start date and end date as attribute -> valid values test', function() {
+        var input = fixture('valueAttrTests');
+        input.format = "YYYY-MM-DD";
+
+        assert.equal(input.value, "", 'value is not initially empty');
+
+        Polymer.dom(input).setAttribute('start-date', "2016-06-10");
+        Polymer.dom(input).setAttribute('end-date', "2016-06-17");
+        var expectedValue = "2016-06-10 to 2016-06-17";
+        assert.equal(input.value, expectedValue, "value is not calculated correctly");
+
+        Polymer.dom(input).setAttribute('start-date', "2016-06-17");
+        Polymer.dom(input).setAttribute('end-date', "2016-06-10");
+        var expectedValue = "2016-06-10 to 2016-06-17";
+        assert.equal(input.value, expectedValue, "value is not calculated correctly");
+      });
+
+      function GenericProgrammaticTestFunction(input, startDates, endDates, expectedValue) {
+        var sdIndex;
+        var edIndex;
+        var startDate;
+        var endDate;
+
+        for (var sdIndex = 0; sdIndex < startDates.length; sdIndex++) {
+          startDate = startDates[sdIndex];
+          input.startDate = startDate;
+          for (var edIndex = 0; edIndex < endDates.length; edIndex++) {
+            endDate = endDates[edIndex];
+            input.endDate = endDate;
+
+            assert.equal(input.value, expectedValue, "value is not calculated correctly");
+          }
+        }
+      }
+
+      test('start date and end date set programmatically -> invalid values test', function() {
+        var input = fixture('valueProgrammaticTests');
+        input.format = "YYYY-MM-DD";
+
+        assert.equal(input.value, "", 'value is not initially empty');
+
+        var startDates = [ undefined, null, false, true, [], {}, "", "lorem ipsum", "2016-06-10" ];
+        var endDates = [ undefined, null, false, true, [], {}, "", "lorem ipsum" ];
+        var expectedValue = "";
+
+        GenericProgrammaticTestFunction(input, startDates, endDates, expectedValue);
+
+        var startDates = [ undefined, null, false, true, [], {}, "", "lorem ipsum" ];
+        var endDates = [ undefined, null, false, true, [], {}, "", "lorem ipsum", "2016-06-10" ];
+
+        GenericProgrammaticTestFunction(input, startDates, endDates, expectedValue);
+      });
+
+      test('start date and end date set programmatically -> valid values test', function() {
+        var input = fixture('valueProgrammaticTests');
+        input.format = "YYYY-MM-DD";
+
+        assert.equal(input.value, "", 'value is not initially empty');
+
+        input.startDate = "2016-06-10";
+        input.endDate = "2016-06-17";
+        var expectedValue = "2016-06-10 to 2016-06-17";
+        assert.equal(input.value, expectedValue, "value is not calculated correctly");
+
+        input.startDate = "2016-06-17";
+        input.endDate = "2016-06-10";
+        var expectedValue = "2016-06-10 to 2016-06-17";
+        assert.equal(input.value, expectedValue, "value is not calculated correctly");
+      });
+
+      function GenericProgrammaticFormatTestFunction(input, formats, expectedValue) {
+        for (var i = 0; i < formats.length; i++) {
+          var format = formats[i];
+          input.format = format;
+          assert.equal(input.value, expectedValue, "value is not calculated correctly");
+        }
+      }
+
+      test('alternative date formats test',function () {
+        var input = fixture('valueProgrammaticTests');
+        input.format = "YYYY-MM-DD";
+
+        assert.equal(input.value, "", 'value is not initially empty');
+
+        input.startDate = "2016-06-10";
+        input.endDate = "2016-06-17";
+        var expectedValue = "2016-06-10 to 2016-06-17";
+        assert.equal(input.value, expectedValue, "value is not calculated correctly");
+
+        var invalidFormats = [ undefined, null, "", {}, [], 424242, true, false, "undefined", "null", "true", "false" ];
+        GenericProgrammaticFormatTestFunction(input, invalidFormats, expectedValue);
+
+        input.format = "YYYY-DD-MM";
+        expectedValue = "2016-10-06 to 2016-17-06";
+        assert.equal(input.value, expectedValue, "value is not calculated correctly");
+
+        input.format = "DD-MM-YYYY";
+        expectedValue = "10-06-2016 to 17-06-2016";
+        assert.equal(input.value, expectedValue, "value is not calculated correctly");
+
+        input.format = "MM-DD-YYYY";
+        expectedValue = "06-10-2016 to 06-17-2016";
+        assert.equal(input.value, expectedValue, "value is not calculated correctly");
+
+        debugger;
+        input.startDate = "06-10-2017";
+        input.endDate = "06-17-2017";
+        expectedValue = "06-10-2017 to 06-17-2017";
+        assert.equal(input.value, expectedValue, "value is not calculated correctly");
+
+        input.startDate = "06-12-2017";
+        input.endDate = "06-18-2017";
+        expectedValue = "06-12-2017 to 06-18-2017";
+        assert.equal(input.value, expectedValue, "value is not calculated correctly");
+
+        input.startDate = "04-12-2017";
+        input.endDate = "10-18-2017";
+        expectedValue = "04-12-2017 to 10-18-2017";
+        assert.equal(input.value, expectedValue, "value is not calculated correctly");
+
+      });
+
+    });
+
+  </script>
+
+</body>
+</html>
