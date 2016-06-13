@@ -188,6 +188,7 @@
       var self = this;
       var coreDropdown = this.$.coreDropdown;
 
+      this._validationFunctions.push(this._validateStartDateEndDateChronologicalOrder.bind(this));
       this._validationFunctions.push(this._validateValueFormat.bind(this));
 
       this._boundResizeHandler = function() {};
@@ -252,17 +253,22 @@
     // compute value computes the value from startDate and endDate
     computeValue: function(startDate, endDate) {
       var result = '';
+      if (!this._isReady) { return result; }
+
       var invalidStrings = [ "undefined", "null", "" ];
       // if start date or end date are any of [undefined, null, "undefined", "null" or ""] return empty string
-      if (!afDateRangeUtils.isString(startDate) ||
+      this.validate();
+
+      if (!this.valid ||
+          !afDateRangeUtils.isString(startDate) ||
           !afDateRangeUtils.isString(endDate) ||
           invalidStrings.indexOf(startDate) != -1 ||
           invalidStrings.indexOf(endDate) !== -1) {
         return result;
       }
-      var valueStringTemplate = this.T("{0} to {1}");
+
       if (startDate && endDate) {
-        result = valueStringTemplate.replace("{0}", startDate).replace("{1}", endDate);
+        result = this.T("{0} to {1}", startDate, endDate);
       }
 
       return result;
@@ -401,18 +407,7 @@
 
       var format = this._internalFormat;
       var startMomemt = moment(newValue, format);
-      if (startMomemt.isValid()) {
-        if (this.endDate) {
-          endMoment = moment(this.endDate, format);
-
-          if (startMomemt.isAfter(endMoment)) {
-            this._isInternalUpdate = true;
-            this.startDate = this.endDate;
-            this.endDate = newValue;
-            this._isInternalUpdate = false;
-          }
-        }
-      } else {
+      if (!startMomemt.isValid()) {
         this.startDate = "";
       }
       this._setSelected();
@@ -426,18 +421,7 @@
 
       var format = this._internalFormat;
       var endMomemt = moment(newValue, format);
-      if (endMomemt.isValid()) {
-        if (this.startDate) {
-          startMoment = moment(this.startDate, format);
-
-          if (endMomemt.isBefore(startMoment)) {
-            this._isInternalUpdate = true;
-            this.endDate = this.startDate;
-            this.startDate = newValue;
-            this._isInternalUpdate = false;
-          }
-        }
-      } else {
+      if (!endMomemt.isValid()) {
         this.endDate = "";
       }
       this._setSelected();
@@ -530,6 +514,21 @@
         this._errorMessage = this.T('Start date is in invalid format. Enter start date in format {0}', dateFormat);
       } else if (!endDateValid) {
         this._errorMessage = this.T('End date is in invalid format. Enter end date in format {0}', dateFormat);
+      }
+
+      return result;
+    },
+    _validateStartDateEndDateChronologicalOrder: function () {
+      var result = true;
+
+      var format = this._internalFormat;
+      var startMoment = moment(this.startDate, format);
+      var endMoment = moment(this.endDate, format);
+
+      result = !startMoment.isAfter(endMoment);
+      if (!result) {
+        // this is invalid situation; report error
+        this._errorMessage = this.T('Order of start date and end date is incorrect. Start date is after end date');
       }
 
       return result;

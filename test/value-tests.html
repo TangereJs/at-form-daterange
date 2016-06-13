@@ -84,8 +84,9 @@
 
         Polymer.dom(input).setAttribute('start-date', "2016-06-17");
         Polymer.dom(input).setAttribute('end-date', "2016-06-10");
-        var expectedValue = "2016-06-10 to 2016-06-17";
+        var expectedValue = "";
         assert.equal(input.value, expectedValue, "value is not calculated correctly");
+        assert.equal(input.valid, false, 'element is not invalid');
       });
 
       function GenericProgrammaticTestFunction(input, startDates, endDates, expectedValue) {
@@ -137,8 +138,9 @@
 
         input.startDate = "2016-06-17";
         input.endDate = "2016-06-10";
-        var expectedValue = "2016-06-10 to 2016-06-17";
+        var expectedValue = "";
         assert.equal(input.value, expectedValue, "value is not calculated correctly");
+        assert.equal(input.valid, false, "element is not invalid");
       });
 
       function GenericProgrammaticFormatTestFunction(input, formats, expectedValue) {
@@ -175,7 +177,6 @@
         expectedValue = "06-10-2016 to 06-17-2016";
         assert.equal(input.value, expectedValue, "value is not calculated correctly");
 
-        debugger;
         input.startDate = "06-10-2017";
         input.endDate = "06-17-2017";
         expectedValue = "06-10-2017 to 06-17-2017";
