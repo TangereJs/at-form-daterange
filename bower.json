@@ -11,5 +11,5 @@
     "at-carbon-moment": "TangereJs/at-carbon-moment#0.8-preview",
     "layout": "Polymer/layout#master"
   },
-  "version": "0.0.1.4"
+  "version": "0.0.1.12"
 }

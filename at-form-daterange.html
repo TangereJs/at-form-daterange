@@ -128,12 +128,11 @@
         title: 'Format'
       }
     },
-    $meta: [
-      {
-        title: "Daterange",
-        type: "daterange"
-      }
-    ],
+    $meta: [{
+      title: "Daterange",
+      type: "daterange",
+      events: []
+    }],
     ready: function () {
       this._isReady = false;
       this._internalFormat = this._localizedFormat("date");
