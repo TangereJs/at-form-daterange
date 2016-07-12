@@ -9,7 +9,8 @@
     "at-form-behaviors": "TangereJs/at-form-behaviors#0.8-preview",
     "at-carbon-date-picker": "TangereJs/at-carbon-date-picker#0.8-preview",
     "at-carbon-moment": "TangereJs/at-carbon-moment#0.8-preview",
-    "layout": "Polymer/layout#master"
+    "layout": "Polymer/layout#master",
+    "at-doc-viewer": "TangereJs/at-doc-viewer#0.8-preview"
   },
-  "version": "0.0.1.12"
+  "version": "0.0.1.13"
 }
