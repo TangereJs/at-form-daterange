@@ -2,7 +2,7 @@
 <link rel="import" href="../at-i18n/at-i18n-behavior.html">
 <link rel="import" href="at-form-daterange-dropdown.html">
 <link rel="import" href="../at-theme/at-theme.html">
-<link rel="import" href="../at-carbon-icon/at-carbon-icon.html">
+<link rel="import" href="../at-carbon-icon-button/at-carbon-icon-button.html">
 <link rel="import" href="../at-form-behaviors/at-form-behaviors-validation.html">
 
 <!-- This is a new component extracted from the demo.html for polymer 0.5 -->
@@ -14,7 +14,8 @@
       :host * {
         box-sizing: border-box;
       }
-       :host {
+
+      :host {
         @apply(--at-form-host);
       }
 
@@ -27,17 +28,64 @@
         @apply(at-form-border-radius0220);
       }
 
+      .dropdown-container {
+        position: relative;
+        display: block;
+      }
+
+      .daterangepicker .ranges {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        padding: 4px 8px;
+        margin: 4px;
+        min-width: 175px;
+      }
+
+      .range-item {
+        padding: 4px 8px;
+        margin: 2px 0;
+        cursor: pointer;
+        border-radius: 5px;
+        @apply(--at-form-label-font);
+        @apply(--at-text-selected);
+      }
+
+      .daterangepicker .ranges .range-item.active,
+      .daterangepicker .ranges .range-item:hover {
+        @apply(--at-text-primary-selected);
+      }
+
+      .hidden {
+        display: none;
+      }
     </style>
     <div id="atContainer" class="at-container">
       <label id="label">{{label}}</label>
       <div id="contentContainer" class="at-content-container">
         <div id="triggerContainer" class="input-group">
-          <input id="triggerRange" class="at-content has-placeholder" value="{{value}}" on-focus="open" on-mousedown="toggle" on-blur="close" readonly class="date">
-          <i class="icon-background input-group-addon" on-mousedown="_buttonIconClick">
-            <at-carbon-icon icon="now:calendar"></at-carbon-icon>
-          </i>
+          <input id="triggerRange" class="at-content has-placeholder" value="{{value}}" on-mousedown="toggle" readonly class="date">
+          <at-carbon-icon-button id="triggerRangeIcon" class="icon-background input-group-addon" on-mousedown="_buttonIconClick" icon="now:calendar"></at-carbon-icon-button>
         </div>
-        <at-form-daterange-dropdown id="dateRangePicker" disabled$={{disabled}} show-ranges format="[[format]]" start-date="{{startDate}}" end-date="{{endDate}}"></at-form-daterange-dropdown>
+        <at-core-dropdown id="coreDropdown" class="daterangepicker" position="bottomRight">
+          <div id="dropdown" class="layout horizontal">
+            <div class="ranges">
+              <div class="range-item" on-click="rangeItemClicked" value="today">{{T("Today")}}</div>
+              <div class="range-item" on-click="rangeItemClicked" value="yesterday">{{T("Yesterday")}}</div>
+              <div class="range-item" on-click="rangeItemClicked" value="last7days">{{T("Last 7 Days")}}</div>
+              <div class="range-item" on-click="rangeItemClicked" value="last30days">{{T("Last 30 Days")}}</div>
+              <div class="range-item" on-click="rangeItemClicked" value="thisMonth">{{T("This Month")}}</div>
+              <div class="range-item" on-click="rangeItemClicked" value="lastMonth">{{T("Last Month")}}</div>
+              <div class="range-item" on-click="rangeItemClicked" value="custom">{{T("Custom")}}</div>
+            </div>
+            <div id="calendarStart" class="at-carbon-picker-container hidden">
+              <at-carbon-date-picker mode="start-range" start-date="{{startDate}}" end-date="{{endDate}}" format="[[format]]"></at-carbon-date-picker>
+            </div>
+            <div id="calendarEnd" class="at-carbon-picker-container hidden">
+              <at-carbon-date-picker mode="end-range" start-date="{{startDate}}" end-date="{{endDate}}" format="[[format]]"></at-carbon-date-picker>
+            </div>
+          </div>
+        </at-core-dropdown>
       </div>
       <div id="hint"></div>
     </div>
@@ -45,12 +93,10 @@
 </dom-module>
 
 <script>
-  (function (utils) {
-    utils.isChildOf = function (child, parent) {
+  (function(utils) {
+    utils.isChildOf = function(child, parent) {
       var isChild = false;
-      var iterElem = child
-        ? child
-        : null;
+      var iterElem = child ? child : null;
 
       while (!isChild && iterElem !== null && iterElem.nodeType !== 9) {
         isChild = iterElem === parent;
@@ -58,6 +104,9 @@
       }
 
       return isChild;
+    }
+    utils.isString = function (obj) {
+      return Object.prototype.toString.call(obj) === "[object String]";
     }
   }(window.afDateRangeUtils = window.afDateRangeUtils || {}));
 
@@ -136,106 +185,293 @@
     ready: function () {
       this._isReady = false;
       this._internalFormat = this._localizedFormat("date");
+      this._lastFormatUsedForParsing = this._internalFormat;
       var self = this;
-      var triggerRange = this.$.triggerRange;
-      var unboundFunction = function (event) {
-        if (triggerRange !== event.target && afDateRangeUtils.isChildOf(event.target, self)) {
-          event.preventDefault();
+      var coreDropdown = this.$.coreDropdown;
+
+      this._validationFunctions.push(this._validateStartDateEndDateChronologicalOrder.bind(this));
+      this._validationFunctions.push(this._validateValueFormat.bind(this));
+
+      this._boundResizeHandler = function() {};
+      this.orientation = 'horizontal';
+      var dropdown = this.$.dropdown;
+      var coreDropdown = this.$.coreDropdown;
+      this.toggleClass('horizontal', this.orientation === 'horizontal', dropdown);
+      this.toggleClass('vertical', this.orientation === 'vertical', dropdown);
+      var contentContainer = this.$.contentContainer;
+      var resizeUnboundHandler = function(event) {
+        var windowWidth = contentContainer.getBoundingClientRect().width;
+        var dropdownWidth = dropdown.getBoundingClientRect().width;
+        var dropdownLeft = dropdown.getBoundingClientRect().left;
+        if (this.orientation === 'horizontal') {
+          if (dropdownWidth > windowWidth) {
+            this.toggleClass('horizontal', false, dropdown);
+            this.toggleClass('vertical', true, dropdown);
+            this.orientation = 'vertical';
+          } else {
+            this.toggleClass('horizontal', true, dropdown);
+            this.toggleClass('vertical', false, dropdown);
+          }
+        } else if (this.orientation === 'vertical') {
+          if (dropdownWidth * 3 > windowWidth) {
+            this.toggleClass('horizontal', false, dropdown);
+            this.toggleClass('vertical', true, dropdown);
+          } else {
+            this.toggleClass('horizontal', true, dropdown);
+            this.toggleClass('vertical', false, dropdown);
+            this.orientation = 'horizontal';
+          }
+        }
+        if (coreDropdown.isOpen()) {
+          coreDropdown.hide();
+          coreDropdown.show();
         }
       }
 
-      document.body.addEventListener('mousedown', unboundFunction);
-
-      this._validationFunctions.push(this._validateValueFormat.bind(this));
+      var boundResizeHandler = resizeUnboundHandler.bind(this);
+      window.addEventListener('resize', boundResizeHandler);
+      this._boundResizeHandler = boundResizeHandler;
 
       this._isReady = true;
     },
-    focus: function () {
+    focus: function() {
       var trigger = this.$.triggerRange;
       trigger.focus();
     },
-    hideChanged: function (newValue, oldValue) {
+    hideChanged: function(newValue, oldValue) {
       var wrapper = this.$.atContainer;
       this.toggleClass('hidden', newValue, wrapper);
       if (this._isReady) {
         this.validate();
       }
     },
-    hideLabelChanged: function (newValue, oldValue) {
+    hideLabelChanged: function(newValue, oldValue) {
       var label = this.$.label;
       this.toggleClass("hidden", newValue, label);
     },
     // value is read only
     set value(newValue) {},
     // compute value computes the value from startDate and endDate
-    computeValue: function (startDate, endDate) {
-      var valueStringTemplate = this.T("{0} to {1}");
+    computeValue: function(startDate, endDate) {
       var result = '';
-      if (startDate === "" || endDate === "") { return result; }
+      if (!this._isReady) { return result; }
+
+      var invalidStrings = [ "undefined", "null", "" ];
+      // if start date or end date are any of [undefined, null, "undefined", "null" or ""] return empty string
+      this.validate();
+
+      if (!this.valid ||
+          !afDateRangeUtils.isString(startDate) ||
+          !afDateRangeUtils.isString(endDate) ||
+          invalidStrings.indexOf(startDate) != -1 ||
+          invalidStrings.indexOf(endDate) !== -1) {
+        return result;
+      }
+
       if (startDate && endDate) {
-        result = valueStringTemplate.replace("{0}", startDate).replace("{1}", endDate);
+        result = this.T("{0} to {1}", startDate, endDate);
       }
 
       return result;
     },
-    open: function (evnet) {
+    open: function(event) {
       if (!this.disabled) {
-        this.$.dateRangePicker.open();
+        this.$.coreDropdown.show(event);
       }
     },
-    close: function (event) {
-      this.$.dateRangePicker.close();
+    close: function(event) {
+      var self = this;
+      self.$.coreDropdown.hide(event);
     },
-    toggle: function (event) {
+    toggle: function(event) {
       if (!this.disabled) {
-        this.$.dateRangePicker.toggle();
+        if (this._boundResizeHandler !== undefined && this.$.coreDropdown.isOpen() === false) {
+          this._boundResizeHandler();
+        }
+        this.$.coreDropdown.toggle(event.target, event);
       }
     },
-    _buttonIconClick: function () {
+    _buttonIconClick: function(event) {
       if (!this.disabled) {
-        this.$.triggerRange.focus();
+        this.toggle(event);
       }
     },
-    disabledChanged: function (newValue, oldValue) {
+    disabledChanged: function(newValue, oldValue) {
+      var input = this.$.triggerRange;
+      this.toggleAttribute('disabled', newValue, input);
+      var triggerRangeIcon = this.$.triggerRangeIcon;
+      this.toggleAttribute('disabled', newValue, triggerRangeIcon);
       var atContainer = this.$.atContainer;
       this.toggleClass('disabled', newValue, atContainer);
+
       if (this._isReady) {
         this.validate();
       }
     },
-    requiredChanged: function (newValue, oldValue) {
+    requiredChanged: function(newValue, oldValue) {
       if (this._isReady) {
         this.validate();
       }
     },
-    _updateUIValidState: function (isValid) {
+    // this function handles the click event on menu items
+    rangeItemClicked: function(event) {
+      var value = event.target.getAttribute('value');
+
+      this.$.coreDropdown.hide();
+
+      this._selectedChanged(value);
+    },
+    _selectedChanged: function(newValue) {
+      if (newValue === "") {
+        return;
+      }
+
+      var activeItem = this.$$('.range-item.active');
+
+      if (activeItem) {
+        Polymer.dom(activeItem).classList.remove('active');
+      }
+      var calendarStart = this.$.calendarStart;
+      this.toggleClass('hidden', newValue !== 'custom', calendarStart);
+      var calendarEnd = this.$.calendarEnd;
+      this.toggleClass('hidden', newValue !== 'custom', calendarEnd);
+      if (this._boundResizeHandler !== undefined) {
+        this._boundResizeHandler();
+      }
+      if (newValue === 'custom') {
+        this.$.coreDropdown.show();
+      }
+
+      this._isInternalUpdate = true;
+      switch (newValue) {
+        case 'today':
+          this.startDate = this._formatDate(moment());
+          this.endDate = this._formatDate(moment());
+          break;
+        case 'yesterday':
+          this.startDate = this._formatDate(moment().subtract(1, "days"));
+          this.endDate = this._formatDate(moment().subtract(1, "days"));
+          break;
+        case 'last7days':
+          this.startDate = this._formatDate(moment().subtract(6, "days"));
+          this.endDate = this._formatDate(moment());
+          break;
+        case 'last30days':
+          this.startDate = this._formatDate(moment().subtract(30, "days"));
+          this.endDate = this._formatDate(moment());
+          break;
+        case 'thisMonth':
+          this.startDate = this._formatDate(moment().startOf("month"));
+          this.endDate = this._formatDate(moment().endOf("month"));
+          break;
+        case 'lastMonth':
+          this.startDate = this._formatDate(moment().subtract(1, "months").startOf("month"));
+          this.endDate = this._formatDate(moment().subtract(1, "months").endOf("month"));
+          break;
+        case 'custom':
+          // for initialization purposes (first time) startDate and endDate are set to today
+          // subject to change
+          if (this.startDate === '') {
+            this.startDate = this._formatDate(moment());
+          }
+          if (this.endDate === '') {
+            this.endDate = this._formatDate(moment());
+          }
+          break;
+      }
+      this._isInternalUpdate = false;
+
+      if (newValue) {
+        var liElem = this.$$('.range-item[value=' + newValue + ']');
+        if (liElem) {
+          Polymer.dom(liElem).classList.add('active');
+        }
+      }
+    },
+    _formatDate: function(moment) {
+      if (!this.format) {
+        // this.format = this._internalFormat;
+      }
+
+      return moment.format(this._internalFormat);
+    },
+    _updateUIValidState: function(isValid) {
       var label = this.$.label;
       this.toggleClass('error', !isValid, label);
       var contentContainer = this.$.contentContainer;
       this.toggleClass('error', !isValid, contentContainer);
     },
-    startDateChanged: function (newValue, oldValue) {
-      if (this._isReady) {
-        this.validate();
+    startDateChanged: function(newValue, oldValue) {
+      if (!this._isReady || this._isInternalUpdate || !afDateRangeUtils.isString(newValue) || newValue === "") {
+        return;
+      }
+
+      var format = this._internalFormat;
+      var startMomemt = moment(newValue, format);
+      if (!startMomemt.isValid()) {
+        this.startDate = "";
+      }
+      this._setSelected();
+
+      this.validate();
+    },
+    endDateChanged: function(newValue, oldValue) {
+      if (!this._isReady || this._isInternalUpdate || !afDateRangeUtils.isString(newValue) || newValue === "") {
+        return;
+      }
+
+      var format = this._internalFormat;
+      var endMomemt = moment(newValue, format);
+      if (!endMomemt.isValid()) {
+        this.endDate = "";
+      }
+      this._setSelected();
+
+      this.validate();
+    },
+    _setSelected: function() {
+      if (this.startDate !== "" && this.endDate !== "") {
+        this.selected = "custom";
       }
     },
-    endDateChanged: function (newValue, oldValue) {
-      if (this._isReady) {
-        this.validate();
+    formatChanged: function(newValue, oldValue) {
+      if (!afDateRangeUtils.isString(newValue) || ["undefined", "null", ""].indexOf(newValue)!== -1) {
+        return;
       }
-    },
-    formatChanged: function (newValue, oldValue) {
       var format = newValue;
       if (format) {
         if (!this._containsChars(['Y', 'M', 'D'], format) || this._containsChars(['h', 'm', 's'], format)) {
           // set format to the default format for date
           format = this._internalFormat;
+          this._lastFormatUsedForParsing = this._internalFormat;
           // log the error
           console.log('Value ' + newValue + ' is not a valid format for date. Using default, ' + format + ', format instead.');
         }
         this.format = format;
-        this.fire('format-changed', {value: format});
+        this.fire('format-changed', {
+          value: format
+        });
         this._internalFormat = format;
+
+        /*
+         * reformat startDate and endDate to match new format
+         */
+        if (this._lastFormatUsedForParsing) {
+          var newStartDate;
+          var startMoment = moment(this.startDate, this._lastFormatUsedForParsing);
+          if (startMoment.isValid()) {
+            newStartDate = startMoment.format(format);
+          }
+
+          var newEndDate;
+          var endMoment = moment(this.endDate, this._lastFormatUsedForParsing);
+          if (endMoment.isValid()) {
+            newEndDate = endMoment.format(format);
+          }
+          this._lastFormatUsedForParsing = format;
+          this.startDate = newStartDate;
+          this.endDate = newEndDate;
+        }
       }
     },
     /**
@@ -243,15 +479,15 @@
      * @param {Array} chars
      * @param {String} source
      */
-    _containsChars: function (chars, source) {
+    _containsChars: function(chars, source) {
       var result = false;
-      chars.forEach(function (char, index) {
+      chars.forEach(function(char, index) {
         result = result || source.indexOf(char) !== -1;
       });
       return result;
     },
     // *ij* the main purpose of this function is to validate startDate and endDate format when they are programmatically set
-    _validateValueFormat: function (value) {
+    _validateValueFormat: function(value) {
       var result = true;
       var valueParts = value.split(' to ');
       var startDate = valueParts[0];
@@ -283,7 +519,22 @@
 
       return result;
     },
-    _getFocusableElement: function () {
+    _validateStartDateEndDateChronologicalOrder: function () {
+      var result = true;
+
+      var format = this._internalFormat;
+      var startMoment = moment(this.startDate, format);
+      var endMoment = moment(this.endDate, format);
+
+      result = !startMoment.isAfter(endMoment);
+      if (!result) {
+        // this is invalid situation; report error
+        this._errorMessage = this.T('Order of start date and end date is incorrect. Start date is after end date');
+      }
+
+      return result;
+    },
+    _getFocusableElement: function() {
       var focusable = this.$.triggerRange;
       return focusable;
     }

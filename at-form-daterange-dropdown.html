@@ -2,7 +2,7 @@
 <link rel="import" href="../at-i18n/at-i18n-behavior.html">
 <link rel="import" href="../at-carbon-date-picker/at-carbon-date-picker.html">
 <link rel="import" href="../at-carbon-moment/momentjs-import.html">
-<link rel="import" href="../layout/layout.html">
+<link rel="import" href="../at-core-dropdown/at-core-dropdown.html">
 
 <dom-module id="at-form-daterange-dropdown">
   <template>
@@ -12,15 +12,7 @@
         float: left;
       }
 
-      #target {
-        z-index: 1000;
-      }
-
-      #rangeDiv {
-        position: absolute;
-      }
-
-      .daterangepicker {
+      /*.daterangepicker {
         position: relative;
         top: 4px;
         min-width: 175px;
@@ -40,27 +32,7 @@
         top: -1px;
         display: inline-block;
         @apply(--at-form-daterange-dropdown-border-after);
-      }
-
-      .daterangepicker.opensleft .ranges {}
-
-      .daterangepicker.opensleft:before {
-        right: 19px;
-      }
-
-      .daterangepicker.opensleft:after {
-        right: 20px;
-      }
-
-      .daterangepicker.opensright .ranges {}
-
-      .daterangepicker.opensright:before {
-        left: 19px;
-      }
-
-      .daterangepicker.opensright:after {
-        left: 20px;
-      }
+      }*/
 
       .daterangepicker .ranges {
         @apply(--shadow-elevation-2dp);
@@ -98,7 +70,7 @@
       }
     </style>
 
-    <div id="target" class="daterangepicker opensright" style="display: none;" on-blur="close">
+    <at-core-dropdown id="coreDropdown" class="daterangepicker" position="bottomRight">
       <div id="rangeDiv" class="horizontal layout">
         <div hidden$="{{!showRanges}}" class="ranges">
           <div class="range-item" on-click="menuItemClicked" value="today">{{T("Today")}}</div>
@@ -110,15 +82,13 @@
           <div class="range-item" on-click="menuItemClicked" value="custom">{{T("Custom")}}</div>
         </div>
         <div class="at-carbon-picker-container">
-          <at-carbon-date-picker id="calendarStart"mode="start-range" hidden="true" start-date="{{startDate}}" end-date="{{endDate}}" format="[[format]]"></at-carbon-date-picker>
+          <at-carbon-date-picker id="calendarStart" mode="start-range" hidden="true" start-date="{{startDate}}" end-date="{{endDate}}" format="[[format]]"></at-carbon-date-picker>
         </div>
         <div class="at-carbon-picker-container">
           <at-carbon-date-picker id="calendarEnd" mode="end-range" hidden="true" start-date="{{startDate}}" end-date="{{endDate}}" format="[[format]]"></at-carbon-date-picker>
         </div>
       </div>
-    </div>
-    <!-- *ij* to solve the focus / blur problems i use this hack here -->
-    <input type="text" id="focusBlurDummy" style="position: absolute; left: -5000px;" />
+    </at-core-dropdown>
   </template>
 </dom-module>
 <script>
@@ -157,7 +127,7 @@
         title: 'Format'
       }
     },
-    _getFormat: function () {
+    _getFormat: function() {
       if (!this.format) {
         this.format = this._localizedFormat("date");
       }
@@ -199,23 +169,30 @@
       window.addEventListener('resize', boundResizeHandler);
       this._boundResizeHandler = boundResizeHandler;
     },
-    open: function() {
-      this.$.target.style.display = "block";
-      // this.selectedChanged(this.selected, this.selected);
-      this._boundResizeHandler();
+    open: function(event) {
+      var self = this;
+      var coreDropdown = this.$.coreDropdown;
+      if (coreDropdown.hasAttribute('dropdown-open')) {
+        return;
+      }
+      Polymer.dom(coreDropdown).setAttribute('dropdown-open', true);
+      coreDropdown._updateDropdownPosition(event.target || event.srcElement);
+      coreDropdown.show(event);
+      self._boundResizeHandler();
     },
-    close: function() {
-      this.$.target.style.display = "none";
-      // *ij* to solve the focus / blur problems i use this hack here
-      // http://stackoverflow.com/questions/2520650/how-do-you-clear-the-focus-in-javascript
-      this.$.focusBlurDummy.focus();
-      this.$.focusBlurDummy.blur();
+    close: function(event) {
+      if (!coreDropdown.hasAttribute('dropdown-open')) {
+        return;
+      }
+      Polymer.dom(coreDropdown).removeAttribute('dropdown-open');
+      coreDropdown.hide();
     },
-    toggle: function() {
-      if (this.$.target.style.display === "none") {
-        this.open();
+    toggle: function(event) {
+      var coreDropdown = this.$.coreDropdown;
+      if (coreDropdown.hasAttribute('dropdown-open')) {
+        this.close(event);
       } else {
-        this.close();
+        this.open(event);
       }
     },
     newMoment: function() {
@@ -226,7 +203,7 @@
       var value = event.target.getAttribute('value');
 
       if (value !== 'custom') {
-        this.close();
+        this.close(event);
       }
 
       this.selected = value;
@@ -245,7 +222,9 @@
       this.toggleAttribute('hidden', this.selected !== 'custom', calendarStart);
       var calendarEnd = this.$.calendarEnd;
       this.toggleAttribute('hidden', this.selected !== 'custom', calendarEnd);
-      if (this._boundResizeHandler !== undefined) { this._boundResizeHandler(); }
+      if (this._boundResizeHandler !== undefined) {
+        this._boundResizeHandler();
+      }
 
       this._isInternalUpdate = true;
       switch (this.selected) {
@@ -344,8 +323,8 @@
       }
       this._setSelected();
     },
-    _setSelected:function () {
-      if (this.startDate !== "" && this.endDate !== ""){
+    _setSelected: function() {
+      if (this.startDate !== "" && this.endDate !== "") {
         this.selected = "custom";
       }
     }
