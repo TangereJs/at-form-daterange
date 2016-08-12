@@ -4,6 +4,7 @@
 <link rel="import" href="../at-theme/at-theme.html">
 <link rel="import" href="../at-carbon-icon/at-carbon-icon.html">
 <link rel="import" href="../at-form-behaviors/at-form-behaviors.html">
+<link rel="import" href="at-form-daterange-input-validation-behavior.html">
 
 <!-- This is a new component extracted from the demo.html for polymer 0.5 -->
 
@@ -95,7 +96,7 @@
 <script>
   Polymer({
     is: 'at-form-daterange',
-    behaviors: [Tangere.behaviors.i18n, Tangere.behaviors.formUIGeneric],
+    behaviors: [Tangere.behaviors.i18n, Tangere.behaviors.formUIGeneric, Tangere.behaviors.AtFormDaterangeInputValidation ],
     properties: {
       label: {
         type: String,
@@ -221,6 +222,10 @@
         }
       }
 
+      var boundResizeHandler = resizeUnboundHandler.bind(this);
+      window.addEventListener('resize', boundResizeHandler);
+      this._boundResizeHandler = boundResizeHandler;
+
       this._isReady = true;
       this._internalUpdateValidState(this.disabled, this.required);
     },
@@ -237,7 +242,7 @@
 
     _internalUpdateValidState: function (disabled, required, startDate, endDate) {
       if (this._isReady) {
-        this.validate();
+        this.validate(true);
       }
     },
 
@@ -274,8 +279,8 @@
           }
           this._lastFormatUsedForParsing = format;
           this.startDate = newStartDate;
-          this.endDate = newEndDate;
           this._fireStartDateChangedEvent(newStartDate);
+          this.endDate = newEndDate;
           this._fireEndDateChangedEvent(newEndDate);
         }
       }
@@ -294,7 +299,19 @@
     },
 
     validate: function(showError) {
-      return true;
+      if (showError === undefined) { showError = this.autovalidate; }
+      this._clearUIValidState();
+
+      var validationResult = this._validateBaseData();
+      if (showError) { this._handleValidationResult(validationResult); }
+      if (validationResult.isFinal) {
+        return validationResult.isValid;
+      }
+
+      validationResult = this._validateData(this, this.value, this.T.bind(this));
+      if (showError) { this._handleValidationResult(validationResult); }
+
+      return validationResult.isValid;
     },
 
     _updateUIValidState: function(isValid) {
@@ -346,39 +363,41 @@
         this.$.coreDropdown.show();
       }
       this._isInternalUpdate = true;
+      var newStartDate;
+      var newEndDate;
       switch (newValue) {
         case 'today':
-          this.startDate = this._formatDate(moment());
-          this.endDate = this._formatDate(moment());
+          newStartDate = this._formatDate(moment());
+          newEndDate = this._formatDate(moment());
           break;
         case 'yesterday':
-          this.startDate = this._formatDate(moment().subtract(1, "days"));
-          this.endDate = this._formatDate(moment().subtract(1, "days"));
+          newStartDate = this._formatDate(moment().subtract(1, "days"));
+          newEndDate = this._formatDate(moment().subtract(1, "days"));
           break;
         case 'last7days':
-          this.startDate = this._formatDate(moment().subtract(6, "days"));
-          this.endDate = this._formatDate(moment());
+          newStartDate = this._formatDate(moment().subtract(6, "days"));
+          newEndDate = this._formatDate(moment());
           break;
         case 'last30days':
-          this.startDate = this._formatDate(moment().subtract(30, "days"));
-          this.endDate = this._formatDate(moment());
+          newStartDate = this._formatDate(moment().subtract(30, "days"));
+          newEndDate = this._formatDate(moment());
           break;
         case 'thisMonth':
-          this.startDate = this._formatDate(moment().startOf("month"));
-          this.endDate = this._formatDate(moment().endOf("month"));
+          newStartDate = this._formatDate(moment().startOf("month"));
+          newEndDate = this._formatDate(moment().endOf("month"));
           break;
         case 'lastMonth':
-          this.startDate = this._formatDate(moment().subtract(1, "months").startOf("month"));
-          this.endDate = this._formatDate(moment().subtract(1, "months").endOf("month"));
+          newStartDate = this._formatDate(moment().subtract(1, "months").startOf("month"));
+          newEndDate = this._formatDate(moment().subtract(1, "months").endOf("month"));
           break;
         case 'custom':
           // for initialization purposes (first time) startDate and endDate are set to today
           // subject to change
           if (this.startDate === '') {
-            this.startDate = this._formatDate(moment());
+            newStartDate = this._formatDate(moment());
           }
           if (this.endDate === '') {
-            this.endDate = this._formatDate(moment());
+            newEndDate = this._formatDate(moment());
           }
           break;
       }
@@ -389,8 +408,14 @@
           Polymer.dom(liElem).classList.add('active');
         }
       }
-      this._fireStartDateChangedEvent(this.startDate);
-      this._fireEndDateChangedEvent(this.endDate);
+      if (newStartDate !== undefined) {
+        this.startDate = newStartDate;
+        this._fireStartDateChangedEvent(newStartDate);
+      }
+      if (newEndDate !== undefined) {
+        this.endDate = newEndDate;
+        this._fireEndDateChangedEvent(newEndDate);
+      }
     },
 
     _formatDate: function(moment) {
@@ -402,12 +427,14 @@
 
     _triggerRangeMouseDown: function(event) {
       if (!this.disabled) {
+        this._boundResizeHandler();
         this.$.coreDropdown.toggle(this.$.triggerRangeIcon);
       }
     },
 
     _iconButtonMouseDown: function(event) {
       if (!this.disabled) {
+        this._boundResizeHandler();
         this.$.coreDropdown.toggle(this.$.triggerRangeIcon);
       }
     },
@@ -464,6 +491,7 @@
 
     open: function(evnet) {
       if (!this.disabled) {
+        this._boundResizeHandler();
         this.$.coreDropdown.open();
       }
     },

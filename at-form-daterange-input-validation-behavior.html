@@ -1,0 +1,181 @@
+<link rel="import" href="../tangere/tangere.html">
+
+<script>
+  /**
+   * AT-142 input validation
+   */
+  Tangere.behaviors.AtFormDaterangeInputValidation = {
+
+    _validateData: function(schema, value, localizer) {
+
+      function isObject(obj) {
+        return Object.prototype.toString.call(obj) === "[object Object]";
+      }
+
+      function isString(obj) {
+        return Object.prototype.toString.call(obj) === "[object String]";
+      }
+
+      function isFunction(obj) {
+        return Object.prototype.toString.call(obj) === "[object Function]";
+      }
+
+      function isBoolean(obj) {
+        return Object.prototype.toString.call(obj) === "[object Boolean]";
+      }
+
+      function isHTMLElement(obj) {
+        return Object.prototype.toString.call(obj) === "[object HTMLElement]";
+      }
+
+      function isHTMLUnknownElement(obj) {
+        return Object.prototype.toString.call(obj) === "[object HTMLUnknownElement]";
+      }
+
+
+      function format(format) {
+
+        var args_ = Array.prototype.slice.call(arguments, 1);
+
+        // replace {n}
+        var fmt = format.replace(/{(\d+)}/g, function (match, number) {
+          return typeof args_[number] != 'undefined' ? args_[number] : match;
+        });
+
+        // replace [n]
+        fmt = fmt.replace(/\[(\d+)\]/g, function (match, number) {
+          return typeof args_[number] != 'undefined' ? args_[number] : match;
+        });
+
+        return fmt;
+      }
+
+      if (!isFunction(localizer)) {
+        localizer = format;
+      }
+
+      var validationResult = {
+        isValid: true, // isValid is true if constraints checked in validation function are satisfied; false otherwise
+        errorMessage: "" // errorMessage is empty string if isValid is true; errorMessage contains error message text is isValid is false
+      };
+
+      // validate input parameters
+      // schema must be object
+      validationResult.isValid = isObject(schema) || ((isHTMLUnknownElement(schema) || isHTMLElement(schema)) && schema.is === "at-form-daterange");
+      if (!validationResult.isValid) {
+        validationResult.errorMessage = localizer("schema is not an object or at-form-daterange.");
+        return validationResult;
+      }
+
+      //schema must have properties object
+      validationResult.isValid = isObject(schema.properties);
+      if (!validationResult.isValid) {
+        validationResult.errorMessage = localizer("schema.properties is not an object.")
+        return validationResult;
+      }
+
+      //schema.properties must have value property and value property must be an object
+      validationResult.isValid = isObject(schema.properties.value);
+      if (!validationResult.isValid) {
+        validationResult.errorMessage = localizer("schema.properties.value is not an object.")
+        return validationResult;
+      }
+
+      //schema.properties.value must have type property and type property must be a function
+      validationResult.isValid = isFunction(schema.properties.value.type);
+      if (!validationResult.isValid) {
+        validationResult.errorMessage = localizer("schema.properties.value.type is not a function.")
+        return validationResult;
+      }
+
+      // schema must have required property and required must be boolean
+      validationResult.isValid = isBoolean(schema.required);
+      if (!validationResult.isValid) {
+        validationResult.errorMessage = localizer("schema.required is not a boolean value.")
+        return validationResult;
+      }
+
+      // schema must have _valueFormat property and _valueFormat must be a string
+      validationResult.isValid = isString(schema._internalFormat);
+      if (!validationResult.isValid) {
+        validationResult.errorMessage = localizer("schema._internalFormat is not a string value.")
+        return validationResult;
+      }
+
+      validationResult = _validateValueType(schema.properties.value, value, localizer);
+      if (!validationResult.isValid) {
+        return validationResult;
+      }
+
+      validationResult = _validateRequired(schema.required, value, localizer);
+      if (!validationResult.isValid) {
+        return validationResult;
+      }
+
+      validationResult = _validateFormat(schema._internalFormat, value, localizer);
+
+      return validationResult;
+
+      function _validateValueType(valueSchema, valueObj, localizer) {
+        function getTypeString(obj) {
+          return  Object.prototype.toString.call(obj);
+        }
+
+        var validationResult = {
+          isValid: true,
+          errorMessage: ""
+        };
+
+        // calculate type strings for valueObj and object that is returned from valueSchema.type function
+        // valueSchema.type function comes from at-form-text.properties.value.type
+        var schemaTypeString = getTypeString(valueSchema.type());
+        var nullTypeString = getTypeString(null);
+        var valueObjTypeString = getTypeString(valueObj);
+
+        validationResult.isValid = (schemaTypeString === valueObjTypeString) || (nullTypeString === valueObjTypeString);
+        if (!validationResult.isValid) {
+          validationResult.errorMessage = localizer("Type specified in schema doesn't match type of value object for property value. Expected {0} to match {1}", schemaTypeString, valueObjTypeString);
+        }
+
+        return validationResult;
+      }
+
+      function _validateRequired(required, value, localizer) {
+        var validationResult = {
+          isValid: true,
+          errorMessage: ""
+        };
+
+        // if required is true return true if value is not undefined, null or ""
+        validationResult.isValid = !required || ([undefined, null, ""].indexOf(value) === -1);
+        if (!validationResult.isValid) {
+          validationResult.errorMessage = localizer("This field is required.");
+        }
+
+        return validationResult;
+      }
+
+      function _validateFormat(format, value, localizer) {
+        var validationResult = {
+          isValid: true,
+          errorMessage: ""
+        };
+
+        format = format + " to " + format;
+
+        if ([null, "null", ""].indexOf(value) !== -1) {
+          return validationResult;
+        }
+
+        var formatMoment = moment(value, format, true);
+        validationResult.isValid = formatMoment.isValid();
+        if (!validationResult.isValid) {
+          validationResult.errorMessage = localizer("Value {0} is not in correct format of {1}", value, format );
+        }
+
+        return validationResult;
+      }
+
+    }
+  }
+</script>
