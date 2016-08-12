@@ -133,7 +133,6 @@
       required: {
         type: Boolean,
         value: false,
-        observer: '_requiredChanged',
         title: 'Input required'
       },
 
@@ -147,13 +146,13 @@
       startDate: {
         type: String,
         value: '',
-        observer: '_startDateChanged'
+        title: 'Start Date'
       },
 
       endDate: {
         type: String,
         value: '',
-        observer: '_endDateChanged'
+        title: 'End Date'
       },
 
       value: {
@@ -163,6 +162,11 @@
         title: 'Value'
       }
     },
+
+    observers: [
+      '_internalUpdateValidState(disabled, required, startDate, endDate)'
+    ],
+
     $meta: [{
       title: "Daterange",
       type: "daterange",
@@ -218,29 +222,20 @@
       }
 
       this._isReady = true;
+      this._internalUpdateValidState(this.disabled, this.required);
     },
 
     _disabledChanged: function(newValue, oldValue) {
       var atContainer = this.$.atContainer;
       this.toggleClass('disabled', newValue, atContainer);
-
-      if (this._isReady) {
-        this.validate();
-      }
     },
-
 
     _hideChanged: function(newValue, oldValue) {
       var wrapper = this.$.atContainer;
       this.toggleClass('hidden', newValue, wrapper);
-      if (this._isReady) {
-        this.validate();
-      }
-
-      this.validate();
     },
 
-    _requiredChanged: function(newValue, oldValue) {
+    _internalUpdateValidState: function (disabled, required, startDate, endDate) {
       if (this._isReady) {
         this.validate();
       }
@@ -280,6 +275,8 @@
           this._lastFormatUsedForParsing = format;
           this.startDate = newStartDate;
           this.endDate = newEndDate;
+          this._fireStartDateChangedEvent(newStartDate);
+          this._fireEndDateChangedEvent(newEndDate);
         }
       }
     },
@@ -307,19 +304,8 @@
       this.toggleClass('error', !isValid, contentContainer);
     },
 
-    _startDateChanged: function(newValue, oldValue) {
-      if (this._isReady) {
-        this.validate();
-      }
-    },
-    _endDateChanged: function(newValue, oldValue) {
-      if (this._isReady) {
-        this.validate();
-      }
-    },
-
     // value is read only
-    set value(newValue) {},
+    set value(newValue) { },
 
     // compute value computes the value from startDate and endDate
     _computeValue: function(startDate, endDate) {
@@ -333,16 +319,6 @@
       }
 
       return result;
-    },
-
-    open: function(evnet) {
-      if (!this.disabled) {
-        this.$.coreDropdown.open();
-      }
-    },
-
-    close: function(event) {
-      this.$.coreDropdown.close();
     },
 
     _rangeItemClicked: function(event) {
@@ -413,6 +389,8 @@
           Polymer.dom(liElem).classList.add('active');
         }
       }
+      this._fireStartDateChangedEvent(this.startDate);
+      this._fireEndDateChangedEvent(this.endDate);
     },
 
     _formatDate: function(moment) {
@@ -466,6 +444,32 @@
       }
 
       return result;
+    },
+
+    _fireStartDateChangedEvent: function (newValue) {
+      this.fire('start-date-changed', {
+        value: newValue
+      }, {
+        bubbles: false
+      });
+    },
+
+    _fireEndDateChangedEvent: function (newValue) {
+      this.fire('end-date-changed', {
+        value: newValue
+      }, {
+        bubbles: false
+      });
+    },
+
+    open: function(evnet) {
+      if (!this.disabled) {
+        this.$.coreDropdown.open();
+      }
+    },
+
+    close: function(event) {
+      this.$.coreDropdown.close();
     },
 
     focus: function() {
