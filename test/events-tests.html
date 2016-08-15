@@ -1,0 +1,261 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <title>at-form-daterange tests</title>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+  <script src="../../web-component-tester/browser.js"></script>
+  <script src="../../iron-test-helpers/test-helpers.js"></script>
+  <script src="../../iron-test-helpers/mock-interactions.js"></script>
+
+  <link rel="import" href="../at-form-daterange.html">
+</head>
+
+<body>
+
+  <test-fixture id="attrStartDate">
+    <template>
+      <at-form-daterange start-date="2016-08-15"></at-form-daterange>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="attrEndDate">
+    <template>
+      <at-form-daterange end-date="2016-08-25"></at-form-daterange>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="attrStartDateEndDate">
+    <template>
+      <at-form-daterange start-date="2016-08-15" end-date="2016-08-25"></at-form-daterange>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="propertyTests">
+    <template>
+      <at-form-daterange></at-form-daterange>
+    </template>
+  </test-fixture>
+
+  <script>
+    suite('events tests', function() {
+      suite('tests were property values are set as attributes ', function() {
+
+
+        test('start date set as attribute, setting end date triggers value-changed event', function(done) {
+          var input = fixture('attrStartDate');
+          assert.equal(input.startDate, "2016-08-15", "initial start date not set correctly");
+          assert.equal(input.endDate, "", "initial end date not set correctly");
+          assert.equal(input.value, '', 'initial value not set correctly');
+
+          var eventCount = 0;
+          input.addEventListener('value-changed', function(event) {
+            assert.equal(event.detail.value, '', 'event detail value not set correctly');
+            assert.equal(input.value, '', 'element value not set correctly');
+            eventCount += 1;
+
+          });
+
+          Polymer.dom(input).setAttribute('start-date', '2016-08-15');
+          Polymer.dom(input).setAttribute('start-date', '2016-08-15');
+          Polymer.dom(input).setAttribute('start-date', '2016-08-30');
+          Polymer.dom(input).setAttribute('start-date', '2016-08-30');
+          Polymer.dom(input).setAttribute('start-date', '2016-08-15');
+          Polymer.dom(input).setAttribute('start-date', '2016-08-15');
+          Polymer.dom(input).setAttribute('end-date', '2016-08-30');
+          Polymer.dom(input).setAttribute('end-date', '2016-08-30');
+
+          flush(function() {
+            assert.equal(1, eventCount, "at-form-daterange didn't fire correct number of events");
+            done();
+          });
+        });
+
+        test('end date set as attribute, setting start date triggers value-changed event', function(done) {
+          var input = fixture('attrEndDate');
+          assert.equal(input.startDate, "", "initial start date not set correctly");
+          assert.equal(input.endDate, "2016-08-25", "initial end date not set correctly");
+          assert.equal(input.value, '', 'initial value not set correctly');
+
+          var eventCount = 0;
+          input.addEventListener('value-changed', function(event) {
+            assert.equal(event.detail.value, '', 'event detail value not set correctly');
+            assert.equal(input.value, '', 'element value not set correctly');
+            eventCount += 1;
+
+          });
+
+          Polymer.dom(input).setAttribute('end-date', '2016-08-25');
+          Polymer.dom(input).setAttribute('end-date', '2016-08-25');
+          Polymer.dom(input).setAttribute('end-date', '2016-08-30');
+          Polymer.dom(input).setAttribute('end-date', '2016-08-30');
+          Polymer.dom(input).setAttribute('end-date', '2016-08-25');
+          Polymer.dom(input).setAttribute('end-date', '2016-08-25');
+          Polymer.dom(input).setAttribute('start-date', '2016-08-10');
+          Polymer.dom(input).setAttribute('start-date', '2016-08-10');
+
+          flush(function() {
+            assert.equal(1, eventCount, "at-form-daterange didn't fire correct number of events");
+            done();
+          });
+        });
+
+        test('start date and end date set as attribute, changing start date or end date triggers value-changed event', function(done) {
+          var input = fixture('attrEndDate');
+          assert.equal(input.startDate, "2016-08-15", "initial start date not set correctly");
+          assert.equal(input.endDate, "2016-08-25", "initial end date not set correctly");
+          assert.equal(input.value, '2016-08-15 to 2016-08-25', 'initial value not set correctly');
+
+          var eventCount = 0;
+          var expectedValue = "";
+          input.addEventListener('value-changed', function(event) {
+            assert.equal(event.detail.value, expectedValue, 'event detail value not set correctly');
+            assert.equal(input.value, expectedValue, 'element value not set correctly');
+            eventCount += 1;
+
+          });
+
+          expectedValue = "2016-08-15 to 2016-08-25";
+          Polymer.dom(input).setAttribute('start-date', '2016-08-15');
+          Polymer.dom(input).setAttribute('start-date', '2016-08-15');
+          Polymer.dom(input).setAttribute('end-date', '2016-08-25');
+          Polymer.dom(input).setAttribute('end-date', '2016-08-25');
+
+          expectedValue = "2016-08-15 to 2016-08-30";
+          Polymer.dom(input).setAttribute('end-date', '2016-08-30');
+          Polymer.dom(input).setAttribute('end-date', '2016-08-30');
+
+          expectedValue = "2016-08-15 to 2016-08-25";
+          Polymer.dom(input).setAttribute('end-date', '2016-08-25');
+          Polymer.dom(input).setAttribute('end-date', '2016-08-25');
+
+          expectedValue = "2016-08-10 to 2016-08-25";
+          Polymer.dom(input).setAttribute('start-date', '2016-08-10');
+          Polymer.dom(input).setAttribute('start-date', '2016-08-10');
+
+          flush(function() {
+            assert.equal(3, eventCount, "at-form-daterange didn't fire correct number of events");
+            done();
+          });
+        });
+      });
+
+      suite('tests where property values are set in code', function () {
+
+        test("setting just start date doesn't trigger value-changed event", function(done) {
+          var input = fixture('propertyTests');
+          input.startDate = "2016-08-15";
+
+          assert.equal(input.startDate, "2016-08-15", "initial start date not set correctly");
+          assert.equal(input.endDate, "", "initial end date not set correctly");
+          assert.equal(input.value, '', 'initial value not set correctly');
+
+          var expectedValue = "";
+          var eventCount = 0;
+
+          input.addEventListener('value-changed', function(event) {
+            assert.equal(event.detail.value, expectedValue, 'event detail value not set correctly');
+            assert.equal(input.value, expectedValue, 'element value not set correctly');
+            eventCount += 1;
+          });
+
+          input.startDate = "2016-08-15";
+          input.startDate = "2016-08-15";
+          input.startDate = "2016-08-10";
+          input.startDate = "2016-08-10";
+          input.startDate = "2016-08-25";
+          input.startDate = "2016-08-25";
+
+          flush(function() {
+            assert.equal(eventCount, 0, 'value-changed event was fired');
+            done();
+          });
+        });
+
+        test("setting just end date doesn't trigger value-changed event", function(done) {
+          var input = fixture('propertyTests');
+          input.endDate = "2016-08-15";
+
+          assert.equal(input.startDate, "", "initial start date not set correctly");
+          assert.equal(input.endDate, "2016-08-15", "initial end date not set correctly");
+          assert.equal(input.value, '', 'initial value not set correctly');
+
+          var expectedValue = "";
+          var eventCount = 0;
+
+          input.addEventListener('value-changed', function(event) {
+            assert.equal(event.detail.value, expectedValue, 'event detail value not set correctly');
+            assert.equal(input.value, expectedValue, 'element value not set correctly');
+            eventCount += 1;
+          });
+
+          input.endDate = "2016-08-15";
+          input.endDate = "2016-08-15";
+          input.endDate = "2016-08-10";
+          input.endDate = "2016-08-10";
+          input.endDate = "2016-08-25";
+          input.endDate = "2016-08-25";
+
+          flush(function() {
+            assert.equal(eventCount, 0, 'value-changed event was fired');
+            done();
+          });
+
+          test("setting start and end date triggers value-changed event", function(done) {
+            var input = fixture('propertyTests');
+            input.startDate = "2016-08-15";
+            input.endDate = "2016-08-25";
+
+            assert.equal(input.startDate, "2016-08-15", "initial start date not set correctly");
+            assert.equal(input.endDate, "2016-08-25", "initial end date not set correctly");
+            assert.equal(input.value, '2016-08-15 to 2016-08-25', 'initial value not set correctly');
+
+            var expectedValue = "";
+            var eventCount = 0;
+
+            input.addEventListener('value-changed', function(event) {
+              assert.equal(event.detail.value, expectedValue, 'event detail value not set correctly');
+              assert.equal(input.value, expectedValue, 'element value not set correctly');
+              eventCount += 1;
+            });
+
+            expectedValue = "2016-08-15 to 2016-08-25";
+            input.startDate = "2016-08-15";
+            input.startDate = "2016-08-15";
+            input.endDate = "2016-08-25";
+            input.endDate = "2016-08-25";
+
+            expectedValue = "2016-08-10 to 2016-08-25";
+            input.startDate = "2016-08-10";
+            input.startDate = "2016-08-10";
+
+            expectedValue = "2016-08-10 to 2016-08-30";
+            input.endDate = "2016-08-30";
+            input.endDate = "2016-08-30";
+
+            expectedValue = "2016-08-15 to 2016-08-25";
+            input.startDate = "2016-08-15";
+            input.startDate = "2016-08-15";
+
+            flush(function() {
+              assert.equal(eventCount, 3, 'value-changed event was fired');
+              done();
+            });
+
+        });
+
+      });
+
+    });
+  </script>
+
+</body>
+
+</html>

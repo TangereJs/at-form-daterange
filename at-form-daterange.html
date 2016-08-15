@@ -231,6 +231,10 @@
     },
 
     _disabledChanged: function(newValue, oldValue) {
+      var triggerRange = this.$.triggerRange;
+      this.toggleAttribute('disabled', newValue, triggerRange);
+      var triggerRangeIcon = this.$.triggerRangeIcon;
+      this.toggleAttribute('disabled', newValue, triggerRangeIcon);
       var atContainer = this.$.atContainer;
       this.toggleClass('disabled', newValue, atContainer);
     },

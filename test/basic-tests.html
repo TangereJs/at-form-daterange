@@ -29,7 +29,7 @@
 
   <test-fixture id="hideLabel">
     <template>
-      <at-form-daterange label="lorem ipsum" hide-label="true"></at-form-daterange>
+      <at-form-daterange label="lorem ipsum" hide-label></at-form-daterange>
     </template>
   </test-fixture>
 
@@ -83,13 +83,13 @@
 
   <test-fixture id="errorMessageAndDisabledValidTrue">
     <template>
-      <at-form-daterange error-message="demo error message"></at-form-daterange>
+      <at-form-daterange error-message="demo error message" disabled></at-form-daterange>
     </template>
   </test-fixture>
 
   <test-fixture id="errorMessageAndHideValidTrue">
     <template>
-      <at-form-daterange error-message="demo error message"></at-form-daterange>
+      <at-form-daterange error-message="demo error message" hide></at-form-daterange>
     </template>
   </test-fixture>
 
@@ -107,6 +107,7 @@
         test('is label displayed', function() {
           var element = fixture('displayLabel');
           assert.equal('lorem ipsum', element.label, 'label value is not correct');
+          assert.equal(false, element.hideLabel, 'hideLabel not set correctly');
 
           var label = element.$.label;
           assert.equal('lorem ipsum', label.textContent, 'laberl textContent not set correctly');
@@ -116,8 +117,9 @@
         });
 
         test('is label hidden', function() {
-          var element = fixture('displayLabel');
+          var element = fixture('hideLabel');
           assert.equal('lorem ipsum', element.label, 'label value is not correct');
+          assert.equal(true, element.hideLabel, 'hideLabel not set correctly');
 
           var label = element.$.label;
           assert.equal('lorem ipsum', label.textContent, 'laberl textContent not set correctly');
@@ -150,6 +152,7 @@
         test('disabled sets css classes', function() {
           var input = fixture('disabled');
           assert.equal(input.disabled, true, 'disabled property is true');
+
           var inputElement = input._getFocusableElement();
           assert.equal(inputElement.hasAttribute('disabled'), true, 'input element disabled attribute not set');
           assert.equal(input.$.triggerRangeIcon.hasAttribute('disabled'), true, 'input icon does not have disabled class');
@@ -179,10 +182,30 @@
         test('errorMessage => valid = false', function() {
           var input = fixture('errorMessageValidFalse');
           assert.equal(input.errorMessage, 'demo error message', 'error message is correctly set');
-          assert.equal(input.valid, true, 'input is valid because error message is set as attribute');
+          assert.equal(false, input.valid, 'input is valid because error message is set as attribute');
           input.errorMessage = 'Another version of demo error message';
           assert.equal(input.errorMessage, 'Another version of demo error message', 'error message is correctly set');
-          assert.equal(input.valid, false, 'input is invalid because error message is set as property');
+          assert.equal(false, input.valid, 'input is invalid because error message is set as property');
+        });
+
+        test('errorMessage & disabled => valid = true', function() {
+          var input = fixture('errorMessageAndDisabledValidTrue');
+          assert.equal(true, input.disabled, 'element is not disabled');
+          assert.equal(input.errorMessage, 'demo error message', 'error message is correctly set');
+          assert.equal(true, input.valid, 'input is valid because error message is set as attribute');
+          input.errorMessage = 'Another version of demo error message';
+          assert.equal(input.errorMessage, 'Another version of demo error message', 'error message is correctly set');
+          assert.equal(true, input.valid, 'input is invalid because error message is set as property');
+        });
+
+        test('errorMessage & hide => valid = true', function() {
+          var input = fixture('errorMessageAndHideValidTrue');
+          assert.equal(true, input.hide, 'element is not hidden');
+          assert.equal(input.errorMessage, 'demo error message', 'error message is correctly set');
+          assert.equal(true, input.valid, 'input is valid because error message is set as attribute');
+          input.errorMessage = 'Another version of demo error message';
+          assert.equal(input.errorMessage, 'Another version of demo error message', 'error message is correctly set');
+          assert.equal(true, input.valid, 'input is invalid because error message is set as property');
         });
 
         test('is hint displayed', function(done) {
