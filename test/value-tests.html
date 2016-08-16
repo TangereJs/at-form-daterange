@@ -63,11 +63,35 @@
 
         assert.equal(input.value, "", 'initially value is not empty');
 
-        var startDates = [ undefined, null, false, true, [], {}, "", "lorem ipsum", "2016-06-10" ];
-        var endDates = [ undefined, null, false, true, [], {}, "", "lorem ipsum" ];
+        var startDates = [ undefined, null, false, true, [], {} ];
+        var endDates = [ undefined, null, false, true, [], {} ];
         var expectedValue = "";
         // cobinations of startDates and endDates above should produce value = "";
         GenericAttributeTestFunction(input, startDates, endDates, expectedValue);
+
+        Polymer.dom(input).setAttribute('start-date', "");
+        Polymer.dom(input).setAttribute('start-date', "");
+        assert.equal(input.value, "", "value is not calculated correctly");
+
+        Polymer.dom(input).setAttribute('start-date', "");
+        Polymer.dom(input).setAttribute('start-date', "lorem ipsum");
+        assert.equal(input.value, " to lorem ipsum", "value is not calculated correctly");
+
+        Polymer.dom(input).setAttribute('start-date', "lorem ipsum");
+        Polymer.dom(input).setAttribute('start-date', "");
+        assert.equal(input.value, "lorem ipsum to ", "value is not calculated correctly");
+
+        Polymer.dom(input).setAttribute('start-date', "lorem ipsum");
+        Polymer.dom(input).setAttribute('start-date', "lorem ipsum");
+        assert.equal(input.value, "lorem ipsum to lorem ipsum", "value is not calculated correctly");
+
+        Polymer.dom(input).setAttribute('start-date', "2016-06-10");
+        Polymer.dom(input).setAttribute('start-date', "");
+        assert.equal(input.value, "2016-06-10 to ", "value is not calculated correctly");
+
+        Polymer.dom(input).setAttribute('start-date', "2016-06-10");
+        Polymer.dom(input).setAttribute('start-date', "lorem ipsum");
+        assert.equal(input.value, "2016-06-10 to lorem ipsum", "value is not calculated correctly");
 
         var startDates = [ undefined, null, false, true, [], {}, "", "lorem ipsum" ];
         var endDates = [ undefined, null, false, true, [], {}, "", "lorem ipsum", "2016-06-10" ];
@@ -89,12 +113,12 @@
         var expectedValue = input.T("{0} to {1}", "2016-06-10", "2016-06-17");
         // start date is before end date so we expect a correct value to be produced
         assert.equal(input.value, expectedValue, "value is not calculated correctly");
-        assert.equal(input.valid, true, "element is not valid");
+        assert.equal(true, input.valid, "element is not valid");
 
         Polymer.dom(input).setAttribute('start-date', "2016-06-17");
         Polymer.dom(input).setAttribute('end-date', "2016-06-10");
-        var expectedValue = "";
-        // start date is after end date so we expect value = "" to be produced and element should be invalid
+        var expectedValue = "2016-06-17 to 2016-06-10";
+        // start date is after end date so element should be invalid
         assert.equal(input.value, expectedValue, "value is not calculated correctly");
         assert.equal(input.valid, false, 'element is not invalid');
       });
@@ -111,6 +135,8 @@
           for (var edIndex = 0; edIndex < endDates.length; edIndex++) {
             endDate = endDates[edIndex];
             input.endDate = endDate;
+
+            expectedValue = startDate + " to " + endDate;
 
             assert.equal(input.value, expectedValue, "value is not calculated correctly");
           }
@@ -154,7 +180,7 @@
 
         input.startDate = "2016-06-17";
         input.endDate = "2016-06-10";
-        var expectedValue = "";
+        expectedValue = input.T("{0} to {1}", "2016-06-17", "2016-06-10");
         // start date is after end date so we expect value = "" to be produced and element should be invalid
         assert.equal(input.value, expectedValue, "value is not calculated correctly");
         assert.equal(input.valid, false, "element is not invalid");

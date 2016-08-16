@@ -65,7 +65,7 @@
       <label id="label">{{label}}</label>
       <div id="contentContainer" class="at-content-container">
         <div id="triggerContainer" class="input-group">
-          <input id="triggerRange" class="at-content has-placeholder date" value="{{value}}" on-mousedown="_triggerRangeMouseDown" readonly>
+          <input id="triggerRange" class="at-content has-placeholder date" on-mousedown="_triggerRangeMouseDown" readonly>
           <at-carbon-icon-button id="triggerRangeIcon" class="icon-background input-group-addon" on-mousedown="_iconButtonMouseDown" icon="now:calendar"></at-carbon-icon-button>
         </div>
         <at-core-dropdown id="coreDropdown" class="core-dropdown" position="bottomRight">
@@ -159,6 +159,7 @@
       value: {
         type: String,
         computed: '_computeValue(startDate, endDate)',
+        notify: true,
         isReadOnly: true,
         title: 'Value'
       }
@@ -174,15 +175,15 @@
       events: ["value-changed"]
     }],
 
+    _valueFormat: "YYYY-MM-DD",
+
+
     _hideLabelChanged: function(newValue, oldValue) {
       var label = this.$.label;
       this.toggleClass("hidden", newValue, label);
     },
 
     ready: function() {
-
-      this._internalFormat = this._localizedFormat("date");
-      this._lastFormatUsedForParsing = this._internalFormat;
       var self = this;
       var coreDropdown = this.$.coreDropdown;
 
@@ -264,29 +265,27 @@
         this.fire('format-changed', {
           value: format
         });
-        this._internalFormat = format;
+        this._displayFormat = format;
 
         /*
          * reformat startDate and endDate to match new format
          */
-        if (this._lastFormatUsedForParsing) {
-          var newStartDate;
-          var startMoment = moment(this.startDate, this._lastFormatUsedForParsing);
-          if (startMoment.isValid()) {
-            newStartDate = startMoment.format(format);
-          }
-
-          var newEndDate;
-          var endMoment = moment(this.endDate, this._lastFormatUsedForParsing);
-          if (endMoment.isValid()) {
-            newEndDate = endMoment.format(format);
-          }
-          this._lastFormatUsedForParsing = format;
-          this.startDate = newStartDate;
-          this._fireStartDateChangedEvent(newStartDate);
-          this.endDate = newEndDate;
-          this._fireEndDateChangedEvent(newEndDate);
+        var newStartDate;
+        var startMoment = moment(this.startDate, this._valueFormat, true);
+        if (startMoment.isValid()) {
+          newStartDate = startMoment.format(format);
         }
+
+        var newEndDate;
+        var endMoment = moment(this.endDate, this._valueFormat, true);
+        if (endMoment.isValid()) {
+          newEndDate = endMoment.format(format);
+        }
+
+        this.startDate = newStartDate;
+        this._fireStartDateChangedEvent(newStartDate);
+        this.endDate = newEndDate;
+        this._fireEndDateChangedEvent(newEndDate);
       }
     },
     /**
@@ -330,15 +329,41 @@
 
     // compute value computes the value from startDate and endDate
     _computeValue: function(startDate, endDate) {
-      var valueStringTemplate = this.T("{0} to {1}");
+      function isString(obj) {
+        return Object.prototype.toString.call(obj) === "[object String]";
+      }
       var result = '';
-      if (startDate === "" || endDate === "") {
+
+      if (!isString(startDate) || !isString(endDate)){
         return result;
       }
-      if (startDate && endDate) {
-        result = valueStringTemplate.replace("{0}", startDate).replace("{1}", endDate);
+
+      var startDateMoment = moment(startDate, this._valueFormat, true);
+      var endDateMoment = moment(endDate, this._valueFormat, true);
+
+      var startDateValid = startDateMoment.isValid();
+      var endDateValid = endDateMoment.isValid()
+
+      if (!startDateValid || !endDateValid) {
+        if (startDate !== "" && endDate !== "") {
+          result = this.T("{0} to {1}", startDate, endDate);
+        } else {
+          return "";
+        }
       }
 
+      if (!this._displayFormat) {
+        this._displayFormat = this._localizedFormat("date");
+      }
+
+      var startDateDisplayStr = startDateMoment.format(this._displayFormat);
+      var endDateDisplayStr = endDateMoment.format(this._displayFormat);
+      var displayResult = this.T("{0} to {1}", startDateDisplayStr, endDateDisplayStr);
+
+      var triggerRange = this.$.triggerRange;
+      triggerRange.value = displayResult;
+
+      result = this.T("{0} to {1}", startDate, endDate);
       return result;
     },
 
