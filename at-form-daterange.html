@@ -158,14 +158,14 @@
 
       value: {
         type: String,
-        computed: '_computeValue(startDate, endDate)',
-        notify: true,
-        isReadOnly: true,
+        observer: '_valueChanged',
+        value: '',
         title: 'Value'
       }
     },
 
     observers: [
+      '_computeValue(startDate, endDate)',
       '_internalUpdateValidState(disabled, required, startDate, endDate)'
     ],
 
@@ -321,16 +321,16 @@
       this.toggleClass('error', !isValid, contentContainer);
     },
 
-    // value is read only
-    set value(newValue) {},
-
     // compute value computes the value from startDate and endDate
-    // https://www.polymer-project.org/1.0/docs/devguide/properties#computed-properties
-    // this function is only called if both startDate and endDate are !== undefined
     _computeValue: function(startDate, endDate) {
       function isString(obj) {
         return Object.prototype.toString.call(obj) === "[object String]";
       }
+
+      if (this._isInternalUpdate) {
+        return;
+      }
+
       var result = '';
 
       if (!isString(startDate) || !isString(endDate)) {
@@ -346,9 +346,14 @@
       if (!startDateValid || !endDateValid) {
         if (startDate !== "" && endDate !== "") {
           result = this.T("{0} to {1}", startDate, endDate);
-        } else {
-          return result;
         }
+        this._isInternalUpdate = true;
+        this.value = result;
+        if (this._isReady) {
+          this._fireValueChangedEvent(result);
+        }
+        this._isInternalUpdate = false;
+        return;
       }
 
       if (!this._displayFormat) {
@@ -358,7 +363,66 @@
       this._updateDisplayValue(startDateMoment, endDateMoment, this._displayFormat, this.$.triggerRange);
 
       result = this.T("{0} to {1}", startDate, endDate);
-      return result;
+      this._isInternalUpdate = true;
+      this.value = result;
+      if (this._isReady) {
+        this._fireValueChangedEvent(result);
+      }
+      this._isInternalUpdate = false;
+    },
+
+    _valueChanged: function (newValue, oldValue) {
+      function isString(obj) {
+        return Object.prototype.toString.call(obj) === "[object String]";
+      }
+
+      if (this._isInternalUpdate) {
+        return;
+      }
+
+      if (newValue === null) {
+        this._isInternalUpdate = true;
+        this.startDate = null;
+        this._fireStartDateChangedEvent(startDateStr);
+
+        this.endDate = null;
+        this._fireEndDateChangedEvent(endDateStr);
+        this._isInternalUpdate = false;
+        if (this._isReady) {
+          this._fireValueChangedEvent(newValue);
+        }
+        return;
+      }
+
+      if (!isString(newValue)) {
+        if (this._isReady) {
+          this._fireValueChangedEvent(newValue);
+        }
+        return;
+      }
+      // se expect newValue to be _valueFormat to _valueFormat
+      // after split there are three parts
+      // if there are more or less newValue is invalid
+      var valueParts = newValue.split(" ");
+      if (valueParts.length !== 3) {
+        if (this._isReady) {
+          this._fireValueChangedEvent(newValue);
+        }
+        return;
+      }
+
+      var startDateStr = valueParts[0];
+      var endDateStr = valueParts[2];
+
+      this.startDate = startDateStr;
+      this._fireStartDateChangedEvent(startDateStr);
+
+      this.endDate = endDateStr;
+      this._fireEndDateChangedEvent(endDateStr);
+
+      if (this._isReady) {
+        this._fireValueChangedEvent(newValue);
+      }
     },
 
     _updateDisplayValue: function (startDateMoment, endDateMoment, displayFormat, input) {

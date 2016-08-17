@@ -45,15 +45,15 @@
     </template>
   </test-fixture>
 
-  <test-fixture id="attrNullValueAndMaxChars">
+  <test-fixture id="attrNullValueAndFormat">
     <template>
-      <at-form-daterange max-chars="2" value=null></at-form-daterange>
+      <at-form-daterange format="DD-MM-YYYY" value=null></at-form-daterange>
     </template>
   </test-fixture>
 
-  <test-fixture id="attrNullStringValueAndMaxChars">
+  <test-fixture id="attrNullStringValueAndFormat">
     <template>
-      <at-form-daterange max-chars="2" value="null"></at-form-daterange>
+      <at-form-daterange format="YYYY-DD-MM" value="null"></at-form-daterange>
     </template>
   </test-fixture>
 
@@ -67,16 +67,16 @@
 
         var eventCount = 0;
         input.addEventListener('value-changed', function(event) {
-          assert.equal(event.detail.value, 'demo value', 'event detail value not set correctly');
-          assert.equal(input.value, 'demo value', 'event detail value not set correctly');
-          assert.equal(input.valid, true, 'value not set correctly');
+          assert.equal(event.detail.value, '2016-06-10 to 2016-06-15', 'event detail value not set correctly');
+          assert.equal(input.value, '2016-06-10 to 2016-06-15', 'event detail value not set correctly');
+          assert.equal(input.valid, true, 'element is invalid');
           eventCount += 1;
         });
 
-        input.value = 'demo value';
-        Polymer.dom(input).setAttribute('value', 'demo value');
-        input.value = 'demo value';
-        Polymer.dom(input).setAttribute('value', 'demo value');
+        input.value = '2016-06-10 to 2016-06-15';
+        Polymer.dom(input).setAttribute('value', '2016-06-10 to 2016-06-15');
+        input.value = '2016-06-10 to 2016-06-15';
+        Polymer.dom(input).setAttribute('value', '2016-06-10 to 2016-06-15');
 
         flush(function() {
           assert.equal(eventCount, 1);
@@ -91,16 +91,16 @@
 
         var eventCount = 0;
         input.addEventListener('value-changed', function(event) {
-          assert.equal(event.detail.value, 'demo value', 'event detail value not set correctly');
-          assert.equal(input.value, 'demo value', 'event detail value not set correctly');
+          assert.equal(event.detail.value, '2016-06-10 to 2016-06-15', 'event detail value not set correctly');
+          assert.equal(input.value, '2016-06-10 to 2016-06-15', 'event detail value not set correctly');
           assert.equal(input.valid, true, 'value not set correctly');
           eventCount += 1;
         });
 
-        input.value = 'demo value';
-        Polymer.dom(input).setAttribute('value', 'demo value');
-        input.value = 'demo value';
-        Polymer.dom(input).setAttribute('value', 'demo value');
+        input.value = '2016-06-10 to 2016-06-15';
+        Polymer.dom(input).setAttribute('value', '2016-06-10 to 2016-06-15');
+        input.value = '2016-06-10 to 2016-06-15';
+        Polymer.dom(input).setAttribute('value', '2016-06-10 to 2016-06-15');
 
         flush(function() {
           assert.equal(eventCount, 1);
@@ -116,17 +116,17 @@
 
         var eventCount = 0;
         input.addEventListener('value-changed', function(event) {
-          assert.equal(event.detail.value, 'demo value', 'event detail value not set correctly');
-          assert.equal(input.value, 'demo value', 'event detail value not set correctly');
+          assert.equal(event.detail.value, '2016-06-10 to 2016-06-15', 'event detail value not set correctly');
+          assert.equal(input.value, '2016-06-10 to 2016-06-15', 'event detail value not set correctly');
           assert.equal(input.required, true, 'required is not set correctly');
           assert.equal(input.valid, true, 'element is not invalid');
           eventCount += 1;
         });
 
-        input.value = 'demo value';
-        Polymer.dom(input).setAttribute('value', 'demo value');
-        input.value = 'demo value';
-        Polymer.dom(input).setAttribute('value', 'demo value');
+        input.value = '2016-06-10 to 2016-06-15';
+        Polymer.dom(input).setAttribute('value', '2016-06-10 to 2016-06-15');
+        input.value = '2016-06-10 to 2016-06-15';
+        Polymer.dom(input).setAttribute('value', '2016-06-10 to 2016-06-15');
 
         flush(function() {
           assert.equal(eventCount, 1);
@@ -142,69 +142,17 @@
 
         var eventCount = 0;
         input.addEventListener('value-changed', function(event) {
-          assert.equal(event.detail.value, 'demo value', 'event detail value not set correctly');
-          assert.equal(input.value, 'demo value', 'event detail value not set correctly');
+          assert.equal(event.detail.value, '2016-06-10 to 2016-06-15', 'event detail value not set correctly');
+          assert.equal(input.value, '2016-06-10 to 2016-06-15', 'event detail value not set correctly');
           assert.equal(input.required, true, 'required is not set correctly');
           assert.equal(input.valid, true, 'value not set correctly');
           eventCount += 1;
         });
 
-        input.value = 'demo value';
-        Polymer.dom(input).setAttribute('value', 'demo value');
-        input.value = 'demo value';
-        Polymer.dom(input).setAttribute('value', 'demo value');
-
-        flush(function() {
-          assert.equal(eventCount, 1);
-          done();
-        });
-      });
-
-      test('attribute value set to null and maxChars', function(done) {
-        var input = fixture('attrNullValueAndMaxChars');
-        assert.equal(input.value, "null", 'value not set correctly');
-        assert.equal(input.maxChars, 2, 'maxChars is not set correctly');
-        assert.equal(input.valid, false, 'element is not valid as value is too long');
-
-        var eventCount = 0;
-        input.addEventListener('value-changed', function(event) {
-          assert.equal(event.detail.value, 'demo value', 'event detail value not set correctly');
-          assert.equal(input.value, 'demo value', 'event detail value not set correctly');
-          assert.equal(input.maxChars, 2, 'maxChars is not set correctly');
-          assert.equal(input.valid, false, 'element is not invalid');
-          eventCount += 1;
-        });
-
-        input.value = 'demo value';
-        Polymer.dom(input).setAttribute('value', 'demo value');
-        input.value = 'demo value';
-        Polymer.dom(input).setAttribute('value', 'demo value');
-
-        flush(function() {
-          assert.equal(eventCount, 1);
-          done();
-        });
-      });
-
-      test('attribute value set to "null" and maxChars', function(done) {
-        var input = fixture('attrNullStringValueAndMaxChars');
-        assert.equal(input.value, "null", 'value not set correctly');
-        assert.equal(input.maxChars, 2, 'maxChars is not set correctly');
-        assert.equal(input.valid, false, 'value is to long');
-
-        var eventCount = 0;
-        input.addEventListener('value-changed', function(event) {
-          assert.equal(event.detail.value, 'demo value', 'event detail value not set correctly');
-          assert.equal(input.value, 'demo value', 'event detail value not set correctly');
-          assert.equal(input.maxChars, 2, 'maxChars is not set correctly');
-          assert.equal(input.valid, false, 'value not set correctly');
-          eventCount += 1;
-        });
-
-        input.value = 'demo value';
-        Polymer.dom(input).setAttribute('value', 'demo value');
-        input.value = 'demo value';
-        Polymer.dom(input).setAttribute('value', 'demo value');
+        input.value = '2016-06-10 to 2016-06-15';
+        Polymer.dom(input).setAttribute('value', '2016-06-10 to 2016-06-15');
+        input.value = '2016-06-10 to 2016-06-15';
+        Polymer.dom(input).setAttribute('value', '2016-06-10 to 2016-06-15');
 
         flush(function() {
           assert.equal(eventCount, 1);
@@ -225,16 +173,16 @@
 
         var eventCount = 0;
         input.addEventListener('value-changed', function(event) {
-          assert.equal(event.detail.value, 'demo value', 'event detail value not set correctly');
-          assert.equal(input.value, 'demo value', 'event detail value not set correctly');
-          assert.equal(input.valid, true, 'value not set correctly');
+          assert.equal(event.detail.value, '2016-06-10 to 2016-06-15', 'event detail value not set correctly');
+          assert.equal(input.value, '2016-06-10 to 2016-06-15', 'event detail value not set correctly');
+          assert.equal(input.valid, true, 'element is invalid');
           eventCount += 1;
         });
 
-        input.value = 'demo value';
-        Polymer.dom(input).setAttribute('value', 'demo value');
-        input.value = 'demo value';
-        Polymer.dom(input).setAttribute('value', 'demo value');
+        input.value = '2016-06-10 to 2016-06-15';
+        Polymer.dom(input).setAttribute('value', '2016-06-10 to 2016-06-15');
+        input.value = '2016-06-10 to 2016-06-15';
+        Polymer.dom(input).setAttribute('value', '2016-06-10 to 2016-06-15');
 
         flush(function() {
           assert.equal(eventCount, 1);
@@ -251,16 +199,16 @@
 
         var eventCount = 0;
         input.addEventListener('value-changed', function(event) {
-          assert.equal(event.detail.value, 'demo value', 'event detail value not set correctly');
-          assert.equal(input.value, 'demo value', 'event detail value not set correctly');
+          assert.equal(event.detail.value, '2016-06-10 to 2016-06-15', 'event detail value not set correctly');
+          assert.equal(input.value, '2016-06-10 to 2016-06-15', 'event detail value not set correctly');
           assert.equal(input.valid, true, 'element is not valid');
           eventCount += 1;
         });
 
-        input.value = 'demo value';
-        Polymer.dom(input).setAttribute('value', 'demo value');
-        input.value = 'demo value';
-        Polymer.dom(input).setAttribute('value', 'demo value');
+        input.value = '2016-06-10 to 2016-06-15';
+        Polymer.dom(input).setAttribute('value', '2016-06-10 to 2016-06-15');
+        input.value = '2016-06-10 to 2016-06-15';
+        Polymer.dom(input).setAttribute('value', '2016-06-10 to 2016-06-15');
 
         flush(function() {
           assert.equal(eventCount, 1);
@@ -278,16 +226,16 @@
 
         var eventCount = 0;
         input.addEventListener('value-changed', function(event) {
-          assert.equal(event.detail.value, 'demo value', 'event detail value not set correctly');
-          assert.equal(input.value, 'demo value', 'event detail value not set correctly');
+          assert.equal(event.detail.value, '2016-06-10 to 2016-06-15', 'event detail value not set correctly');
+          assert.equal(input.value, '2016-06-10 to 2016-06-15', 'event detail value not set correctly');
           assert.equal(input.valid, true, 'value not set correctly');
           eventCount += 1;
         });
 
-        input.value = 'demo value';
-        Polymer.dom(input).setAttribute('value', 'demo value');
-        input.value = 'demo value';
-        Polymer.dom(input).setAttribute('value', 'demo value');
+        input.value = '2016-06-10 to 2016-06-15';
+        Polymer.dom(input).setAttribute('value', '2016-06-10 to 2016-06-15');
+        input.value = '2016-06-10 to 2016-06-15';
+        Polymer.dom(input).setAttribute('value', '2016-06-10 to 2016-06-15');
 
         flush(function() {
           assert.equal(eventCount, 1);
@@ -305,76 +253,21 @@
 
         var eventCount = 0;
         input.addEventListener('value-changed', function(event) {
-          assert.equal(event.detail.value, 'demo value', 'event detail value not set correctly');
-          assert.equal(input.value, 'demo value', 'event detail value not set correctly');
+          assert.equal(event.detail.value, '2016-06-10 to 2016-06-15', 'event detail value not set correctly');
+          assert.equal(input.value, '2016-06-10 to 2016-06-15', 'event detail value not set correctly');
           assert.equal(input.valid, true, 'element is not valid');
           eventCount += 1;
         });
 
-        input.value = 'demo value';
-        Polymer.dom(input).setAttribute('value', 'demo value');
-        input.value = 'demo value';
-        Polymer.dom(input).setAttribute('value', 'demo value');
+        input.value = '2016-06-10 to 2016-06-15';
+        Polymer.dom(input).setAttribute('value', '2016-06-10 to 2016-06-15');
+        input.value = '2016-06-10 to 2016-06-15';
+        Polymer.dom(input).setAttribute('value', '2016-06-10 to 2016-06-15');
 
         flush(function() {
           assert.equal(eventCount, 1);
           done();
         });
-      });
-
-      test('property value set to null and maxChars', function(done) {
-        var input = document.createElement('at-form-daterange');
-        input.maxChars = 2;
-        input.value = null;
-
-        assert.equal(input.value, null, 'value not set correctly');
-        assert.equal(input.valid, true, 'element is valid');
-
-        var eventCount = 0;
-        input.addEventListener('value-changed', function(event) {
-          assert.equal(event.detail.value, 'demo value', 'event detail value not set correctly');
-          assert.equal(input.value, 'demo value', 'event detail value not set correctly');
-          assert.equal(input.valid, false, 'value not set correctly');
-          eventCount += 1;
-        });
-
-        input.value = 'demo value';
-        Polymer.dom(input).setAttribute('value', 'demo value');
-        input.value = 'demo value';
-        Polymer.dom(input).setAttribute('value', 'demo value');
-
-        flush(function() {
-          assert.equal(eventCount, 1);
-          done();
-        });
-      });
-
-      test('property value set to "null" and maxChars', function(done) {
-        var input = document.createElement('at-form-daterange');
-        input.maxChars = 2;
-        input.value = "null";
-
-        assert.equal(input.value, "null", 'value not set correctly');
-        assert.equal(input.valid, false, 'element is valid');
-
-        var eventCount = 0;
-        input.addEventListener('value-changed', function(event) {
-          assert.equal(event.detail.value, 'demo value', 'event detail value not set correctly');
-          assert.equal(input.value, 'demo value', 'event detail value not set correctly');
-          assert.equal(input.valid, false, 'element is valid');
-          eventCount += 1;
-        });
-
-        input.value = 'demo value';
-        Polymer.dom(input).setAttribute('value', 'demo value');
-        input.value = 'demo value';
-        Polymer.dom(input).setAttribute('value', 'demo value');
-
-        flush(function() {
-          assert.equal(eventCount, 1, "second .value assignment of same value should not trigger 2nd change event");
-          done();
-        });
-
       });
 
       test('property value set to null and user input is empty string', function(done) {
@@ -392,7 +285,7 @@
           eventCount += 1;
         });
 
-        var inputElement = input.$.input;
+        var inputElement = input.$.triggerRange;
 
         inputElement.value = "";
         TestHelpers.fireEvent('change', {}, inputElement);
@@ -419,13 +312,13 @@
           eventCount += 1;
         });
 
-        var inputElement = input.$.input;
+        var inputElement = input.$.triggerRange;
 
-        inputElement.value = "lorem ipsum";
+        inputElement.value = '2016-06-10 to 2016-06-15';
         TestHelpers.fireEvent('change', {}, inputElement);
 
         flush(function() {
-          assert.equal(eventCount, 1);
+          assert.equal(eventCount, 0);
           done();
         });
       });
