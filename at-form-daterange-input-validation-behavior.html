@@ -188,6 +188,10 @@
           errorMessage: ""
         };
 
+        if ([null, "null", ""].indexOf(value) !== -1) {
+          return validationResult;
+        }
+
         var valueParts = value.split(" ");
         var startDateStr = valueParts[0];
         var endDateStr = valueParts[2];

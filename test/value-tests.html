@@ -49,6 +49,14 @@
             endDate = endDates[edIndex];
             Polymer.dom(input).setAttribute('end-date', endDate);
 
+            var startDateStr = String(startDate);
+            var endDateStr = String(endDate);
+            if (startDateStr !== "" && endDateStr !== "") {
+              expectedValue = input.T("{0} to {1}", startDateStr, endDateStr);
+            } else {
+              expectedValue = "";
+            }
+
             assert.equal(input.value, expectedValue, "value is not calculated correctly");
           }
         }
@@ -63,35 +71,11 @@
 
         assert.equal(input.value, "", 'initially value is not empty');
 
-        var startDates = [ undefined, null, false, true, [], {} ];
-        var endDates = [ undefined, null, false, true, [], {} ];
+        var startDates = [ undefined, null, false, true, [], {}, "", "lorem ipsum", "2016-06-10" ];
+        var endDates = [ undefined, null, false, true, [], {}, "", "lorem ipsum" ];
         var expectedValue = "";
         // cobinations of startDates and endDates above should produce value = "";
         GenericAttributeTestFunction(input, startDates, endDates, expectedValue);
-
-        Polymer.dom(input).setAttribute('start-date', "");
-        Polymer.dom(input).setAttribute('start-date', "");
-        assert.equal(input.value, "", "value is not calculated correctly");
-
-        Polymer.dom(input).setAttribute('start-date', "");
-        Polymer.dom(input).setAttribute('start-date', "lorem ipsum");
-        assert.equal(input.value, " to lorem ipsum", "value is not calculated correctly");
-
-        Polymer.dom(input).setAttribute('start-date', "lorem ipsum");
-        Polymer.dom(input).setAttribute('start-date', "");
-        assert.equal(input.value, "lorem ipsum to ", "value is not calculated correctly");
-
-        Polymer.dom(input).setAttribute('start-date', "lorem ipsum");
-        Polymer.dom(input).setAttribute('start-date', "lorem ipsum");
-        assert.equal(input.value, "lorem ipsum to lorem ipsum", "value is not calculated correctly");
-
-        Polymer.dom(input).setAttribute('start-date', "2016-06-10");
-        Polymer.dom(input).setAttribute('start-date', "");
-        assert.equal(input.value, "2016-06-10 to ", "value is not calculated correctly");
-
-        Polymer.dom(input).setAttribute('start-date', "2016-06-10");
-        Polymer.dom(input).setAttribute('start-date', "lorem ipsum");
-        assert.equal(input.value, "2016-06-10 to lorem ipsum", "value is not calculated correctly");
 
         var startDates = [ undefined, null, false, true, [], {}, "", "lorem ipsum" ];
         var endDates = [ undefined, null, false, true, [], {}, "", "lorem ipsum", "2016-06-10" ];
@@ -123,6 +107,10 @@
         assert.equal(input.valid, false, 'element is not invalid');
       });
 
+      function isString(obj) {
+        return Object.prototype.toString.call(obj) === "[object String]";
+      }
+
       function GenericProgrammaticTestFunction(input, startDates, endDates, expectedValue) {
         var sdIndex;
         var edIndex;
@@ -136,7 +124,17 @@
             endDate = endDates[edIndex];
             input.endDate = endDate;
 
-            expectedValue = startDate + " to " + endDate;
+            if (!isString(startDate) || !isString(endDate)) {
+              expectedValue = "";
+            } else {
+              var startDateStr = String(startDate);
+              var endDateStr = String(endDate);
+              if (startDateStr !== "" && endDateStr !== "") {
+                expectedValue = input.T("{0} to {1}", startDateStr, endDateStr);
+              } else {
+                expectedValue = "";
+              }
+            }
 
             assert.equal(input.value, expectedValue, "value is not calculated correctly");
           }
@@ -151,16 +149,33 @@
 
         assert.equal(input.value, "", 'value is not initially empty');
 
-        var startDates = [ undefined, null, false, true, [], {}, "", "lorem ipsum", "2016-06-10" ];
-        var endDates = [ undefined, null, false, true, [], {}, "", "lorem ipsum" ];
+        var startDates = [ null, false, true, [], {}, "", "lorem ipsum", "2016-06-10" ];
+        var endDates = [  null, false, true, [], {}, "", "lorem ipsum" ];
         var expectedValue = "";
         // cobinations of startDates and endDates above should produce value = "";
         GenericProgrammaticTestFunction(input, startDates, endDates, expectedValue);
 
-        var startDates = [ undefined, null, false, true, [], {}, "", "lorem ipsum" ];
-        var endDates = [ undefined, null, false, true, [], {}, "", "lorem ipsum", "2016-06-10" ];
+        var startDates = [  null, false, true, [], {}, "", "lorem ipsum" ];
+        var endDates = [  null, false, true, [], {}, "", "lorem ipsum", "2016-06-10" ];
         // cobinations of startDates and endDates above should produce value = "";
         GenericProgrammaticTestFunction(input, startDates, endDates, expectedValue);
+
+        // set valid start date and end date
+        input.startDate = "2016-08-15";
+        input.endDate = "2016-08-25";
+        assert.equal("2016-08-15", input.startDate, 'start date is not correct');
+        assert.equal("2016-08-25", input.endDate, 'end date is not correct');
+        assert.equal(input.T("{0} to {1}", "2016-08-15", "2016-08-25"), input.value, "value is not correct");
+        // set start date to undefined; value should not change
+        input.startDate = undefined;
+        assert.equal(undefined, input.startDate, 'start date is not correct');
+        assert.equal("2016-08-25", input.endDate, 'end date is not correct');
+        assert.equal(input.T("{0} to {1}", "2016-08-15", "2016-08-25"), input.value, "value is not correct");
+        // set end date to undefined; value should not change
+        input.endDate = undefined;
+        assert.equal(undefined, input.startDate, 'start date is not correct');
+        assert.equal(undefined, input.endDate, 'end date is not correct');
+        assert.equal(input.T("{0} to {1}", "2016-08-15", "2016-08-25"), input.value, "value is not correct");
       });
 
       // when start date and end date are set as attributes
@@ -197,6 +212,7 @@
       // here we test if values are correctly formatted using different date formats
       test('alternative date formats test',function () {
         var input = fixture('valueProgrammaticTests');
+        var displayInput = input.$.triggerRange;
         // we do not know what localized format is, so we set the format
         input.format = "YYYY-MM-DD";
 
@@ -205,8 +221,10 @@
         input.startDate = "2016-06-10";
         input.endDate = "2016-06-17";
         var expectedValue = input.T("{0} to {1}", "2016-06-10", "2016-06-17");
+        var outputValue = expectedValue;
         // we test if YYYY-MM-DD format is applied correctly
         assert.equal(input.value, expectedValue, "value is not calculated correctly");
+        assert.equal(expectedValue, displayInput.value, "display value is not correct");
 
         // we test for invalid format values; invalid format values should be ignored and previous format of YYYY-MM-DD should be used
         var invalidFormats = [ undefined, null, "", {}, [], 424242, true, false, "undefined", "null", "true", "false" ];
@@ -215,33 +233,42 @@
         // we test YYYY-DD-MM format
         input.format = "YYYY-DD-MM";
         expectedValue = input.T("{0} to {1}", "2016-10-06", "2016-17-06");
-        assert.equal(input.value, expectedValue, "value is not calculated correctly");
+        assert.equal(input.value, outputValue, "value is not calculated correctly");
+        assert.equal(displayInput.value, expectedValue, "value is not calculated correctly");
 
         // we test DD-MM-YYYY format
         input.format = "DD-MM-YYYY";
         expectedValue = input.T("{0} to {1}", "10-06-2016", "17-06-2016");
-        assert.equal(input.value, expectedValue, "value is not calculated correctly");
+        assert.equal(input.value, outputValue, "value is not calculated correctly");
+        assert.equal(displayInput.value, expectedValue, "value is not calculated correctly");
 
         // we test MM-DD-YYYY format
         input.format = "MM-DD-YYYY";
         expectedValue = input.T("{0} to {1}", "06-10-2016", "06-17-2016");
-        assert.equal(input.value, expectedValue, "value is not calculated correctly");
+        assert.equal(input.value, outputValue, "value is not calculated correctly");
+        assert.equal(displayInput.value, expectedValue, "value is not calculated correctly");
 
         // for MM-DD-YYYY format we test if different dates are formatted correctly
-        input.startDate = "06-10-2017";
-        input.endDate = "06-17-2017";
+        input.startDate = "2017-06-10";
+        input.endDate = "2017-06-17";
         expectedValue = input.T("{0} to {1}", "06-10-2017", "06-17-2017");
-        assert.equal(input.value, expectedValue, "value is not calculated correctly");
+        outputValue = input.T("{0} to {1}", "2017-06-10", "2017-06-17")
+        assert.equal(input.value, outputValue, "value is not calculated correctly");
+        assert.equal(displayInput.value, expectedValue, "value is not calculated correctly");
 
-        input.startDate = "06-12-2017";
-        input.endDate = "06-18-2017";
+        input.startDate = "2017-06-12";
+        input.endDate = "2017-06-18";
         expectedValue = input.T("{0} to {1}", "06-12-2017", "06-18-2017");
-        assert.equal(input.value, expectedValue, "value is not calculated correctly");
+        outputValue = input.T("{0} to {1}", "2017-06-12", "2017-06-18")
+        assert.equal(input.value, outputValue, "value is not calculated correctly");
+        assert.equal(displayInput.value, expectedValue, "value is not calculated correctly");
 
-        input.startDate = "04-12-2017";
-        input.endDate = "10-18-2017";
+        input.startDate = "2017-04-12";
+        input.endDate = "2017-10-18";
         expectedValue = input.T("{0} to {1}", "04-12-2017", "10-18-2017");
-        assert.equal(input.value, expectedValue, "value is not calculated correctly");
+        outputValue = input.T("{0} to {1}", "2017-04-12", "2017-10-18")
+        assert.equal(input.value, outputValue, "value is not calculated correctly");
+        assert.equal(displayInput.value, expectedValue, "value is not calculated correctly");
 
       });
 

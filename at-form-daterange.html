@@ -96,7 +96,7 @@
 <script>
   Polymer({
     is: 'at-form-daterange',
-    behaviors: [Tangere.behaviors.i18n, Tangere.behaviors.formUIGeneric, Tangere.behaviors.AtFormDaterangeInputValidation ],
+    behaviors: [Tangere.behaviors.i18n, Tangere.behaviors.formUIGeneric, Tangere.behaviors.AtFormDaterangeInputValidation],
     properties: {
       label: {
         type: String,
@@ -245,48 +245,39 @@
       this.toggleClass('hidden', newValue, wrapper);
     },
 
-    _internalUpdateValidState: function (disabled, required, startDate, endDate) {
+    _internalUpdateValidState: function(disabled, required, startDate, endDate) {
       if (this._isReady) {
         this.validate(true);
       }
     },
 
     _formatChanged: function(newValue, oldValue) {
-      var format = newValue;
-      if (format) {
-        if (!this._containsChars(['Y', 'M', 'D'], format) || this._containsChars(['h', 'm', 's'], format)) {
-          // set format to the default format for date
-          format = this._internalFormat;
-          this._lastFormatUsedForParsing = this._internalFormat;
-          // log the error
-          console.log('Value ' + newValue + ' is not a valid format for date. Using default, ' + format + ', format instead.');
-        }
-        this.format = format;
-        this.fire('format-changed', {
-          value: format
-        });
-        this._displayFormat = format;
-
-        /*
-         * reformat startDate and endDate to match new format
-         */
-        var newStartDate;
-        var startMoment = moment(this.startDate, this._valueFormat, true);
-        if (startMoment.isValid()) {
-          newStartDate = startMoment.format(format);
-        }
-
-        var newEndDate;
-        var endMoment = moment(this.endDate, this._valueFormat, true);
-        if (endMoment.isValid()) {
-          newEndDate = endMoment.format(format);
-        }
-
-        this.startDate = newStartDate;
-        this._fireStartDateChangedEvent(newStartDate);
-        this.endDate = newEndDate;
-        this._fireEndDateChangedEvent(newEndDate);
+      function isString(obj) {
+        return Object.prototype.toString.call(obj) === "[object String]";
       }
+      var format = newValue;
+      if (!isString(format) || format === "") {
+        return;
+      }
+
+      if (!this._containsChars(['Y', 'M', 'D'], format) || this._containsChars(['h', 'm', 's'], format)) {
+        // set format to the default format for date
+        format = this._localizedFormat("date");
+        // log the error
+        console.log('Value ' + newValue + ' is not a valid format for date. Using default, ' + format + ', format instead.');
+      }
+      this._displayFormat = format;
+      this.format = format;
+      this.fire('format-changed', {
+        value: format
+      });
+
+      /*
+       * reformat display value to new format
+       */
+      var startDateMoment = moment(this.startDate, this._valueFormat, true);
+      var endDateMoment = moment(this.endDate, this._valueFormat, true);
+      this._updateDisplayValue(startDateMoment, endDateMoment, this._displayFormat, this.$.triggerRange);
     },
     /**
      * checks if source contains any of the chars
@@ -302,17 +293,23 @@
     },
 
     validate: function(showError) {
-      if (showError === undefined) { showError = this.autovalidate; }
+      if (showError === undefined) {
+        showError = this.autovalidate;
+      }
       this._clearUIValidState();
 
       var validationResult = this._validateBaseData();
-      if (showError) { this._handleValidationResult(validationResult); }
+      if (showError) {
+        this._handleValidationResult(validationResult);
+      }
       if (validationResult.isFinal) {
         return validationResult.isValid;
       }
 
       validationResult = this._validateData(this, this.value, this.T.bind(this));
-      if (showError) { this._handleValidationResult(validationResult); }
+      if (showError) {
+        this._handleValidationResult(validationResult);
+      }
 
       return validationResult.isValid;
     },
@@ -325,16 +322,18 @@
     },
 
     // value is read only
-    set value(newValue) { },
+    set value(newValue) {},
 
     // compute value computes the value from startDate and endDate
+    // https://www.polymer-project.org/1.0/docs/devguide/properties#computed-properties
+    // this function is only called if both startDate and endDate are !== undefined
     _computeValue: function(startDate, endDate) {
       function isString(obj) {
         return Object.prototype.toString.call(obj) === "[object String]";
       }
       var result = '';
 
-      if (!isString(startDate) || !isString(endDate)){
+      if (!isString(startDate) || !isString(endDate)) {
         return result;
       }
 
@@ -348,7 +347,7 @@
         if (startDate !== "" && endDate !== "") {
           result = this.T("{0} to {1}", startDate, endDate);
         } else {
-          return "";
+          return result;
         }
       }
 
@@ -356,15 +355,18 @@
         this._displayFormat = this._localizedFormat("date");
       }
 
-      var startDateDisplayStr = startDateMoment.format(this._displayFormat);
-      var endDateDisplayStr = endDateMoment.format(this._displayFormat);
-      var displayResult = this.T("{0} to {1}", startDateDisplayStr, endDateDisplayStr);
-
-      var triggerRange = this.$.triggerRange;
-      triggerRange.value = displayResult;
+      this._updateDisplayValue(startDateMoment, endDateMoment, this._displayFormat, this.$.triggerRange);
 
       result = this.T("{0} to {1}", startDate, endDate);
       return result;
+    },
+
+    _updateDisplayValue: function (startDateMoment, endDateMoment, displayFormat, input) {
+      var startDateDisplayStr = startDateMoment.format(displayFormat);
+      var endDateDisplayStr = endDateMoment.format(displayFormat);
+      var displayResult = this.T("{0} to {1}", startDateDisplayStr, endDateDisplayStr);
+
+      input.value = displayResult;
     },
 
     _rangeItemClicked: function(event) {
@@ -502,7 +504,7 @@
       return result;
     },
 
-    _fireStartDateChangedEvent: function (newValue) {
+    _fireStartDateChangedEvent: function(newValue) {
       this.fire('start-date-changed', {
         value: newValue
       }, {
@@ -510,7 +512,7 @@
       });
     },
 
-    _fireEndDateChangedEvent: function (newValue) {
+    _fireEndDateChangedEvent: function(newValue) {
       this.fire('end-date-changed', {
         value: newValue
       }, {
