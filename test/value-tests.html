@@ -49,6 +49,8 @@
             endDate = endDates[edIndex];
             Polymer.dom(input).setAttribute('end-date', endDate);
 
+            expectedValue = input.T("{0} to {1}", String(startDate), String(endDate));
+
             assert.equal(input.value, expectedValue, "value is not calculated correctly");
           }
         }
