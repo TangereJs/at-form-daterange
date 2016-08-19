@@ -48,12 +48,11 @@
     suite('events tests', function() {
       suite('tests were property values are set as attributes ', function() {
 
-
         test('start date set as attribute, setting end date triggers value-changed event', function(done) {
           var input = fixture('attrStartDate');
           assert.equal(input.startDate, "2016-08-15", "initial start date not set correctly");
           assert.equal(input.endDate, "", "initial end date not set correctly");
-          assert.equal(input.value, '', 'initial value not set correctly');
+          assert.equal(input.value, '2016-08-15 to ', 'initial value not set correctly');
 
           var expectedValue = "";
           var eventCount = 0;
@@ -63,11 +62,13 @@
             eventCount += 1;
 
           });
-
+          expectedValue = "2016-08-15 to ";
           Polymer.dom(input).setAttribute('start-date', '2016-08-15');
           Polymer.dom(input).setAttribute('start-date', '2016-08-15');
+          expectedValue = "2016-08-30 to ";
           Polymer.dom(input).setAttribute('start-date', '2016-08-30');
           Polymer.dom(input).setAttribute('start-date', '2016-08-30');
+          expectedValue = "2016-08-15 to ";
           Polymer.dom(input).setAttribute('start-date', '2016-08-15');
           Polymer.dom(input).setAttribute('start-date', '2016-08-15');
           expectedValue = "2016-08-15 to 2016-08-30";
@@ -78,7 +79,7 @@
           assert.equal("8/15/2016 to 8/30/2016", inputField.value, "display value is not correct");
 
           flush(function() {
-            assert.equal(1, eventCount, "at-form-daterange didn't fire correct number of events");
+            assert.equal(3, eventCount, "at-form-daterange didn't fire correct number of events");
             done();
           });
         });
@@ -87,7 +88,7 @@
           var input = fixture('attrEndDate');
           assert.equal(input.startDate, "", "initial start date not set correctly");
           assert.equal(input.endDate, "2016-08-25", "initial end date not set correctly");
-          assert.equal(input.value, '', 'initial value not set correctly');
+          assert.equal(input.value, ' to 2016-08-25', 'initial value not set correctly');
 
           var expectedValue = "";
           var eventCount = 0;
@@ -98,10 +99,13 @@
 
           });
 
+          expectedValue = " to 2016-08-25";
           Polymer.dom(input).setAttribute('end-date', '2016-08-25');
           Polymer.dom(input).setAttribute('end-date', '2016-08-25');
+          expectedValue = " to 2016-08-30";
           Polymer.dom(input).setAttribute('end-date', '2016-08-30');
           Polymer.dom(input).setAttribute('end-date', '2016-08-30');
+          expectedValue = " to 2016-08-25";
           Polymer.dom(input).setAttribute('end-date', '2016-08-25');
           Polymer.dom(input).setAttribute('end-date', '2016-08-25');
           expectedValue = "2016-08-10 to 2016-08-25";
@@ -112,7 +116,7 @@
           assert.equal("8/10/2016 to 8/25/2016", inputField.value, "display value is not correct");
 
           flush(function() {
-            assert.equal(1, eventCount, "at-form-daterange didn't fire correct number of events");
+            assert.equal(3, eventCount, "at-form-daterange didn't fire correct number of events");
             done();
           });
         });
@@ -174,7 +178,7 @@
 
           assert.equal(input.startDate, "2016-08-15", "initial start date not set correctly");
           assert.equal(input.endDate, "", "initial end date not set correctly");
-          assert.equal(input.value, '', 'initial value not set correctly');
+          assert.equal(input.value, '2016-08-15 to ', 'initial value not set correctly');
 
           var expectedValue = "";
           var eventCount = 0;
@@ -192,17 +196,19 @@
           assert.equal("", inputField.value, "display value is not correct");
           input.startDate = "2016-08-15";
           assert.equal("", inputField.value, "display value is not correct");
+          expectedValue = "2016-08-10 to ";
           input.startDate = "2016-08-10";
           assert.equal("", inputField.value, "display value is not correct");
           input.startDate = "2016-08-10";
           assert.equal("", inputField.value, "display value is not correct");
+          expectedValue = "2016-08-25 to ";
           input.startDate = "2016-08-25";
           assert.equal("", inputField.value, "display value is not correct");
           input.startDate = "2016-08-25";
           assert.equal("", inputField.value, "display value is not correct");
 
           flush(function() {
-            assert.equal(eventCount, 0, 'value-changed event was fired');
+            assert.equal(eventCount, 2, 'value-changed event was fired');
             done();
           });
         });
@@ -213,7 +219,7 @@
 
           assert.equal(input.startDate, "", "initial start date not set correctly");
           assert.equal(input.endDate, "2016-08-15", "initial end date not set correctly");
-          assert.equal(input.value, '', 'initial value not set correctly');
+          assert.equal(input.value, ' to 2016-08-15', 'initial value not set correctly');
 
           var expectedValue = "";
           var eventCount = 0;
@@ -231,17 +237,19 @@
           assert.equal("", inputField.value, "display value is not correct");
           input.endDate = "2016-08-15";
           assert.equal("", inputField.value, "display value is not correct");
+          expectedValue = " to 2016-08-10";
           input.endDate = "2016-08-10";
           assert.equal("", inputField.value, "display value is not correct");
           input.endDate = "2016-08-10";
           assert.equal("", inputField.value, "display value is not correct");
+          expectedValue = " to 2016-08-25";
           input.endDate = "2016-08-25";
           assert.equal("", inputField.value, "display value is not correct");
           input.endDate = "2016-08-25";
           assert.equal("", inputField.value, "display value is not correct");
 
           flush(function() {
-            assert.equal(eventCount, 0, 'value-changed event was fired');
+            assert.equal(eventCount, 2, 'value-changed event was fired');
             done();
           });
 

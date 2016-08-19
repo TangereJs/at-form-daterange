@@ -175,9 +175,6 @@
       events: ["value-changed"]
     }],
 
-    _valueFormat: "YYYY-MM-DD",
-
-
     _hideLabelChanged: function(newValue, oldValue) {
       var label = this.$.label;
       this.toggleClass("hidden", newValue, label);
@@ -249,6 +246,7 @@
         self._isInternalUpdateValue = false;
       });
 
+      this._valueFormat = "YYYY-MM-DD",
       this._isReady = true;
       this._displayFormat = this._localizedFormat("date");
       this._internalUpdateValidState(this.disabled, this.required);
@@ -503,8 +501,10 @@
 
           // update output value
           var outputValue = this.T("{0} to {1}", startDate, endDate);
-          this.value = outputValue;
-          this._fireValueChangedEvent(outputValue);
+          if (this.value !== outputValue) {
+            this.value = outputValue;
+            this._fireValueChangedEvent(outputValue);
+          }
         } else {
           // update display value
           this.$.triggerRange.value = this.T("{0} to {1}", startDate, endDate);
@@ -540,9 +540,10 @@
         this._selectedChanged("");
 
         // update output value
-        if (this.value !== "") {
-          this.value = "";
-          this._fireValueChangedEvent("");
+        var outputValue = this.T("{0} to {1}", startDate, endDate);
+        if (this.value !== outputValue) {
+          this.value = outputValue;
+          this._fireValueChangedEvent(outputValue);
         }
       } else {
         this._fireStartDateChangedEvent(startDate);
@@ -567,7 +568,7 @@
         var outputValue = this.T("{0} to {1}", startDateStr, endDateStr);
         if (this.value !== outputValue) {
           this.value = outputValue;
-          this._fireValueChangedEvent(outputValue);          
+          this._fireValueChangedEvent(outputValue);
         }
       }
 
