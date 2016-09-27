@@ -166,7 +166,7 @@
 
     observers: [
       '_updateDaterangeFromStartAndEndDate(startDate, endDate)',
-      '_internalValidStateUpdate(disabled, required, startDate, endDate)'
+      '_internalValidStateUpdate(required, startDate, endDate)'
     ],
 
     $meta: [{
@@ -249,7 +249,7 @@
       this._valueFormat = "YYYY-MM-DD",
       this._isReady = true;
       this._displayFormat = this._localizedFormat("date");
-      this._internalValidStateUpdate(this.disabled, this.required, this.startDate, this.endDate);
+      this._internalValidStateUpdate(this.required, this.startDate, this.endDate);
 
       // Handle setting initial values
       function isString(obj) {
@@ -292,7 +292,7 @@
       this.toggleClass('hidden', newValue, wrapper);
     },
 
-    _internalValidStateUpdate: function(disabled, required, startDate, endDate) {
+    _internalValidStateUpdate: function(required, startDate, endDate) {
       if (this._isReady) {
         this.validate();
       }
@@ -348,7 +348,7 @@
       if (showError) {
         this._handleValidationResult(validationResult);
       }
-      if (validationResult.isFinal) {
+      if (!validationResult.isValid) {
         return validationResult.isValid;
       }
 
