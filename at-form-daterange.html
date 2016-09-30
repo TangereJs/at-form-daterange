@@ -80,10 +80,10 @@
               <div class="range-item" on-click="_rangeItemClicked" value="custom">{{T("Custom")}}</div>
             </div>
             <div id="calendarStart" class="at-carbon-picker-container hidden">
-              <at-carbon-date-picker id="startDatePicker" mode="start-range" format="[[_valueFormat]]"></at-carbon-date-picker>
+              <at-carbon-date-picker id="startDatePicker" mode="start-range"></at-carbon-date-picker>
             </div>
             <div id="calendarEnd" class="at-carbon-picker-container hidden">
-              <at-carbon-date-picker id="endDatePicker" mode="end-range" format="[[_valueFormat]]"></at-carbon-date-picker>
+              <at-carbon-date-picker id="endDatePicker" mode="end-range"></at-carbon-date-picker>
             </div>
           </div>
         </at-core-dropdown>
@@ -232,7 +232,12 @@
         }
         self._isInternalUpdateValue = true;
         var startDateValue = event.detail.value;
-        self._updateDaterangeFromDatePickers(startDateValue, self.endDate);
+        var localizedDateFormat = self._localizedFormat("date");
+        var startDateMoment = moment(startDateValue, localizedDateFormat, true);
+        if (startDateMoment.isValid()) {
+          var valueFormatStartDateStr = startDateMoment.format(self._valueFormat);
+          self._updateDaterangeFromDatePickers(valueFormatStartDateStr, self.endDate);
+        }
         self._isInternalUpdateValue = false;
       });
 
@@ -242,7 +247,12 @@
         }
         self._isInternalUpdateValue = true;
         var endDateValue = event.detail.value;
-        self._updateDaterangeFromDatePickers(self.startDate, endDateValue);
+        var localizedDateFormat = self._localizedFormat("date");
+        var endDateMoment = moment(endDateValue, localizedDateFormat, true);
+        if (endDateMoment.isValid()) {
+          var valueFormatEndDateStr = endDateMoment.format(self._valueFormat);
+          self._updateDaterangeFromDatePickers(self.startDate, valueFormatEndDateStr);
+        }
         self._isInternalUpdateValue = false;
       });
 
@@ -425,10 +435,14 @@
           // update display value
           this._updateDisplayValue(startDateMoment, endDateMoment, this._displayFormat, this.$.triggerRange);
           // update datepickers
-          this.$.startDatePicker.startDate = startDateStr;
-          this.$.startDatePicker.endDate = endDateStr;
-          this.$.endDatePicker.startDate = startDateStr;
-          this.$.endDatePicker.endDate = endDateStr;
+          // datepickers expect strings in _localizedFormat("date") so we need to provide
+          var localizedDateFormat = this._localizedFormat("date");
+          var localizedStartDateStr = startDateMoment.format(localizedDateFormat);
+          var localizedEndDateStr = endDateMoment.format(localizedDateFormat);
+          this.$.startDatePicker.startDate = localizedStartDateStr;
+          this.$.startDatePicker.endDate = localizedEndDateStr;
+          this.$.endDatePicker.startDate = localizedStartDateStr;
+          this.$.endDatePicker.endDate = localizedEndDateStr;
         } else {
           this.$.triggerRange.value = newValue;
           this.$.startDatePicker.startDate = "";
@@ -460,6 +474,9 @@
       this._isInternalUpdateValue = false;
     },
 
+    /*
+      Flow 2.
+    */
     // compute value computes the value from startDate and endDate
     _updateDaterangeFromStartAndEndDate: function(startDate, endDate) {
       function isString(obj) {
@@ -491,10 +508,13 @@
           this._updateDisplayValue(startDateMoment, endDateMoment, this._displayFormat, this.$.triggerRange);
 
           // update date pickers
-          this.$.startDatePicker.startDate = startDate;
-          this.$.startDatePicker.endDate = endDate;
-          this.$.endDatePicker.startDate = startDate;
-          this.$.endDatePicker.endDate = endDate;
+          var localizedDateFormat = this._localizedFormat("date");
+          var startDateStr = startDateMoment.format(localizedDateFormat);
+          var endDateStr = endDateMoment.format(localizedDateFormat);
+          this.$.startDatePicker.startDate = startDateStr;
+          this.$.startDatePicker.endDate = endDateStr;
+          this.$.endDatePicker.startDate = startDateStr;
+          this.$.endDatePicker.endDate = endDateStr;
 
           this._selectedChanged("custom");
 
@@ -574,12 +594,14 @@
       this._isInternalUpdateValue = false;
     },
 
+    /*
+      Flow 3.
+    */
     _updateDaterangeFromDatePickers: function(startDate, endDate) {
       if (!this._isReady || this._isUpdateDaterangeFromDatePickers) {
         return;
       }
       this._isUpdateDaterangeFromDatePickers = true;
-
       // startDate and endDate should already be in _valueFormat
       var startDateMoment = moment(startDate, this._valueFormat, true);
       var endDateMoment = moment(endDate, this._valueFormat, true);
@@ -603,6 +625,15 @@
       this.value = outputValue;
       this._fireValueChangedEvent(outputValue);
 
+      // update datepickers
+      var localizedDateFormat = this._localizedFormat("date");
+      var startDateStr = startDateMoment.format(localizedDateFormat);
+      var endDateStr = endDateMoment.format(localizedDateFormat);
+      this.$.startDatePicker.startDate = startDateStr;
+      this.$.startDatePicker.endDate = endDateStr;
+      this.$.endDatePicker.startDate = startDateStr;
+      this.$.endDatePicker.endDate = endDateStr;
+
       this._isUpdateDaterangeFromDatePickers = false;
     },
 
@@ -621,13 +652,19 @@
     },
 
     _selectedChanged: function(newValue) {
+      var self = this;
+      function formatDate(moment) {
+        return moment.format(self._valueFormat);
+      }
+
+
+      if (this._isInternalUpdate || newValue === "") {
+        return;
+      }
+
       var activeItem = this.$$('.range-item.active');
       if (activeItem) {
         Polymer.dom(activeItem).classList.remove('active');
-      }
-
-      if (newValue === "") {
-        return;
       }
 
       var calendarStart = this.$.calendarStart;
@@ -645,41 +682,40 @@
       var newEndDate;
       switch (newValue) {
         case 'today':
-          newStartDate = this._formatDate(moment());
-          newEndDate = this._formatDate(moment());
+          newStartDate = formatDate(moment());
+          newEndDate = formatDate(moment());
           break;
         case 'yesterday':
-          newStartDate = this._formatDate(moment().subtract(1, "days"));
-          newEndDate = this._formatDate(moment().subtract(1, "days"));
+          newStartDate = formatDate(moment().subtract(1, "days"));
+          newEndDate = formatDate(moment().subtract(1, "days"));
           break;
         case 'last7days':
-          newStartDate = this._formatDate(moment().subtract(6, "days"));
-          newEndDate = this._formatDate(moment());
+          newStartDate = formatDate(moment().subtract(6, "days"));
+          newEndDate = formatDate(moment());
           break;
         case 'last30days':
-          newStartDate = this._formatDate(moment().subtract(30, "days"));
-          newEndDate = this._formatDate(moment());
+          newStartDate = formatDate(moment().subtract(30, "days"));
+          newEndDate = formatDate(moment());
           break;
         case 'thisMonth':
-          newStartDate = this._formatDate(moment().startOf("month"));
-          newEndDate = this._formatDate(moment().endOf("month"));
+          newStartDate = formatDate(moment().startOf("month"));
+          newEndDate = formatDate(moment().endOf("month"));
           break;
         case 'lastMonth':
-          newStartDate = this._formatDate(moment().subtract(1, "months").startOf("month"));
-          newEndDate = this._formatDate(moment().subtract(1, "months").endOf("month"));
+          newStartDate = formatDate(moment().subtract(1, "months").startOf("month"));
+          newEndDate = formatDate(moment().subtract(1, "months").endOf("month"));
           break;
         case 'custom':
           // for initialization purposes (first time) startDate and endDate are set to today
           // subject to change
           if (this.startDate === '') {
-            newStartDate = this._formatDate(moment());
+            newStartDate = formatDate(moment());
           }
           if (this.endDate === '') {
-            newEndDate = this._formatDate(moment());
+            newEndDate = formatDate(moment());
           }
           break;
       }
-      this._isInternalUpdate = false;
       if (newValue) {
         var liElem = this.$$('.range-item[value=' + newValue + ']');
         if (liElem) {
@@ -694,26 +730,37 @@
         this.endDate = newEndDate;
         this._fireEndDateChangedEvent(newEndDate);
       }
-    },
-
-    _formatDate: function(moment) {
-      if (!this.format) {
-        // this.format = this._internalFormat;
-      }
-      return moment.format(this._internalFormat);
+      this._isInternalUpdate = false;
     },
 
     _triggerRangeMouseDown: function(event) {
-      if (!this.disabled) {
-        this._boundResizeHandler();
-        this.$.coreDropdown.toggle(this.$.triggerRangeIcon);
-      }
+      this._toggleCoreDropdown(event);
     },
 
     _iconButtonMouseDown: function(event) {
+      this._toggleCoreDropdown(event);
+    },
+
+    _toggleCoreDropdown: function (event) {
       if (!this.disabled) {
-        this._boundResizeHandler();
-        this.$.coreDropdown.toggle(this.$.triggerRangeIcon);
+        var coreDropdown = this.$.coreDropdown;
+        var relativeTo = this.$.triggerRangeIcon;
+        /* ij on 30.09.2016 - Mega Hack to apply correct layout to coreDropdown
+          If coreDropdown is already open, hide it
+          If coreDropdown is closed, show it
+          then call _boundResizeHandler to measure,
+          then hide it, then open again
+          When open again correct layout will be applied to dropdown
+          OFC, this solution is mega retarded but welcome to HTML and DOM API
+        */
+        if (coreDropdown.isOpen()) {
+          coreDropdown.hide();
+        } else {
+          coreDropdown.show(event, relativeTo);
+          this._boundResizeHandler();
+          coreDropdown.hide();
+          coreDropdown.show(event, relativeTo);
+        }
       }
     },
 
@@ -723,7 +770,7 @@
       var valueParts = value.split(' to ');
       var startDate = valueParts[0];
       var endDate = valueParts[1];
-      var dateFormat = this._internalFormat;
+      var dateFormat = this._displayFormat;
 
       var startDateValid = true;
       var endDateValid = true;
