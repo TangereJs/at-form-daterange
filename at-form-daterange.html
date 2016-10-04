@@ -65,7 +65,7 @@
       <label id="label">{{label}}</label>
       <div id="contentContainer" class="at-content-container">
         <div id="triggerContainer" class="input-group">
-          <input id="triggerRange" class="at-content has-placeholder date" on-mousedown="_triggerRangeMouseDown" readonly>
+          <input id="triggerRange" class="at-content has-placeholder date">
           <at-carbon-icon-button id="triggerRangeIcon" class="icon-background input-group-addon" on-mousedown="_iconButtonMouseDown" icon="now:calendar"></at-carbon-icon-button>
         </div>
         <at-core-dropdown id="coreDropdown" class="core-dropdown" position="bottomRight">
@@ -256,9 +256,21 @@
         self._isInternalUpdateValue = false;
       });
 
+      this.$.triggerRange.addEventListener('change', function(event) {
+        var value = event.target.value;
+        self._updateDaterangeFromUserInput(value);
+        self.validate();
+      });
+
+      this.$.triggerRange.addEventListener('blur', function(event) {
+        self.validate();
+      });
+
       this._valueFormat = "YYYY-MM-DD",
       this._isReady = true;
-      this._displayFormat = this._localizedFormat("date");
+      if (!this._displayFormat) {
+        this._displayFormat = this._localizedFormat("date");
+      }
       this._internalValidStateUpdate(this.required, this.startDate, this.endDate);
 
       // Handle setting initial values
@@ -365,6 +377,64 @@
       validationResult = this._validateData(this, this.value, this.T.bind(this));
       if (showError) {
         this._handleValidationResult(validationResult);
+      }
+      if (!validationResult.isValid) {
+        return validationResult.isValid;
+      }
+
+      // validate user input
+      // newValue is user input
+      var newValue = this.$.triggerRange.value;
+      if (["null", null, ""].indexOf(newValue) === -1) {
+        // we expect dates in user input to be formatted in _displayFormat
+        // we expect the user input to be the string like _displayFormat to _displayFormat
+        var newValueParts = newValue.split(" ");
+        // if user input doesn't have three parts report error and return
+        if (newValueParts.length !== 3) {
+          validationResult = {
+            isValid: false,
+            errorMessage: this.T("Input string {0} is not valid", newValue)
+          };
+          if (showError){
+            this._handleValidationResult(validationResult);
+          };
+        }
+        if (!validationResult.isValid) {
+          return validationResult.isValid;
+        }
+
+        var unparsedStartDateString = newValueParts[0];
+        var unparsedEndDateString = newValueParts[2];
+
+        // parse startDate
+        var startDateMoment = moment(unparsedStartDateString, this._displayFormat, true);
+        // if start date is not valid report error and return
+        if (!startDateMoment.isValid()) {
+          validationResult = {
+            isValid: false,
+            errorMessage: this.T("Input string {0} is not valid", newValue)
+          };
+          if (showError) {
+            this._handleValidationResult(validationResult);
+          }
+        }
+        if (!validationResult.isValid) {
+          return validationResult.isValid;
+        }
+
+        // parse end date
+        var endDateMoment = moment(unparsedEndDateString, this._displayFormat, true);
+        // if start date is not valid report error and return
+        if (!endDateMoment.isValid()) {
+          validationResult = {
+            isValid: false,
+            errorMessage: this.T("Input string {0} is not valid", newValue)
+          };
+          this._handleValidationResult(validationResult);
+          if (showError) {
+            this._handleValidationResult(validationResult);
+          }
+        }
       }
 
       return validationResult.isValid;
@@ -637,6 +707,85 @@
       this._isUpdateDaterangeFromDatePickers = false;
     },
 
+    /*
+      Flow 4.
+        _displayValue will be updated with latest user input
+        _displayValue will be split into .startDate and .endDate
+        .startDate and .endDate will be set from _displayValue parts and formatted according to _valueFormat
+        .value will be updated with new .startDate and .endDate
+        dropdown will be updated, "custom" will be selected and startDate and endDate will be set on datepickers
+        in case of invalid values correct validation messages will be displayed
+
+        any feedback will be blocked:
+        setting .startDate/.endDate will not cause update of _displayValue
+        setting .value will not cause update of _displayValue
+        updating datepikcers will not cause update of _displayValue
+    */
+    _updateDaterangeFromUserInput: function (newValue) {
+
+      if (newValue === "") {
+        return;
+      }
+
+      // newValue is user input
+      // we expect dates in user input to be formatted in _displayFormat
+      // we expect the user input to be the string like _displayFormat to _displayFormat
+      var newValueParts = newValue.split(" ");
+      // if user input doesn't have three parts report error and return
+      if (newValueParts.length !== 3) {
+        return;
+      }
+
+      var unparsedStartDateString = newValueParts[0];
+      var unparsedEndDateString = newValueParts[2];
+
+      // parse startDate
+      var startDateMoment = moment(unparsedStartDateString, this._displayFormat, true);
+      // if start date is not valid report error and return
+      if (!startDateMoment.isValid()) {
+        return;
+      }
+
+      // parse end date
+      var endDateMoment = moment(unparsedEndDateString, this._displayFormat, true);
+      // if start date is not valid report error and return
+      if (!endDateMoment.isValid()) {
+        return;
+      }
+
+      var startDateValueString = startDateMoment.format(this._valueFormat);
+      var endDateValueString = endDateMoment.format(this._valueFormat);
+
+      var valueString = this.T("{0} to {1}", startDateValueString, endDateValueString);
+
+      // update datepickers
+      var localizedDateFormat = this._localizedFormat("date");
+      var startDatePickerString = startDateMoment.format(localizedDateFormat);
+      var endDatePickerString = endDateMoment.format(localizedDateFormat);
+      var startDatePicker = this.$.startDatePicker;
+      var endDatePicker = this.$.endDatePicker;
+
+      this._isUpdateDaterangeFromDatePickers = true;
+      startDatePicker.startDate = startDatePickerString;
+      startDatePicker.endDate = endDatePickerString;
+      endDatePicker.startDate = startDatePickerString;
+      endDatePicker.endDate = endDatePickerString;
+      this._isUpdateDaterangeFromDatePickers = false;
+
+      // update startDate value, endDate value and value
+      this._isInternalUpdateValue = true;
+      this.startDate = startDateValueString;
+      this._fireStartDateChangedEvent(startDateValueString);
+      this.endDate = endDateValueString;
+      this._fireEndDateChangedEvent(endDateValueString);
+      this.value = valueString;
+      this._fireValueChangedEvent(valueString);
+      this._isInternalUpdateValue = false;
+
+      this._selectedChanged("custom");
+      this.$.coreDropdown.hide();
+    },
+
     _updateDisplayValue: function (startDateMoment, endDateMoment, displayFormat, input) {
       var startDateDisplayStr = startDateMoment.format(displayFormat);
       var endDateDisplayStr = endDateMoment.format(displayFormat);
@@ -731,10 +880,6 @@
         this._fireEndDateChangedEvent(newEndDate);
       }
       this._isInternalUpdate = false;
-    },
-
-    _triggerRangeMouseDown: function(event) {
-      this._toggleCoreDropdown(event);
     },
 
     _iconButtonMouseDown: function(event) {
