@@ -34,6 +34,14 @@
       // variables to test
       // format
 
+      function getStartDateStr(localizedDateFormat) {
+        return moment("2016-05-01", "YYYY-MM-DD", true).format(localizedDateFormat);
+      }
+
+      function getEndDateStr(localizedDateFormat) {
+        return moment("2016-05-31", "YYYY-MM-DD", true).format(localizedDateFormat);
+      }
+
       suite('tests where properties are set as attributes', function(){
         test('format not set', function () {
           var element = fixture('propertyTests');
@@ -64,11 +72,15 @@
             assert.equal(errorMessage, element.T("Input string {0} is not valid", expectedValue), "error message not set correctly");
           }
 
+          var localizedDateFormat = element._localizedFormat("date");
+          var startDateString = getStartDateStr(localizedDateFormat);
+          var endDateString = getEndDateStr(localizedDateFormat);
+
           for (i = 0; i < invalidStringValues.length; i++) {
             invalidValue = invalidStringValues[i];
             expectedValue = expectedValues[i];
 
-            var inputValue = element.T("{0} to {1}", "5/01/2016", invalidValue);
+            var inputValue = element.T("{0} to {1}", startDateString, invalidValue);
             inputElement.value = inputValue;
 
             TestHelpers.fireEvent('change', {}, inputElement);
@@ -82,26 +94,26 @@
             assert.equal(errorMessage, element.T("Input string {0} is not valid", inputValue), "error message not set correctly");
           }
 
-          inputValue = element.T("{0} to {1}", "5/01/2016", "5/31/2016");
+          inputValue = element.T("{0} to {1}", startDateString, endDateString);
           inputElement.value = inputValue;
-
           TestHelpers.fireEvent('change', {}, inputElement);
 
+          expectedValue = element.T("{0} to {1}", '2016-05-01', "2016-05-31");
           assert.equal(inputElement.value, inputValue, "input element value not set correctly");
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "element value not set correctly");
+          assert.equal(element.value, expectedValue, "element value not set correctly");
           assert.equal(element.valid, true, "element valid state not set correctly");
           var isValid = element.validate(true);
           assert.equal(isValid, true, "element valid state not set correctly");
           var errorMessage = Polymer.dom(element.$.hint).textContent;
           assert.equal(errorMessage, "", "error message not set correctly");
 
-          inputValue = element.T("{0} to {1}", "5/31/2016", "5/01/2016");
+          inputValue = element.T("{0} to {1}", endDateString, startDateString);
           inputElement.value = inputValue;
 
           TestHelpers.fireEvent('change', {}, inputElement);
-
+          expectedValue = element.T("{0} to {1}", '2016-05-31', "2016-05-01");
           assert.equal(inputElement.value, inputValue, "input element value not set correctly");
-          assert.equal(element.value, "2016-05-31 to 2016-05-01", "element value not set correctly");
+          assert.equal(element.value, expectedValue, "element value not set correctly");
           assert.equal(element.valid, false, "element valid state not set correctly");
           var isValid = element.validate(true);
           assert.equal(isValid, false, "element valid state not set correctly");
@@ -215,11 +227,15 @@
             assert.equal(errorMessage, element.T("Input string {0} is not valid", expectedValue), "error message not set correctly");
           }
 
+          var localizedDateFormat = element._localizedFormat("date");
+          var startDateString = getStartDateStr(localizedDateFormat);
+          var endDateString = getEndDateStr(localizedDateFormat);
+
           for (i = 0; i < invalidStringValues.length; i++) {
             invalidValue = invalidStringValues[i];
             expectedValue = expectedValues[i];
 
-            var inputValue = element.T("{0} to {1}", "5/01/2016", invalidValue);
+            var inputValue = element.T("{0} to {1}", startDateString, invalidValue);
             inputElement.value = inputValue;
 
             TestHelpers.fireEvent('change', {}, inputElement);
@@ -233,7 +249,7 @@
             assert.equal(errorMessage, element.T("Input string {0} is not valid", inputValue), "error message not set correctly");
           }
 
-          inputValue = element.T("{0} to {1}", "5/01/2016", "5/31/2016");
+          inputValue = element.T("{0} to {1}", startDateString, endDateString);
           inputElement.value = inputValue;
 
           TestHelpers.fireEvent('change', {}, inputElement);
@@ -246,7 +262,7 @@
           var errorMessage = Polymer.dom(element.$.hint).textContent;
           assert.equal(errorMessage, "", "error message not set correctly");
 
-          inputValue = element.T("{0} to {1}", "5/31/2016", "5/01/2016");
+          inputValue = element.T("{0} to {1}", endDateString, startDateString);
           inputElement.value = inputValue;
 
           TestHelpers.fireEvent('change', {}, inputElement);

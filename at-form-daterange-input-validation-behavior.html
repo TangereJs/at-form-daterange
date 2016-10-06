@@ -166,13 +166,13 @@
           errorMessage: ""
         };
 
-        format = format + " to " + format;
+        var tmpFormat = localizer("{0} to {1}", format, format);
 
         if ([null, "null", ""].indexOf(value) !== -1) {
           return validationResult;
         }
 
-        var formatMoment = moment(value, format, true);
+        var formatMoment = moment(value, tmpFormat, true);
         validationResult.isValid = formatMoment.isValid();
         if (!validationResult.isValid) {
           validationResult.errorMessage = localizer("Value {0} is not in correct format of {1}", value, format );

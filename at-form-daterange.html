@@ -367,9 +367,7 @@
       }
 
       var validationResult = this._validateBaseData();
-      if (showError) {
-        this._handleValidationResult(validationResult);
-      }
+      this._handleValidationResult(validationResult);
       if (!validationResult.isValid) {
         return validationResult.isValid;
       }
@@ -390,7 +388,7 @@
         // we expect the user input to be the string like _displayFormat to _displayFormat
         var newValueParts = newValue.split(" ");
         // if user input doesn't have three parts report error and return
-        if (newValueParts.length !== 3) {
+        if (newValueParts.length < 3) {
           validationResult = {
             isValid: false,
             errorMessage: this.T("Input string {0} is not valid", newValue)
@@ -539,6 +537,8 @@
         this.$.endDatePicker.startDate = "";
         this.$.endDatePicker.endDate = "";
       }
+
+      if (this.autoValidate) { this.validate(); }
 
       this._fireValueChangedEvent(newValue);
       this._isInternalUpdateValue = false;
@@ -732,12 +732,22 @@
       // we expect the user input to be the string like _displayFormat to _displayFormat
       var newValueParts = newValue.split(" ");
       // if user input doesn't have three parts report error and return
-      if (newValueParts.length !== 3) {
+      if (newValueParts.length < 3) {
         return;
       }
 
-      var unparsedStartDateString = newValueParts[0];
-      var unparsedEndDateString = newValueParts[2];
+      var unparsedStartDateString = "";
+      var unparsedEndDateString = "";
+
+      for (var i = 0; i < newValueParts.length && (!unparsedStartDateString || !unparsedEndDateString); i++) {
+        var newValuePart = newValueParts[i];
+        var tmpMoment = moment(newValuePart, this._displayFormat, true);
+        if (!unparsedStartDateString && tmpMoment.isValid()) {
+          unparsedStartDateString = newValuePart;
+        } else if (!unparsedEndDateString && tmpMoment.isValid()) {
+          unparsedEndDateString = newValuePart;
+        }
+      }
 
       // parse startDate
       var startDateMoment = moment(unparsedStartDateString, this._displayFormat, true);
