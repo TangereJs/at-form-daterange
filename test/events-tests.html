@@ -52,7 +52,7 @@
 
       function getLocalizedDaterange(startDate, endDate) {
         var localizer = document.createElement('at-form-text');
-        return localizer.T("{0} to {1}", startDate, endDate)
+        return localizer.T("{0}/{1}", startDate, endDate);
       }
 
       function getLocalizedDisplayString(startDate, endDate) {
@@ -62,7 +62,7 @@
         var startDateStr = startMoment.isValid() ? startMoment.format(localizer._localizedFormat('date')) : "";
         var endMoment = moment(endDate, inCodeDisplayFormat, true);
         var endDateStr = endMoment.isValid() ? endMoment.format(localizer._localizedFormat('date')) : "";
-        return getLocalizedDaterange(startDateStr, endDateStr);
+        return localizer.T("{0} to {1}", startDateStr, endDateStr);
       }
 
       suite('tests were property values are set as attributes ', function() {

@@ -133,9 +133,9 @@
           assertErrorMessage(element, "");
           assertElementIsValid(element);
 
-          // setting value to "lorem ipsum" keeps element valid
-          element.value = "2016-05-01 to 2016-05-31";
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "value not set correctly");
+          // setting value to "2016-05-01/2016-05-31" keeps element valid
+          element.value = "2016-05-01/2016-05-31";
+          assert.equal(element.value, "2016-05-01/2016-05-31", "value not set correctly");
 
           // assert that element is valid
           assertErrorMessage(element, "");
@@ -157,9 +157,9 @@
           assertErrorMessage(element, "");
           assertElementIsInvalid(element);
 
-          // setting value to "lorem ipsum" should make element valid
-          element.value = "2016-05-01 to 2016-05-31";
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "value not set correctly");
+          // setting value to "2016-05-01/2016-05-31" should make element valid
+          element.value = "2016-05-01/2016-05-31";
+          assert.equal(element.value, "2016-05-01/2016-05-31", "value not set correctly");
 
           // assert that element is valid
           assertErrorMessage(element, "");
@@ -186,9 +186,9 @@
           assertErrorMessage(element, "");
           assertElementIsValid(element);
 
-          // setting value to "lorem ipsum" keeps element valid
-          element.value = "2016-05-01 to 2016-05-31";
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "value not set correctly");
+          // setting value to "2016-05-01/2016-05-31" keeps element valid
+          element.value = "2016-05-01/2016-05-31";
+          assert.equal(element.value, "2016-05-01/2016-05-31", "value not set correctly");
 
           // assert that element is valid
           assertErrorMessage(element, "");
@@ -210,9 +210,9 @@
           assertErrorMessage(element, "");
           assertElementIsInvalid(element);
 
-          // setting value to "lorem ipsum" makes element valid
-          element.value = "2016-05-01 to 2016-05-31";
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "value not set correctly");
+          // setting value to "2016-05-01/2016-05-31" makes element valid
+          element.value = "2016-05-01/2016-05-31";
+          assert.equal(element.value, "2016-05-01/2016-05-31", "value not set correctly");
 
           // assert that element is valid
           assertErrorMessage(element, "");
@@ -239,9 +239,9 @@
           assertErrorMessage(element, "");
           assertElementIsInvalid(element);
 
-          // make element valid by setting value to "lorem ipsum"
-          element.value = "2016-05-01 to 2016-05-31";
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "value not set correctly");
+          // make element valid by setting value to "2016-05-01/2016-05-31"
+          element.value = "2016-05-01/2016-05-31";
+          assert.equal(element.value, "2016-05-01/2016-05-31", "value not set correctly");
 
           // assert that element is valid
           assertErrorMessage(element, "");
@@ -271,9 +271,9 @@
           assertErrorMessage(element, "");
           assertElementIsValid(element);
 
-          // setting value to "lorem ipsum" keeps the element valid
-          element.value = "2016-05-01 to 2016-05-31";
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "value not set correctly");
+          // setting value to "2016-05-01/2016-05-31" keeps the element valid
+          element.value = "2016-05-01/2016-05-31";
+          assert.equal(element.value, "2016-05-01/2016-05-31", "value not set correctly");
 
           // assert that element is valid
           assertErrorMessage(element, "");
@@ -292,9 +292,9 @@
           assertErrorMessage(element, "");
           assertElementIsInvalid(element);
 
-          // setting value to "lorem ipsum" makes element valid
-          element.value = "2016-05-01 to 2016-05-31";
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "value not set correctly");
+          // setting value to "2016-05-01/2016-05-31" makes element valid
+          element.value = "2016-05-01/2016-05-31";
+          assert.equal(element.value, "2016-05-01/2016-05-31", "value not set correctly");
 
           // assert that element is valid
           assertErrorMessage(element, "");
@@ -316,9 +316,9 @@
           assertErrorMessage(element, "");
           assertElementIsValid(element);
 
-          // setting value to "lorem ipsum" keeps element valid
-          element.value = "2016-05-01 to 2016-05-31";
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "value not set correctly");
+          // setting value to "2016-05-01/2016-05-31" keeps element valid
+          element.value = "2016-05-01/2016-05-31";
+          assert.equal(element.value, "2016-05-01/2016-05-31", "value not set correctly");
 
           // assert that element is valid
           assertErrorMessage(element, "");
@@ -344,9 +344,9 @@
           assertErrorMessage(element, "");
           assertElementIsValid(element);
 
-          // setting value to "lorem ipsum" keeps element valid
-          element.value = "2016-05-01 to 2016-05-31";
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "value not set correctly");
+          // setting value to "2016-05-01/2016-05-31" keeps element valid
+          element.value = "2016-05-01/2016-05-31";
+          assert.equal(element.value, "2016-05-01/2016-05-31", "value not set correctly");
 
           // assert that element is valid
           assertErrorMessage(element, "");
@@ -368,9 +368,9 @@
           assertErrorMessage(element, element.T("This field is required."));
           assertElementIsInvalid(element);
 
-          // setting value to "lorem ipsum" should make element valid
-          element.value = "2016-05-01 to 2016-05-31";
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "value not set correctly");
+          // setting value to "2016-05-01/2016-05-31" should make element valid
+          element.value = "2016-05-01/2016-05-31";
+          assert.equal(element.value, "2016-05-01/2016-05-31", "value not set correctly");
 
           // assert that element is valid
           assertErrorMessage(element, "");
@@ -397,9 +397,9 @@
           assertErrorMessage(element, "");
           assertElementIsValid(element);
 
-          // setting value to "lorem ipsum" keeps element valid
-          element.value = "2016-05-01 to 2016-05-31";
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "value not set correctly");
+          // setting value to "2016-05-01/2016-05-31" keeps element valid
+          element.value = "2016-05-01/2016-05-31";
+          assert.equal(element.value, "2016-05-01/2016-05-31", "value not set correctly");
 
           // assert that element is valid
           assertErrorMessage(element, "");
@@ -421,9 +421,9 @@
           assertErrorMessage(element, element.T("This field is required."));
           assertElementIsInvalid(element);
 
-          // setting value to "lorem ipsum" makes element valid
-          element.value = "2016-05-01 to 2016-05-31";
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "value not set correctly");
+          // setting value to "2016-05-01/2016-05-31" makes element valid
+          element.value = "2016-05-01/2016-05-31";
+          assert.equal(element.value, "2016-05-01/2016-05-31", "value not set correctly");
 
           // assert that element is valid
           assertErrorMessage(element, "");
@@ -449,9 +449,9 @@
           assertErrorMessage(element, element.T("This field is required."));
           assertElementIsInvalid(element);
 
-          // make element valid by setting value to "lorem ipsum"
-          element.value = "2016-05-01 to 2016-05-31";
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "value not set correctly");
+          // make element valid by setting value to "2016-05-01/2016-05-31"
+          element.value = "2016-05-01/2016-05-31";
+          assert.equal(element.value, "2016-05-01/2016-05-31", "value not set correctly");
 
           // assert that element is valid
           assertErrorMessage(element, "");
@@ -481,9 +481,9 @@
           assertErrorMessage(element, "");
           assertElementIsValid(element);
 
-          // setting value to "lorem ipsum" keeps the element valid
-          element.value = "2016-05-01 to 2016-05-31";
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "value not set correctly");
+          // setting value to "2016-05-01/2016-05-31" keeps the element valid
+          element.value = "2016-05-01/2016-05-31";
+          assert.equal(element.value, "2016-05-01/2016-05-31", "value not set correctly");
 
           // assert that element is valid
           assertErrorMessage(element, "");
@@ -502,9 +502,9 @@
           assertErrorMessage(element, element.T("This field is required."));
           assertElementIsInvalid(element);
 
-          // setting value to "lorem ipsum" makes element valid
-          element.value = "2016-05-01 to 2016-05-31";
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "value not set correctly");
+          // setting value to "2016-05-01/2016-05-31" makes element valid
+          element.value = "2016-05-01/2016-05-31";
+          assert.equal(element.value, "2016-05-01/2016-05-31", "value not set correctly");
 
           // assert that element is valid
           assertErrorMessage(element, "");
@@ -526,9 +526,9 @@
           assertErrorMessage(element, "");
           assertElementIsValid(element);
 
-          // setting value to "lorem ipsum" keeps element valid
-          element.value = "2016-05-01 to 2016-05-31";
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "value not set correctly");
+          // setting value to "2016-05-01/2016-05-31" keeps element valid
+          element.value = "2016-05-01/2016-05-31";
+          assert.equal(element.value, "2016-05-01/2016-05-31", "value not set correctly");
 
           // assert that element is valid
           assertErrorMessage(element, "");
@@ -569,9 +569,9 @@
           assertErrorMessage(element, "");
           assertElementIsValid(element);
 
-          // setting value to "lorem ipsum" keeps element valid
-          element.value = "2016-05-01 to 2016-05-31";
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "value not set correctly");
+          // setting value to "2016-05-01/2016-05-31" keeps element valid
+          element.value = "2016-05-01/2016-05-31";
+          assert.equal(element.value, "2016-05-01/2016-05-31", "value not set correctly");
 
           // assert that element is valid
           assertErrorMessage(element, "");
@@ -593,9 +593,9 @@
           assertErrorMessage(element, "");
           assertElementIsInvalid(element);
 
-          // setting value to "lorem ipsum" should make element valid
-          element.value = "2016-05-01 to 2016-05-31";
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "value not set correctly");
+          // setting value to "2016-05-01/2016-05-31" should make element valid
+          element.value = "2016-05-01/2016-05-31";
+          assert.equal(element.value, "2016-05-01/2016-05-31", "value not set correctly");
 
           // assert that element is valid
           assertErrorMessage(element, "");
@@ -624,9 +624,9 @@
           assertErrorMessage(element, "");
           assertElementIsValid(element);
 
-          // setting value to "lorem ipsum" keeps element valid
-          element.value = "2016-05-01 to 2016-05-31";
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "value not set correctly");
+          // setting value to "2016-05-01/2016-05-31" keeps element valid
+          element.value = "2016-05-01/2016-05-31";
+          assert.equal(element.value, "2016-05-01/2016-05-31", "value not set correctly");
 
           // assert that element is valid
           assertErrorMessage(element, "");
@@ -648,9 +648,9 @@
           assertErrorMessage(element, "");
           assertElementIsInvalid(element);
 
-          // setting value to "lorem ipsum" makes element valid
-          element.value = "2016-05-01 to 2016-05-31";
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "value not set correctly");
+          // setting value to "2016-05-01/2016-05-31" makes element valid
+          element.value = "2016-05-01/2016-05-31";
+          assert.equal(element.value, "2016-05-01/2016-05-31", "value not set correctly");
 
           // assert that element is valid
           assertErrorMessage(element, "");
@@ -679,9 +679,9 @@
           assertErrorMessage(element, "");
           assertElementIsInvalid(element);
 
-          // make element valid by setting value to "lorem ipsum"
-          element.value = "2016-05-01 to 2016-05-31";
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "value not set correctly");
+          // make element valid by setting value to "2016-05-01/2016-05-31"
+          element.value = "2016-05-01/2016-05-31";
+          assert.equal(element.value, "2016-05-01/2016-05-31", "value not set correctly");
 
           // assert that element is valid
           assertErrorMessage(element, "");
@@ -711,9 +711,9 @@
           assertErrorMessage(element, "");
           assertElementIsValid(element);
 
-          // setting value to "lorem ipsum" keeps the element valid
-          element.value = "2016-05-01 to 2016-05-31";
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "value not set correctly");
+          // setting value to "2016-05-01/2016-05-31" keeps the element valid
+          element.value = "2016-05-01/2016-05-31";
+          assert.equal(element.value, "2016-05-01/2016-05-31", "value not set correctly");
 
           // assert that element is valid
           assertErrorMessage(element, "");
@@ -734,9 +734,9 @@
           assertErrorMessage(element, "");
           assertElementIsInvalid(element);
 
-          // setting value to "lorem ipsum" makes element valid
-          element.value = "2016-05-01 to 2016-05-31";
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "value not set correctly");
+          // setting value to "2016-05-01/2016-05-31" makes element valid
+          element.value = "2016-05-01/2016-05-31";
+          assert.equal(element.value, "2016-05-01/2016-05-31", "value not set correctly");
 
           // assert that element is valid
           assertErrorMessage(element, "");
@@ -758,9 +758,9 @@
           assertErrorMessage(element, "");
           assertElementIsValid(element);
 
-          // setting value to "lorem ipsum" keeps element valid
-          element.value = "2016-05-01 to 2016-05-31";
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "value not set correctly");
+          // setting value to "2016-05-01/2016-05-31" keeps element valid
+          element.value = "2016-05-01/2016-05-31";
+          assert.equal(element.value, "2016-05-01/2016-05-31", "value not set correctly");
 
           // assert that element is valid
           assertErrorMessage(element, "");
@@ -789,9 +789,9 @@
           assertErrorMessage(element, "");
           assertElementIsValid(element);
 
-          // setting value to "lorem ipsum" keeps element valid
-          element.value = "2016-05-01 to 2016-05-31";
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "value not set correctly");
+          // setting value to "2016-05-01/2016-05-31" keeps element valid
+          element.value = "2016-05-01/2016-05-31";
+          assert.equal(element.value, "2016-05-01/2016-05-31", "value not set correctly");
 
           // assert that element is valid
           assertErrorMessage(element, "");
@@ -813,9 +813,9 @@
           assertErrorMessage(element, element.T("This field is required."));
           assertElementIsInvalid(element);
 
-          // setting value to "lorem ipsum" should make element valid
-          element.value = "2016-05-01 to 2016-05-31";
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "value not set correctly");
+          // setting value to "2016-05-01/2016-05-31" should make element valid
+          element.value = "2016-05-01/2016-05-31";
+          assert.equal(element.value, "2016-05-01/2016-05-31", "value not set correctly");
 
           // assert that element is valid
           assertErrorMessage(element, "");
@@ -844,9 +844,9 @@
           assertErrorMessage(element, "");
           assertElementIsValid(element);
 
-          // setting value to "lorem ipsum" keeps element valid
-          element.value = "2016-05-01 to 2016-05-31";
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "value not set correctly");
+          // setting value to "2016-05-01/2016-05-31" keeps element valid
+          element.value = "2016-05-01/2016-05-31";
+          assert.equal(element.value, "2016-05-01/2016-05-31", "value not set correctly");
 
           // assert that element is valid
           assertErrorMessage(element, "");
@@ -868,9 +868,9 @@
           assertErrorMessage(element, element.T("This field is required."));
           assertElementIsInvalid(element);
 
-          // setting value to "lorem ipsum" makes element valid
-          element.value = "2016-05-01 to 2016-05-31";
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "value not set correctly");
+          // setting value to "2016-05-01/2016-05-31" makes element valid
+          element.value = "2016-05-01/2016-05-31";
+          assert.equal(element.value, "2016-05-01/2016-05-31", "value not set correctly");
 
           // assert that element is valid
           assertErrorMessage(element, "");
@@ -899,9 +899,9 @@
           assertErrorMessage(element, element.T("This field is required."));
           assertElementIsInvalid(element);
 
-          // make element valid by setting value to "lorem ipsum"
-          element.value = "2016-05-01 to 2016-05-31";
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "value not set correctly");
+          // make element valid by setting value to "2016-05-01/2016-05-31"
+          element.value = "2016-05-01/2016-05-31";
+          assert.equal(element.value, "2016-05-01/2016-05-31", "value not set correctly");
 
           // assert that element is valid
           assertErrorMessage(element, "");
@@ -931,9 +931,9 @@
           assertErrorMessage(element, "");
           assertElementIsValid(element);
 
-          // setting value to "lorem ipsum" keeps the element valid
-          element.value = "2016-05-01 to 2016-05-31";
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "value not set correctly");
+          // setting value to "2016-05-01/2016-05-31" keeps the element valid
+          element.value = "2016-05-01/2016-05-31";
+          assert.equal(element.value, "2016-05-01/2016-05-31", "value not set correctly");
 
           // assert that element is valid
           assertErrorMessage(element, "");
@@ -954,9 +954,9 @@
           assertErrorMessage(element, element.T("This field is required."));
           assertElementIsInvalid(element);
 
-          // setting value to "lorem ipsum" makes element valid
-          element.value = "2016-05-01 to 2016-05-31";
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "value not set correctly");
+          // setting value to "2016-05-01/2016-05-31" makes element valid
+          element.value = "2016-05-01/2016-05-31";
+          assert.equal(element.value, "2016-05-01/2016-05-31", "value not set correctly");
 
           // assert that element is valid
           assertErrorMessage(element, "");
@@ -978,9 +978,9 @@
           assertErrorMessage(element, "");
           assertElementIsValid(element);
 
-          // setting value to "lorem ipsum" keeps element valid
-          element.value = "2016-05-01 to 2016-05-31";
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "value not set correctly");
+          // setting value to "2016-05-01/2016-05-31" keeps element valid
+          element.value = "2016-05-01/2016-05-31";
+          assert.equal(element.value, "2016-05-01/2016-05-31", "value not set correctly");
 
           // assert that element is valid
           assertErrorMessage(element, "");

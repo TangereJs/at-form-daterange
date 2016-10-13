@@ -26,7 +26,8 @@
 
       .icon-background {
         color: var(--at-form-daterange-icon-text-color);
-        @apply(at-form-border-radius0220);
+        width: 32px;
+        height: 32px;
       }
 
       .dropdown-container {
@@ -66,7 +67,7 @@
       <div id="contentContainer" class="at-content-container">
         <div id="triggerContainer" class="input-group">
           <input id="triggerRange" class="at-content has-placeholder date">
-          <at-carbon-icon-button id="triggerRangeIcon" class="icon-background input-group-addon" on-mousedown="_iconButtonMouseDown" icon="now:calendar"></at-carbon-icon-button>
+          <at-carbon-icon-button id="triggerRangeIcon" class="icon-background input-group-addon" on-tap="_iconButtonMouseDown" icon="now:calendar"></at-carbon-icon-button>
         </div>
         <at-core-dropdown id="coreDropdown" class="core-dropdown" position="bottomRight">
           <div id="dropdown" class="layout horizontal">
@@ -362,20 +363,18 @@
     },
 
     validate: function(showError) {
+
       if (showError === undefined) {
         showError = this.autoValidate;
       }
 
+      // var inputValue = this.$.triggerRange.value;
+      // if ((this.value === null && inputValue !== "") || (this.value !== null && this.value !== inputValue)) {
+      //   this._updateDaterangeFromUserInput(inputValue);
+      // }
+
       var validationResult = this._validateBaseData();
       this._handleValidationResult(validationResult);
-      if (!validationResult.isValid) {
-        return validationResult.isValid;
-      }
-
-      validationResult = this._validateData(this, this.value, this.T.bind(this));
-      if (showError) {
-        this._handleValidationResult(validationResult);
-      }
       if (!validationResult.isValid) {
         return validationResult.isValid;
       }
@@ -401,8 +400,18 @@
           return validationResult.isValid;
         }
 
-        var unparsedStartDateString = newValueParts[0];
-        var unparsedEndDateString = newValueParts[2];
+        var unparsedStartDateString = "";
+        var unparsedEndDateString = "";
+
+        for (var i = 0; i < newValueParts.length && (!unparsedStartDateString || !unparsedEndDateString); i++) {
+          var newValuePart = newValueParts[i];
+          var tmpMoment = moment(newValuePart, this._displayFormat, true);
+          if (!unparsedStartDateString && tmpMoment.isValid()) {
+            unparsedStartDateString = newValuePart;
+          } else if (!unparsedEndDateString && tmpMoment.isValid()) {
+            unparsedEndDateString = newValuePart;
+          }
+        }
 
         // parse startDate
         var startDateMoment = moment(unparsedStartDateString, this._displayFormat, true);
@@ -428,11 +437,18 @@
             isValid: false,
             errorMessage: this.T("Input string {0} is not valid", newValue)
           };
-          this._handleValidationResult(validationResult);
           if (showError) {
             this._handleValidationResult(validationResult);
           }
         }
+        if (!validationResult.isValid) {
+          return validationResult.isValid;
+        }
+      }
+
+      validationResult = this._validateData(this, this.value, this.T.bind(this));
+      if (showError) {
+        this._handleValidationResult(validationResult);
       }
 
       return validationResult.isValid;
@@ -488,15 +504,13 @@
         this._fireStartDateChangedEvent(startDateStr);
         this.endDate = null;
         this._fireEndDateChangedEvent(endDateStr);
-      } else if (isString(newValue) && newValue.length > 0 && (newValue.match(/\s/g)||[]).length == 2) {
-        // if newValue is a nonempty string with two space characters
-        // se expect newValue to be _valueFormat to _valueFormat
-        // after split there are three parts
-        // if there are more or less newValue is invalid
-        var valueParts = newValue.split(" ");
+      } else if (isString(newValue) && newValue.length > 0 && newValue.indexOf("/") !== -1) {
+        // we expect newValue to be in ISO 8601 format <start-date>/<end-date>
+        // in our case that is _valueFormat/_valueFormat
+        var valueParts = newValue.split("/");
 
         var startDateStr = valueParts[0];
-        var endDateStr = valueParts[2];
+        var endDateStr = valueParts[1];
         var startDateMoment = moment(startDateStr, this._valueFormat, true);
         var endDateMoment = moment(endDateStr, this._valueFormat, true);
         if (startDateMoment.isValid() && endDateMoment.isValid()) {
@@ -589,7 +603,7 @@
           this._selectedChanged("custom");
 
           // update output value
-          var outputValue = this.T("{0} to {1}", startDate, endDate);
+          var outputValue = this.T("{0}/{1}", startDate, endDate);
           if (this.value !== outputValue) {
             this.value = outputValue;
             this._fireValueChangedEvent(outputValue);
@@ -607,7 +621,7 @@
           this._selectedChanged("");
 
           // update output value
-          var outputValue = this.T("{0} to {1}", startDate, endDate);
+          var outputValue = this.T("{0}/{1}", startDate, endDate);
           if (this.value !== outputValue) {
             this.value = outputValue;
             this._fireValueChangedEvent(outputValue);
@@ -629,7 +643,7 @@
         this._selectedChanged("");
 
         // update output value
-        var outputValue = this.T("{0} to {1}", startDate, endDate);
+        var outputValue = this.T("{0}/{1}", startDate, endDate);
         if (this.value !== outputValue) {
           this.value = outputValue;
           this._fireValueChangedEvent(outputValue);
@@ -654,7 +668,7 @@
         this._selectedChanged("");
 
         // update output value
-        var outputValue = this.T("{0} to {1}", startDateStr, endDateStr);
+        var outputValue = this.T("{0}/{1}", startDateStr, endDateStr);
         if (this.value !== outputValue) {
           this.value = outputValue;
           this._fireValueChangedEvent(outputValue);
@@ -691,7 +705,7 @@
       }
 
       // update output value
-      var outputValue = this.T("{0} to {1}", startDate, endDate);
+      var outputValue = this.T("{0}/{1}", startDate, endDate);
       this.value = outputValue;
       this._fireValueChangedEvent(outputValue);
 
@@ -766,7 +780,7 @@
       var startDateValueString = startDateMoment.format(this._valueFormat);
       var endDateValueString = endDateMoment.format(this._valueFormat);
 
-      var valueString = this.T("{0} to {1}", startDateValueString, endDateValueString);
+      var valueString = this.T("{0}/{1}", startDateValueString, endDateValueString);
 
       // update datepickers
       var localizedDateFormat = this._localizedFormat("date");

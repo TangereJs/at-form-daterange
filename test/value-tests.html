@@ -70,32 +70,32 @@
           var startDates = [undefined, null, false, true, [], {}, "", "lorem ipsum", "2016-06-10"];
           var endDates = [undefined, null, false, true, [], {}, "", "lorem ipsum"];
           var expectedValues = [
-            "undefined to undefined", "undefined to null", "undefined to false", "undefined to true", "undefined to ", "undefined to [object Object]", "undefined to ", "undefined to lorem ipsum",
-            "null to undefined", "null to null", "null to false", "null to true", "null to ", "null to [object Object]", "null to ", "null to lorem ipsum",
-            "false to undefined", "false to null", "false to false", "false to true", "false to ", "false to [object Object]", "false to ", "false to lorem ipsum",
-            "true to undefined", "true to null", "true to false", "true to true", "true to ", "true to [object Object]", "true to ", "true to lorem ipsum",
-            " to undefined", " to null", " to false", " to true", " to ", " to [object Object]", " to ", " to lorem ipsum",
-            "[object Object] to undefined", "[object Object] to null", "[object Object] to false", "[object Object] to true", "[object Object] to ", "[object Object] to [object Object]", "[object Object] to ",
-            "[object Object] to lorem ipsum",
-            " to undefined", " to null", " to false", " to true", " to ", " to [object Object]", " to ", " to lorem ipsum",
-            "lorem ipsum to undefined", "lorem ipsum to null", "lorem ipsum to false", "lorem ipsum to true", "lorem ipsum to ", "lorem ipsum to [object Object]", "lorem ipsum to ", "lorem ipsum to lorem ipsum",
-            "2016-06-10 to undefined", "2016-06-10 to null", "2016-06-10 to false", "2016-06-10 to true", "2016-06-10 to ", "2016-06-10 to [object Object]", "2016-06-10 to ", "2016-06-10 to lorem ipsum",
+            "undefined/undefined", "undefined/null", "undefined/false", "undefined/true", "undefined/", "undefined/[object Object]", "undefined/", "undefined/lorem ipsum",
+            "null/undefined", "null/null", "null/false", "null/true", "null/", "null/[object Object]", "null/", "null/lorem ipsum",
+            "false/undefined", "false/null", "false/false", "false/true", "false/", "false/[object Object]", "false/", "false/lorem ipsum",
+            "true/undefined", "true/null", "true/false", "true/true", "true/", "true/[object Object]", "true/", "true/lorem ipsum",
+            "/undefined", "/null", "/false", "/true", "/", "/[object Object]", "/", "/lorem ipsum",
+            "[object Object]/undefined", "[object Object]/null", "[object Object]/false", "[object Object]/true", "[object Object]/", "[object Object]/[object Object]", "[object Object]/",
+            "[object Object]/lorem ipsum",
+            "/undefined", "/null", "/false", "/true", "/", "/[object Object]", "/", "/lorem ipsum",
+            "lorem ipsum/undefined", "lorem ipsum/null", "lorem ipsum/false", "lorem ipsum/true", "lorem ipsum/", "lorem ipsum/[object Object]", "lorem ipsum/", "lorem ipsum/lorem ipsum",
+            "2016-06-10/undefined", "2016-06-10/null", "2016-06-10/false", "2016-06-10/true", "2016-06-10/", "2016-06-10/[object Object]", "2016-06-10/", "2016-06-10/lorem ipsum",
           ];
           GenericAttributeTestFunction(input, startDates, endDates, expectedValues);
 
           startDates = [undefined, null, false, true, [], {}, "", "lorem ipsum"];
           endDates = [undefined, null, false, true, [], {}, "", "lorem ipsum", "2016-06-10"];
           expectedValues = [
-            "undefined to undefined", "undefined to null", "undefined to false", "undefined to true", "undefined to ", "undefined to [object Object]", "undefined to ", "undefined to lorem ipsum", "undefined to 2016-06-10",
-            "null to undefined", "null to null", "null to false", "null to true", "null to ", "null to [object Object]", "null to ", "null to lorem ipsum", "null to 2016-06-10",
-            "false to undefined", "false to null", "false to false", "false to true", "false to ", "false to [object Object]", "false to ", "false to lorem ipsum", "false to 2016-06-10",
-            "true to undefined", "true to null", "true to false", "true to true", "true to ", "true to [object Object]", "true to ", "true to lorem ipsum", "true to 2016-06-10",
-            " to undefined", " to null", " to false", " to true", " to ", " to [object Object]", " to ", " to lorem ipsum", " to 2016-06-10",
-            "[object Object] to undefined", "[object Object] to null", "[object Object] to false", "[object Object] to true", "[object Object] to ", "[object Object] to [object Object]", "[object Object] to ",
-            "[object Object] to lorem ipsum", "[object Object] to 2016-06-10",
-            " to undefined", " to null", " to false", " to true", " to ", " to [object Object]", " to ", " to lorem ipsum", " to 2016-06-10",
-            "lorem ipsum to undefined", "lorem ipsum to null", "lorem ipsum to false", "lorem ipsum to true", "lorem ipsum to ", "lorem ipsum to [object Object]", "lorem ipsum to ", "lorem ipsum to lorem ipsum",
-            "lorem ipsum to 2016-06-10",
+            "undefined/undefined", "undefined/null", "undefined/false", "undefined/true", "undefined/", "undefined/[object Object]", "undefined/", "undefined/lorem ipsum", "undefined/2016-06-10",
+            "null/undefined", "null/null", "null/false", "null/true", "null/", "null/[object Object]", "null/", "null/lorem ipsum", "null/2016-06-10",
+            "false/undefined", "false/null", "false/false", "false/true", "false/", "false/[object Object]", "false/", "false/lorem ipsum", "false/2016-06-10",
+            "true/undefined", "true/null", "true/false", "true/true", "true/", "true/[object Object]", "true/", "true/lorem ipsum", "true/2016-06-10",
+            "/undefined", "/null", "/false", "/true", "/", "/[object Object]", "/", "/lorem ipsum", "/2016-06-10",
+            "[object Object]/undefined", "[object Object]/null", "[object Object]/false", "[object Object]/true", "[object Object]/", "[object Object]/[object Object]", "[object Object]/",
+            "[object Object]/lorem ipsum", "[object Object]/2016-06-10",
+            "/undefined", "/null", "/false", "/true", "/", "/[object Object]", "/", "/lorem ipsum", "/2016-06-10",
+            "lorem ipsum/undefined", "lorem ipsum/null", "lorem ipsum/false", "lorem ipsum/true", "lorem ipsum/", "lorem ipsum/[object Object]", "lorem ipsum/", "lorem ipsum/lorem ipsum",
+            "lorem ipsum/2016-06-10",
           ];
           GenericAttributeTestFunction(input, startDates, endDates, expectedValues);
         });
@@ -111,14 +111,14 @@
 
           Polymer.dom(input).setAttribute('start-date', "2016-06-10");
           Polymer.dom(input).setAttribute('end-date', "2016-06-17");
-          var expectedValue = input.T("{0} to {1}", "2016-06-10", "2016-06-17");
-          // start date is before end date so we expect a correct value to be produced
+          var expectedValue = input.T("{0}/{1}", "2016-06-10", "2016-06-17");
+          // start date is before end date so we expect a correct value/be produced
           assert.equal(input.value, expectedValue, "value is not calculated correctly");
           assert.equal(true, input.valid, "element is not valid");
 
           Polymer.dom(input).setAttribute('start-date', "2016-06-17");
           Polymer.dom(input).setAttribute('end-date', "2016-06-10");
-          var expectedValue = "2016-06-17 to 2016-06-10";
+          var expectedValue = "2016-06-17/2016-06-10";
           // start date is after end date so element should be invalid
           assert.equal(input.value, expectedValue, "value is not calculated correctly");
           assert.equal(input.valid, false, 'element is not invalid');
@@ -162,28 +162,28 @@
           var startDates = [null, false, true, [], {}, "", "lorem ipsum", "2016-06-10"];
           var endDates = [null, false, true, [], {}, "", "lorem ipsum"];
           var expectedValues = [
-            "null to null", "null to false", "null to true", "null to ", "null to [object Object]", "null to ", "null to lorem ipsum",
-            "false to null", "false to false", "false to true", "false to ", "false to [object Object]", "false to ", "false to lorem ipsum",
-            "true to null", "true to false", "true to true", "true to ", "true to [object Object]", "true to ", "true to lorem ipsum",
-            " to null", " to false", " to true", " to ", " to [object Object]", " to ", " to lorem ipsum",
-            "[object Object] to null", "[object Object] to false", "[object Object] to true", "[object Object] to ", "[object Object] to [object Object]", "[object Object] to ", "[object Object] to lorem ipsum",
-            " to null", " to false", " to true", " to ", " to [object Object]", " to ", " to lorem ipsum",
-            "lorem ipsum to null", "lorem ipsum to false", "lorem ipsum to true", "lorem ipsum to ", "lorem ipsum to [object Object]", "lorem ipsum to ", "lorem ipsum to lorem ipsum",
-            "2016-06-10 to null", "2016-06-10 to false", "2016-06-10 to true", "2016-06-10 to ", "2016-06-10 to [object Object]", "2016-06-10 to ", "2016-06-10 to lorem ipsum",
+            "null/null", "null/false", "null/true", "null/", "null/[object Object]", "null/", "null/lorem ipsum",
+            "false/null", "false/false", "false/true", "false/", "false/[object Object]", "false/", "false/lorem ipsum",
+            "true/null", "true/false", "true/true", "true/", "true/[object Object]", "true/", "true/lorem ipsum",
+            "/null", "/false", "/true", "/", "/[object Object]", "/", "/lorem ipsum",
+            "[object Object]/null", "[object Object]/false", "[object Object]/true", "[object Object]/", "[object Object]/[object Object]", "[object Object]/", "[object Object]/lorem ipsum",
+            "/null", "/false", "/true", "/", "/[object Object]", "/", "/lorem ipsum",
+            "lorem ipsum/null", "lorem ipsum/false", "lorem ipsum/true", "lorem ipsum/", "lorem ipsum/[object Object]", "lorem ipsum/", "lorem ipsum/lorem ipsum",
+            "2016-06-10/null", "2016-06-10/false", "2016-06-10/true", "2016-06-10/", "2016-06-10/[object Object]", "2016-06-10/", "2016-06-10/lorem ipsum",
           ];
           GenericProgrammaticTestFunction(input, startDates, endDates, expectedValues);
 
           var startDates = [null, false, true, [], {}, "", "lorem ipsum"];
           var endDates = [null, false, true, [], {}, "", "lorem ipsum", "2016-06-10"];
           expectedValues = [
-            "null to null", "null to false", "null to true", "null to ", "null to [object Object]", "null to ", "null to lorem ipsum", "null to 2016-06-10",
-            "false to null", "false to false", "false to true", "false to ", "false to [object Object]", "false to ", "false to lorem ipsum", "false to 2016-06-10",
-            "true to null", "true to false", "true to true", "true to ", "true to [object Object]", "true to ", "true to lorem ipsum", "true to 2016-06-10",
-            " to null", " to false", " to true", " to ", " to [object Object]", " to ", " to lorem ipsum", " to 2016-06-10",
-            "[object Object] to null", "[object Object] to false", "[object Object] to true", "[object Object] to ", "[object Object] to [object Object]", "[object Object] to ", "[object Object] to lorem ipsum",
-            "[object Object] to 2016-06-10",
-            " to null", " to false", " to true", " to ", " to [object Object]", " to ", " to lorem ipsum", " to 2016-06-10",
-            "lorem ipsum to null", "lorem ipsum to false", "lorem ipsum to true", "lorem ipsum to ", "lorem ipsum to [object Object]", "lorem ipsum to ", "lorem ipsum to lorem ipsum", "lorem ipsum to 2016-06-10",
+            "null/null", "null/false", "null/true", "null/", "null/[object Object]", "null/", "null/lorem ipsum", "null/2016-06-10",
+            "false/null", "false/false", "false/true", "false/", "false/[object Object]", "false/", "false/lorem ipsum", "false/2016-06-10",
+            "true/null", "true/false", "true/true", "true/", "true/[object Object]", "true/", "true/lorem ipsum", "true/2016-06-10",
+            "/null", "/false", "/true", "/", "/[object Object]", "/", "/lorem ipsum", "/2016-06-10",
+            "[object Object]/null", "[object Object]/false", "[object Object]/true", "[object Object]/", "[object Object]/[object Object]", "[object Object]/", "[object Object]/lorem ipsum",
+            "[object Object]/2016-06-10",
+            "/null", "/false", "/true", "/", "/[object Object]", "/", "/lorem ipsum", "/2016-06-10",
+            "lorem ipsum/null", "lorem ipsum/false", "lorem ipsum/true", "lorem ipsum/", "lorem ipsum/[object Object]", "lorem ipsum/", "lorem ipsum/lorem ipsum", "lorem ipsum/2016-06-10",
           ];
           GenericProgrammaticTestFunction(input, startDates, endDates, expectedValues);
 
@@ -192,17 +192,17 @@
           input.endDate = "2016-08-25";
           assert.equal("2016-08-15", input.startDate, 'start date is not correct');
           assert.equal("2016-08-25", input.endDate, 'end date is not correct');
-          assert.equal(input.T("{0} to {1}", "2016-08-15", "2016-08-25"), input.value, "value is not correct");
-          // set start date to undefined; value should not change
+          assert.equal(input.T("{0}/{1}", "2016-08-15", "2016-08-25"), input.value, "value is not correct");
+          // set start date/undefined; value should not change
           input.startDate = undefined;
           assert.equal(undefined, input.startDate, 'start date is not correct');
           assert.equal("2016-08-25", input.endDate, 'end date is not correct');
-          assert.equal(input.T("{0} to {1}", "2016-08-15", "2016-08-25"), input.value, "value is not correct");
-          // set end date to undefined; value should not change
+          assert.equal(input.T("{0}/{1}", "2016-08-15", "2016-08-25"), input.value, "value is not correct");
+          // set end date/undefined; value should not change
           input.endDate = undefined;
           assert.equal(undefined, input.startDate, 'start date is not correct');
           assert.equal(undefined, input.endDate, 'end date is not correct');
-          assert.equal(input.T("{0} to {1}", "2016-08-15", "2016-08-25"), input.value, "value is not correct");
+          assert.equal(input.T("{0}/{1}", "2016-08-15", "2016-08-25"), input.value, "value is not correct");
         });
 
         // when start date and end date are set as attributes
@@ -215,15 +215,15 @@
 
           input.startDate = "2016-06-10";
           input.endDate = "2016-06-17";
-          var expectedValue = input.T("{0} to {1}", "2016-06-10", "2016-06-17");
-          // start date is before end date so we expect a correct value to be produced
+          var expectedValue = input.T("{0}/{1}", "2016-06-10", "2016-06-17");
+          // start date is before end date so we expect a correct value/be produced
           assert.equal(input.value, expectedValue, "value is not calculated correctly");
           assert.equal(input.valid, true, "element is not valid");
 
           input.startDate = "2016-06-17";
           input.endDate = "2016-06-10";
-          expectedValue = input.T("{0} to {1}", "2016-06-17", "2016-06-10");
-          // start date is after end date so we expect value = "" to be produced and element should be invalid
+          expectedValue = input.T("{0}/{1}", "2016-06-17", "2016-06-10");
+          // start date is after end date so we expect value = ""/be produced and element should be invalid
           assert.equal(input.value, expectedValue, "value is not calculated correctly");
           assert.equal(input.valid, false, "element is not invalid");
         });
@@ -247,63 +247,64 @@
 
           input.startDate = "2016-06-10";
           input.endDate = "2016-06-17";
-          var expectedValue = input.T("{0} to {1}", "2016-06-10", "2016-06-17");
-          var outputValue = expectedValue;
+          var outputValue = input.T("{0}/{1}", "2016-06-10", "2016-06-17");
+          var displayValue = input.T("{0} to {1}", "2016-06-10", "2016-06-17");
           // we test if YYYY-MM-DD format is applied correctly
-          assert.equal(input.value, expectedValue, "value is not calculated correctly");
-          assert.equal(expectedValue, displayInput.value, "display value is not correct");
+          assert.equal(input.value, outputValue, "value is not calculated correctly");
+          assert.equal(displayInput.value, displayValue, "display value is not correct");
 
           // we test for invalid format values; invalid format values should be ignored and previous format of YYYY-MM-DD should be used
           var invalidFormats = [undefined, null, "", {},
             [], 424242, true, false, "undefined", "null", "true", "false"
           ];
-          GenericProgrammaticFormatTestFunction(input, invalidFormats, expectedValue);
+          GenericProgrammaticFormatTestFunction(input, invalidFormats, outputValue);
 
           // we test YYYY-DD-MM format
           input.format = "YYYY-DD-MM";
-          expectedValue = input.T("{0} to {1}", "2016-10-06", "2016-17-06");
+          outputValue = input.T("{0}/{1}", "2016-06-10", "2016-06-17");
+          displayValue = input.T("{0} to {1}", "2016-10-06", "2016-17-06");
           assert.equal(input.value, outputValue, "value is not calculated correctly");
-          assert.equal(displayInput.value, expectedValue, "value is not calculated correctly");
+          assert.equal(displayInput.value, displayValue, "value is not calculated correctly");
 
           // we test DD-MM-YYYY format
           input.format = "DD-MM-YYYY";
-          expectedValue = input.T("{0} to {1}", "10-06-2016", "17-06-2016");
+          displayValue = input.T("{0} to {1}", "10-06-2016", "17-06-2016");
           assert.equal(input.value, outputValue, "value is not calculated correctly");
-          assert.equal(displayInput.value, expectedValue, "value is not calculated correctly");
+          assert.equal(displayInput.value, displayValue, "value is not calculated correctly");
 
           // we test MM-DD-YYYY format
           input.format = "MM-DD-YYYY";
-          expectedValue = input.T("{0} to {1}", "06-10-2016", "06-17-2016");
+          displayValue = input.T("{0} to {1}", "06-10-2016", "06-17-2016");
           assert.equal(input.value, outputValue, "value is not calculated correctly");
-          assert.equal(displayInput.value, expectedValue, "value is not calculated correctly");
+          assert.equal(displayInput.value, displayValue, "value is not calculated correctly");
 
           // for MM-DD-YYYY format we test if different dates are formatted correctly
           input.startDate = "2017-06-10";
           input.endDate = "2017-06-17";
-          expectedValue = input.T("{0} to {1}", "06-10-2017", "06-17-2017");
-          outputValue = input.T("{0} to {1}", "2017-06-10", "2017-06-17")
+          displayValue = input.T("{0} to {1}", "06-10-2017", "06-17-2017");
+          outputValue = input.T("{0}/{1}", "2017-06-10", "2017-06-17")
           assert.equal(input.value, outputValue, "value is not calculated correctly");
-          assert.equal(displayInput.value, expectedValue, "value is not calculated correctly");
+          assert.equal(displayInput.value, displayValue, "value is not calculated correctly");
 
           input.startDate = "2017-06-12";
           input.endDate = "2017-06-18";
-          expectedValue = input.T("{0} to {1}", "06-12-2017", "06-18-2017");
-          outputValue = input.T("{0} to {1}", "2017-06-12", "2017-06-18")
+          displayValue = input.T("{0} to {1}", "06-12-2017", "06-18-2017");
+          outputValue = input.T("{0}/{1}", "2017-06-12", "2017-06-18")
           assert.equal(input.value, outputValue, "value is not calculated correctly");
-          assert.equal(displayInput.value, expectedValue, "value is not calculated correctly");
+          assert.equal(displayInput.value, displayValue, "value is not calculated correctly");
 
           input.startDate = "2017-04-12";
           input.endDate = "2017-10-18";
-          expectedValue = input.T("{0} to {1}", "04-12-2017", "10-18-2017");
-          outputValue = input.T("{0} to {1}", "2017-04-12", "2017-10-18")
+          displayValue = input.T("{0} to {1}", "04-12-2017", "10-18-2017");
+          outputValue = input.T("{0}/{1}", "2017-04-12", "2017-10-18")
           assert.equal(input.value, outputValue, "value is not calculated correctly");
-          assert.equal(displayInput.value, expectedValue, "value is not calculated correctly");
+          assert.equal(displayInput.value, displayValue, "value is not calculated correctly");
 
         });
       });
 
       suite('tests where .value is set as attribute', function () {
-        test('.value is set to invalid values (1 of 2)', function () {
+        test('.value is set/invalid values (1 of 2)', function () {
           var input = fixture('valueProgrammaticTests');
           var invalidValues = [ undefined, null, 42, 3.14159, true, false, [], {}, function () { return undefined; }];
           var invalidValue;
@@ -322,9 +323,9 @@
           }
         });
 
-        test('.value is set to invalid values (2 of 2)', function () {
+        test('.value is set/invalid values (2 of 2)', function () {
           var input = fixture('valueProgrammaticTests');
-          var invalidValues = [ "2016-08-01", "2016-08-01 ", "2016-08-01 to", "2016-08-01 to ", " 2016-08-01", "to 2016-08-01", " to 2016-08-01" ];
+          var invalidValues = [ "2016-08-01", "2016-08-01 ", "2016-08-01 to", "2016-08-01/", " 2016-08-01", "to 2016-08-01", "/2016-08-01" ];
           var invalidValue;
           var expectedStartDates = [ "", "", "", "2016-08-01", "", "", "" ];
           var expectedEndDates = [ "", "", "", "", "", "", "2016-08-01" ];
@@ -341,9 +342,9 @@
           }
         });
 
-        test('.value is set to valid values', function () {
+        test('.value is set/valid values', function () {
           var input = fixture('valueProgrammaticTests');
-          var invalidValues = [ "2016-08-01 to 2016-08-30", "2016-08-30 to 2016-08-01"];
+          var invalidValues = [ "2016-08-01/2016-08-30", "2016-08-30/2016-08-01"];
           var invalidValue;
           var expectedStartDates = [ "2016-08-01", "2016-08-30" ];
           var expectedEndDates = [ "2016-08-30", "2016-08-01" ];
@@ -364,7 +365,7 @@
       });
 
       suite('tests where .value is set in code', function () {
-        test('.value is set to invalid values (1 of 2)', function () {
+        test('.value is set/invalid values (1 of 2)', function () {
           var input = fixture('valueProgrammaticTests');
           var invalidValues = [ undefined, null, 42, 3.14159, true, false, [], {}, function () { return undefined; }];
           var invalidValue;
@@ -383,9 +384,9 @@
           }
         });
 
-        test('.value is set to invalid values (2 of 2)', function () {
+        test('.value is set/invalid values (2 of 2)', function () {
           var input = fixture('valueProgrammaticTests');
-          var invalidValues = [ "2016-08-01", "2016-08-01 ", "2016-08-01 to", "2016-08-01 to ", " 2016-08-01", "to 2016-08-01", " to 2016-08-01" ];
+          var invalidValues = [ "2016-08-01", "2016-08-01 ", "2016-08-01 to", "2016-08-01/", " 2016-08-01", "to 2016-08-01", "/2016-08-01" ];
           var invalidValue;
           var expectedStartDates = [ "", "", "", "2016-08-01", "", "", "" ];
           var expectedEndDates = [ "", "", "", "", "", "", "2016-08-01" ];
@@ -403,9 +404,9 @@
 
         });
 
-        test('.value is set to valid values', function () {
+        test('.value is set/valid values', function () {
           var input = fixture('valueProgrammaticTests');
-          var invalidValues = [ "2016-08-01 to 2016-08-30", "2016-08-30 to 2016-08-01"];
+          var invalidValues = [ "2016-08-01/2016-08-30", "2016-08-30/2016-08-01"];
           var invalidValue;
           var expectedStartDates = [ "2016-08-01", "2016-08-30" ];
           var expectedEndDates = [ "2016-08-30", "2016-08-01" ];

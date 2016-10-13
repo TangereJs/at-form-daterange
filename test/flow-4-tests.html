@@ -87,6 +87,7 @@
 
             assert.equal(inputElement.value, inputValue, "input element value not set correctly");
             assert.equal(element.value, "", "element value not set correctly");
+
             assert.equal(element.valid, false, "element valid state not set correctly");
             var isValid = element.validate(true);
             assert.equal(isValid, false, "element valid state not set correctly");
@@ -98,9 +99,8 @@
           inputElement.value = inputValue;
           TestHelpers.fireEvent('change', {}, inputElement);
 
-          expectedValue = element.T("{0} to {1}", '2016-05-01', "2016-05-31");
           assert.equal(inputElement.value, inputValue, "input element value not set correctly");
-          assert.equal(element.value, expectedValue, "element value not set correctly");
+          assert.equal(element.value, '2016-05-01/2016-05-31', "element value not set correctly");
           assert.equal(element.valid, true, "element valid state not set correctly");
           var isValid = element.validate(true);
           assert.equal(isValid, true, "element valid state not set correctly");
@@ -109,11 +109,10 @@
 
           inputValue = element.T("{0} to {1}", endDateString, startDateString);
           inputElement.value = inputValue;
-
           TestHelpers.fireEvent('change', {}, inputElement);
-          expectedValue = element.T("{0} to {1}", '2016-05-31', "2016-05-01");
+
           assert.equal(inputElement.value, inputValue, "input element value not set correctly");
-          assert.equal(element.value, expectedValue, "element value not set correctly");
+          assert.equal(element.value, '2016-05-31/2016-05-01', "element value not set correctly");
           assert.equal(element.valid, false, "element valid state not set correctly");
           var isValid = element.validate(true);
           assert.equal(isValid, false, "element valid state not set correctly");
@@ -174,7 +173,7 @@
           TestHelpers.fireEvent('change', {}, inputElement);
 
           assert.equal(inputElement.value, inputValue, "input element value not set correctly");
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "element value not set correctly");
+          assert.equal(element.value, '2016-05-01/2016-05-31', "element value not set correctly");
           assert.equal(element.valid, true, "element valid state not set correctly");
           var isValid = element.validate(true);
           assert.equal(isValid, true, "element valid state not set correctly");
@@ -187,7 +186,7 @@
           TestHelpers.fireEvent('change', {}, inputElement);
 
           assert.equal(inputElement.value, inputValue, "input element value not set correctly");
-          assert.equal(element.value, "2016-05-31 to 2016-05-01", "element value not set correctly");
+          assert.equal(element.value, '2016-05-31/2016-05-01', "element value not set correctly");
           assert.equal(element.valid, false, "element valid state not set correctly");
           var isValid = element.validate(true);
           assert.equal(isValid, false, "element valid state not set correctly");
@@ -255,7 +254,7 @@
           TestHelpers.fireEvent('change', {}, inputElement);
 
           assert.equal(inputElement.value, inputValue, "input element value not set correctly");
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "element value not set correctly");
+          assert.equal(element.value, "2016-05-01/2016-05-31", "element value not set correctly");
           assert.equal(element.valid, true, "element valid state not set correctly");
           var isValid = element.validate(true);
           assert.equal(isValid, true, "element valid state not set correctly");
@@ -268,7 +267,7 @@
           TestHelpers.fireEvent('change', {}, inputElement);
 
           assert.equal(inputElement.value, inputValue, "input element value not set correctly");
-          assert.equal(element.value, "2016-05-31 to 2016-05-01", "element value not set correctly");
+          assert.equal(element.value, "2016-05-31/2016-05-01", "element value not set correctly");
           assert.equal(element.valid, false, "element valid state not set correctly");
           var isValid = element.validate(true);
           assert.equal(isValid, false, "element valid state not set correctly");
@@ -329,7 +328,7 @@
           TestHelpers.fireEvent('change', {}, inputElement);
 
           assert.equal(inputElement.value, inputValue, "input element value not set correctly");
-          assert.equal(element.value, "2016-05-01 to 2016-05-31", "element value not set correctly");
+          assert.equal(element.value, "2016-05-01/2016-05-31", "element value not set correctly");
           assert.equal(element.valid, true, "element valid state not set correctly");
           var isValid = element.validate(true);
           assert.equal(isValid, true, "element valid state not set correctly");
@@ -342,7 +341,7 @@
           TestHelpers.fireEvent('change', {}, inputElement);
 
           assert.equal(inputElement.value, inputValue, "input element value not set correctly");
-          assert.equal(element.value, "2016-05-31 to 2016-05-01", "element value not set correctly");
+          assert.equal(element.value, "2016-05-31/2016-05-01", "element value not set correctly");
           assert.equal(element.valid, false, "element valid state not set correctly");
           var isValid = element.validate(true);
           assert.equal(isValid, false, "element valid state not set correctly");

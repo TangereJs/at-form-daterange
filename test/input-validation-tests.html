@@ -265,7 +265,7 @@
         assert.equal(validationResult.errorMessage, "This field is required.");
 
 
-        value = "2016-06-16 to 2016-06-30";
+        value = "2016-06-16/2016-06-30";
         schema.required = false;
 
         var validationResult = inputValidation._validateData(schema, value, format);
@@ -278,7 +278,7 @@
         assert.equal(validationResult.isValid, true, 'schema.value is invalid');
         assert.equal(validationResult.errorMessage, '');
       });
-      
+
     });
   </script>
 

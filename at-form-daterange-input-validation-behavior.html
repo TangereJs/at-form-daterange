@@ -166,16 +166,15 @@
           errorMessage: ""
         };
 
-        var tmpFormat = localizer("{0} to {1}", format, format);
-
         if ([null, "null", ""].indexOf(value) !== -1) {
           return validationResult;
         }
 
-        var formatMoment = moment(value, tmpFormat, true);
+        var parseFormat = localizer("{0}/{1}", format, format);
+        var formatMoment = moment(value, parseFormat , true);
         validationResult.isValid = formatMoment.isValid();
         if (!validationResult.isValid) {
-          validationResult.errorMessage = localizer("Value {0} is not in correct format of {1}", value, format );
+          validationResult.errorMessage = localizer("Value {0} is not in correct format of {1}", value, parseFormat);
         }
 
         return validationResult;
@@ -192,9 +191,9 @@
           return validationResult;
         }
 
-        var valueParts = value.split(" ");
+        var valueParts = value.split("/");
         var startDateStr = valueParts[0];
-        var endDateStr = valueParts[2];
+        var endDateStr = valueParts[1];
 
         var startMoment = moment(startDateStr, format, true);
         var endMoment = moment(endDateStr, format, true);
