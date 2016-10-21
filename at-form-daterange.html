@@ -368,10 +368,10 @@
         showError = this.autoValidate;
       }
 
-      // var inputValue = this.$.triggerRange.value;
-      // if ((this.value === null && inputValue !== "") || (this.value !== null && this.value !== inputValue)) {
-      //   this._updateDaterangeFromUserInput(inputValue);
-      // }
+      var inputValue = this.$.triggerRange.value;
+      if ((this.value === null && inputValue !== "") || (this.value !== null && this.value !== inputValue)) {
+        this._flow5_updateDaterangeFromUserInput(inputValue);
+      }
 
       var validationResult = this._validateBaseData();
       this._handleValidationResult(validationResult);
@@ -808,6 +808,106 @@
 
       this._selectedChanged("custom");
       this.$.coreDropdown.hide();
+    },
+
+    /**
+     * Flow 5. update daterange from user input for at-core-form enter usecase
+     */
+    _flow5_updateDaterangeFromUserInput: function(inputValue) {
+      /*
+        we maintain _lastUserInput to protect against repeated ENTER keypresses
+        user can type "lorem ipsum" into the input field and then press ENTER 14 times
+        user input should be processed only the first time; other 13 times nothing should be done
+      */
+      if (this._lastUserInput && this._lastUserInput === inputValue) {
+        return;
+      } else {
+        // if user has changed his input remember it
+        this._lastUserInput = inputValue;
+      }
+
+      var startDatePicker = this.$.startDatePicker;
+      var endDatePicker = this.$.endDatePicker;
+
+      if (inputValue === "") {
+        // clear existing value
+
+        this.value = "";
+        this.startDate = "";
+        this.endDate = "";
+        startDatePicker.startDate = "";
+        startDatePicker.endDate = "";
+        endDatePicker.startDate = "";
+        endDatePicker.endDate = "";
+        return;
+      }
+
+      /*
+        parse input string
+        input string can be in localized display format
+        this.T("{0} to {1}")
+        also hypen(-) format is supported
+
+        * hyphen (-), preceded by any number of space characters and followed by any number of space characters.
+        * ie. <start-date>-<end-date>,
+        * <start-date>    -<end-date>,
+        * <start-date>-   <end-date>,
+        * <start-date>  -   <end-date>
+
+      */
+      var localizedDisplayFormat = this.T("{0} to {1}");
+      var localizedDateFormat = this._localizedFormat("date");
+      // we are going to parse input value using momentjs and strict mode
+
+      var inputString = inputValue.trim();
+      var parts = inputString.split(" ");
+      var resultMoments = [];
+      var tmpMoment;
+
+      for (i = 0; i < parts.length; i++) {
+        part = parts[i];
+        if (part.length) {
+          tmpMoment = moment(part, localizedDateFormat, true);
+          if (tmpMoment.isValid()) {
+            resultMoments.push(tmpMoment);
+          }
+        }
+      }
+
+      if (resultMoments.length !== 2) {
+        // user input is invalid;
+        this._isUpdateDaterangeFromDatePickers = true;
+        startDatePicker.startDate = "";
+        startDatePicker.endDate = "";
+        endDatePicker.startDate = "";
+        endDatePicker.endDate = "";
+        this._isUpdateDaterangeFromDatePickers = false;
+        this._isInternalUpdateValue = true;
+        this.value = inputValue;
+        this.startDate = "";
+        this.endDate = "";
+        this._isInternalUpdateValue = false;
+      } else {
+        // we have valid user input
+        var startDatePickerString = resultMoments[0].format(localizedDateFormat);
+        var endDatePickerString = resultMoments[1].format(localizedDateFormat);
+        var startDateValueString = resultMoments[0].format(this._valueFormat);
+        var endDateValueString = resultMoments[1].format(this._valueFormat);
+        var outputValue = this.T("{0}/{1}", startDateValueString, endDateValueString);
+
+        this._isUpdateDaterangeFromDatePickers = true;
+        startDatePicker.startDate = startDatePickerString;
+        startDatePicker.endDate = endDatePickerString;
+        endDatePicker.startDate = startDatePickerString
+        endDatePicker.endDate = endDatePickerString;
+        this._isUpdateDaterangeFromDatePickers = false;
+
+        this._isInternalUpdateValue = true;
+        this.startDate = startDateValueString;
+        this.endDate = endDateValueString;
+        this.value = outputValue;
+        this._isInternalUpdateValue = true;
+      }
     },
 
     _updateDisplayValue: function (startDateMoment, endDateMoment, displayFormat, input) {
