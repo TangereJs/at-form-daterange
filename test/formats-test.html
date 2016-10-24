@@ -1,0 +1,174 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <title>at-form-daterange tests</title>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+  <script src="../../web-component-tester/browser.js"></script>
+  <script src="../../iron-test-helpers/test-helpers.js"></script>
+  <script src="../../iron-test-helpers/mock-interactions.js"></script>
+
+  <link rel="import" href="../at-form-daterange.html">
+
+</head>
+
+<body>
+
+  <test-fixture id="propertyTests">
+    <template>
+      <at-form-daterange></at-form-daterange>
+    </template>
+  </test-fixture>
+
+  <script>
+    suite('basic tests', function() {
+
+      suite('property values set in code', function() {
+
+        test('format tests', function() {
+          var element = fixture('propertyTests');
+
+          element._flow5_updateDaterangeFromUserInput(" od  01.05.2016    do 31.05.2016        ");
+
+          element._flow5_updateDaterangeFromUserInput("");
+          element._flow5_updateDaterangeFromUserInput("           ");
+
+          element._flow5_updateDaterangeFromUserInput("  asdfjas;d     dfjaisdfs      asdjfias     ");
+
+          element._flow5_updateDaterangeFromUserInput("     ");
+
+        });
+
+        test('initially set valid value, clear it next ', function () {
+          var element = fixture('propertyTests');
+
+          element.value = "2016-05-01/2016-05-31";
+
+          assert.equal(element.value, "2016-05-01/2016-05-31", 'value not set correctly');
+          assert.equal(element.startDate, "2016-05-01", 'start date not set correctly');
+          assert.equal(element.endDate, "2016-05-31", 'end date not set correctly');
+
+          var triggerRange = element.$.triggerRange;
+          assert.notEqual(triggerRange, null, "input element doesn't exist");
+
+          var userInputsThatClearValue = [ "", "     " ];
+
+          for (var i = 0; i < userInputsThatClearValue.length; i++) {
+            var inputThatClears = userInputsThatClearValue[i];
+
+            triggerRange.value = inputThatClears;
+
+            var isValid = element.validate(true);
+
+            assert.equal(element.$.hint.innerHTML, "", "error message not set correctly");
+            assert.equal(isValid, true, "valid state is not correct");
+
+            assert.equal(element.value, "", 'value not set correctly');
+            assert.equal(element.startDate, "", 'start date not set correctly');
+            assert.equal(element.endDate, "", 'end date not set correctly');
+
+            element.value = "2016-05-01/2016-05-31";
+
+            assert.equal(element.value, "2016-05-01/2016-05-31", 'value not set correctly');
+            assert.equal(element.startDate, "2016-05-01", 'start date not set correctly');
+            assert.equal(element.endDate, "2016-05-31", 'end date not set correctly');
+          }
+        });
+
+        test('initially set valid value, set invalid value next ', function () {
+          var element = fixture('propertyTests');
+
+          element.value = "2016-05-01/2016-05-31";
+
+          assert.equal(element.value, "2016-05-01/2016-05-31", 'value not set correctly');
+          assert.equal(element.startDate, "2016-05-01", 'start date not set correctly');
+          assert.equal(element.endDate, "2016-05-31", 'end date not set correctly');
+
+          var triggerRange = element.$.triggerRange;
+          assert.notEqual(triggerRange, null, "input element doesn't exist");
+
+          var userInputsThatClearValue = [ "lorem ipsum", "lorem     ipsum", "lorem    ipsum  ", "    lorem    ipsum" ];
+
+          for (var i = 0; i < userInputsThatClearValue.length; i++) {
+            var inputThatClears = userInputsThatClearValue[i];
+
+            triggerRange.value = inputThatClears;
+
+            var isValid = element.validate(true);
+
+            assert.equal(element.$.hint.innerHTML, element.T('Input string {0} is not valid', inputThatClears), "error message not set correctly");
+            assert.equal(isValid, false, "valid state is not correct");
+
+            assert.equal(element.value, inputThatClears, 'value not set correctly');
+            assert.equal(element.startDate, "", 'start date not set correctly');
+            assert.equal(element.endDate, "", 'end date not set correctly');
+
+            element.value = "2016-05-01/2016-05-31";
+
+            assert.equal(element.value, "2016-05-01/2016-05-31", 'value not set correctly');
+            assert.equal(element.startDate, "2016-05-01", 'start date not set correctly');
+            assert.equal(element.endDate, "2016-05-31", 'end date not set correctly');
+          }
+        });
+
+        test('initially set valid value, set new valid value next ', function () {
+          var element = fixture('propertyTests');
+
+          element.value = "2016-05-01/2016-05-31";
+
+          assert.equal(element.value, "2016-05-01/2016-05-31", 'value not set correctly');
+          assert.equal(element.startDate, "2016-05-01", 'start date not set correctly');
+          assert.equal(element.endDate, "2016-05-31", 'end date not set correctly');
+
+          var triggerRange = element.$.triggerRange;
+          assert.notEqual(triggerRange, null, "input element doesn't exist");
+
+          var valueFormat = "YYYY-MM-DD";
+          var localizedFormat = element._localizedFormat("date");
+          var startMoment = moment("2016-06-01", valueFormat, true);
+          var endMoment = moment("2016-06-30", valueFormat, true);
+
+          var userInputsThatSetValidValue = [
+            startMoment.format(localizedFormat) + " " + endMoment.format(localizedFormat),
+            startMoment.format(localizedFormat) + "              " + endMoment.format(localizedFormat),
+            startMoment.format(localizedFormat) + "              " + endMoment.format(localizedFormat) + "        ",
+            "                 " + startMoment.format(localizedFormat) + "              " + endMoment.format(localizedFormat),
+          ];
+
+          for (var i = 0; i < userInputsThatSetValidValue.length; i++) {
+            var inputThatSetsValid = userInputsThatSetValidValue[i];
+
+            triggerRange.value = inputThatSetsValid;
+
+            var isValid = element.validate(true);
+
+            assert.equal(element.$.hint.innerHTML, "", "error message not set correctly");
+            assert.equal(isValid, true, "valid state is not correct");
+
+            assert.equal(element.value, "2016-06-01/2016-06-30", 'value not set correctly');
+            assert.equal(element.startDate, "2016-06-01", 'start date not set correctly');
+            assert.equal(element.endDate, "2016-06-30", 'end date not set correctly');
+
+            element.value = "2016-05-01/2016-05-31";
+
+            assert.equal(element.value, "2016-05-01/2016-05-31", 'value not set correctly');
+            assert.equal(element.startDate, "2016-05-01", 'start date not set correctly');
+            assert.equal(element.endDate, "2016-05-31", 'end date not set correctly');
+          }
+        });
+
+      });
+
+    });
+  </script>
+
+</body>
+
+</html>
