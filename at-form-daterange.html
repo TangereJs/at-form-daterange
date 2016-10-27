@@ -317,7 +317,9 @@
 
     _internalValidStateUpdate: function(required, startDate, endDate) {
       if (this._isReady) {
+        this._isBlockFlow5 = true;
         this.validate();
+        this._isBlockFlow5 = false;
       }
     },
 
@@ -444,15 +446,18 @@
       this._isInternalUpdateValue = true;
 
       if (newValue === null) {
+        this._isBlockFlow5 = true;
         // update display value to empty string
         this.$.triggerRange.value = "";
+        this._isBlockFlow5 = false;
 
         // update datepickers to ... what?
+        this._isUpdateDaterangeFromDatePickers = true;
         this.$.startDatePicker.startDate = "";
         this.$.startDatePicker.endDate = "";
-
         this.$.endDatePicker.startDate = "";
         this.$.endDatePicker.endDate = "";
+        this._isUpdateDaterangeFromDatePickers = false;
         // clear selection from dropdown
         this._selectedChanged("");
 
@@ -478,16 +483,22 @@
           var localizedDateFormat = this._localizedFormat("date");
           var localizedStartDateStr = startDateMoment.format(localizedDateFormat);
           var localizedEndDateStr = endDateMoment.format(localizedDateFormat);
+          this._isUpdateDaterangeFromDatePickers = true;
           this.$.startDatePicker.startDate = localizedStartDateStr;
           this.$.startDatePicker.endDate = localizedEndDateStr;
           this.$.endDatePicker.startDate = localizedStartDateStr;
           this.$.endDatePicker.endDate = localizedEndDateStr;
+          this._isUpdateDaterangeFromDatePickers = false;
         } else {
+          this._isBlockFlow5 = true;
           this.$.triggerRange.value = newValue;
+          this._isBlockFlow5 = false;
+          this._isUpdateDaterangeFromDatePickers = true;
           this.$.startDatePicker.startDate = "";
           this.$.startDatePicker.endDate = "";
           this.$.endDatePicker.startDate = "";
           this.$.endDatePicker.endDate = "";
+          this._isUpdateDaterangeFromDatePickers = false;
         }
 
         this.startDate = startDateStr;
@@ -500,13 +511,19 @@
         // update startDate and endDate
         this.startDate = "";
         this.endDate = "";
+
+        this._isBlockFlow5 = true;
         // update display value
         this.$.triggerRange.value = String(newValue);
+        this._isBlockFlow5 = true;
+
         // update datepickers
+        this._isUpdateDaterangeFromDatePickers = true;
         this.$.startDatePicker.startDate = "";
         this.$.startDatePicker.endDate = "";
         this.$.endDatePicker.startDate = "";
         this.$.endDatePicker.endDate = "";
+        this._isUpdateDaterangeFromDatePickers = false;
       }
 
       if (this.autoValidate) { this.validate(); }
@@ -552,10 +569,12 @@
           var localizedDateFormat = this._localizedFormat("date");
           var startDateStr = startDateMoment.format(localizedDateFormat);
           var endDateStr = endDateMoment.format(localizedDateFormat);
+          this._isUpdateDaterangeFromDatePickers = true;
           this.$.startDatePicker.startDate = startDateStr;
           this.$.startDatePicker.endDate = endDateStr;
           this.$.endDatePicker.startDate = startDateStr;
           this.$.endDatePicker.endDate = endDateStr;
+          this._isUpdateDaterangeFromDatePickers = false;
 
           this._selectedChanged("custom");
 
@@ -566,14 +585,18 @@
             this._fireValueChangedEvent(outputValue);
           }
         } else {
+          this._isBlockFlow5 = true;
           // update display value
           this.$.triggerRange.value = this.T("{0} to {1}", startDate, endDate);
+          this._isBlockFlow5 = false;
 
           // update date pickers
+          this._isUpdateDaterangeFromDatePickers = true;
           this.$.startDatePicker.startDate = "";
           this.$.startDatePicker.endDate = "";
           this.$.endDatePicker.startDate = "";
           this.$.endDatePicker.endDate = "";
+          this._isUpdateDaterangeFromDatePickers = false;
 
           this._selectedChanged("");
 
@@ -588,14 +611,18 @@
         this._fireStartDateChangedEvent(startDate);
         this._fireEndDateChangedEvent(endDate);
 
+        this._isBlockFlow5 = true;
         // update display value
         this.$.triggerRange.value = "";
+        this._isBlockFlow5 = false;
 
         // update datepickers
+        this._isUpdateDaterangeFromDatePickers = true;
         this.$.startDatePicker.startDate = "";
         this.$.startDatePicker.endDate = "";
         this.$.endDatePicker.startDate = "";
         this.$.endDatePicker.endDate = "";
+        this._isUpdateDaterangeFromDatePickers = false;
 
         this._selectedChanged("");
 
@@ -613,14 +640,18 @@
         var startDateStr = String(startDate);
         var endDateStr = String(endDate);
 
+        this._isBlockFlow5 = true;
         // update display value
         this.$.triggerRange.value = this.T("{0} to {1}", startDateStr, endDateStr);
+        this._isBlockFlow5 = false;
 
         // update datepickers
+        this._isUpdateDaterangeFromDatePickers = true;
         this.$.startDatePicker.startDate = "";
         this.$.startDatePicker.endDate = "";
         this.$.endDatePicker.startDate = "";
         this.$.endDatePicker.endDate = "";
+        this._isUpdateDaterangeFromDatePickers = false;
 
         this._selectedChanged("");
 
@@ -657,8 +688,10 @@
         // update display value
         this._updateDisplayValue(startDateMoment, endDateMoment, this._displayFormat, this.$.triggerRange);
       } else {
+        this._isBlockFlow5 = true;
         // update display value
         this.$.triggerRange.value = this.T("{0} to {1}", startDate, endDate);
+        this._isBlockFlow5 = false;
       }
 
       // update output value
@@ -749,7 +782,7 @@
         user can type "lorem ipsum" into the input field and then press ENTER 14 times
         user input should be processed only the first time; other 13 times nothing should be done
       */
-      if (this._lastUserInput && this._lastUserInput === inputValue) {
+      if (this._lastUserInput && this._lastUserInput === inputValue || this._isBlockFlow5) {
         return;
       } else {
         // if user has changed his input remember it

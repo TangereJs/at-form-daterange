@@ -50,7 +50,7 @@
       //   return localizer.T(format, arguments);
       // }
 
-      function getLocalizedDaterange(startDate, endDate) {
+      function getFormattedValue(startDate, endDate) {
         var localizer = document.createElement('at-form-text');
         return localizer.T("{0}/{1}", startDate, endDate);
       }
@@ -71,7 +71,7 @@
           var input = fixture('attrStartDate');
           assert.equal(input.startDate, "2016-08-15", "initial start date not set correctly");
           assert.equal(input.endDate, "", "initial end date not set correctly");
-          assert.equal(input.value, getLocalizedDaterange('2016-08-15', ''), 'initial value not set correctly');
+          assert.equal(input.value, getFormattedValue('2016-08-15', ''), 'initial value not set correctly');
 
           var expectedValue = "";
           var eventCount = 0;
@@ -79,22 +79,21 @@
             assert.equal(event.detail.value, expectedValue, 'event detail value not set correctly');
             assert.equal(input.value, expectedValue, 'element value not set correctly');
             eventCount += 1;
-
           });
 
-          expectedValue = getLocalizedDaterange('2016-08-15', '')
+          expectedValue = getFormattedValue('2016-08-15', '')
           Polymer.dom(input).setAttribute('start-date', '2016-08-15');
           Polymer.dom(input).setAttribute('start-date', '2016-08-15');
 
-          expectedValue = getLocalizedDaterange('2016-08-30', '');
+          expectedValue = getFormattedValue('2016-08-30', '');
           Polymer.dom(input).setAttribute('start-date', '2016-08-30');
           Polymer.dom(input).setAttribute('start-date', '2016-08-30');
 
-          expectedValue = getLocalizedDaterange('2016-08-15', '');
+          expectedValue = getFormattedValue('2016-08-15', '');
           Polymer.dom(input).setAttribute('start-date', '2016-08-15');
           Polymer.dom(input).setAttribute('start-date', '2016-08-15');
 
-          expectedValue = getLocalizedDaterange('2016-08-15', '2016-08-30');
+          expectedValue = getFormattedValue('2016-08-15', '2016-08-30');
           Polymer.dom(input).setAttribute('end-date', '2016-08-30');
           Polymer.dom(input).setAttribute('end-date', '2016-08-30');
 
@@ -111,7 +110,7 @@
           var input = fixture('attrEndDate');
           assert.equal(input.startDate, "", "initial start date not set correctly");
           assert.equal(input.endDate, "2016-08-25", "initial end date not set correctly");
-          assert.equal(input.value, getLocalizedDaterange('', '2016-08-25'), 'initial value not set correctly');
+          assert.equal(input.value, getFormattedValue('', '2016-08-25'), 'initial value not set correctly');
 
           var expectedValue = "";
           var eventCount = 0;
@@ -122,16 +121,16 @@
 
           });
 
-          expectedValue = getLocalizedDaterange('', '2016-08-25');
+          expectedValue = getFormattedValue('', '2016-08-25');
           Polymer.dom(input).setAttribute('end-date', '2016-08-25');
           Polymer.dom(input).setAttribute('end-date', '2016-08-25');
-          expectedValue = getLocalizedDaterange('', '2016-08-30');
+          expectedValue = getFormattedValue('', '2016-08-30');
           Polymer.dom(input).setAttribute('end-date', '2016-08-30');
           Polymer.dom(input).setAttribute('end-date', '2016-08-30');
-          expectedValue = getLocalizedDaterange('', '2016-08-25');
+          expectedValue = getFormattedValue('', '2016-08-25');
           Polymer.dom(input).setAttribute('end-date', '2016-08-25');
           Polymer.dom(input).setAttribute('end-date', '2016-08-25');
-          expectedValue = getLocalizedDaterange('2016-08-10', '2016-08-25');
+          expectedValue = getFormattedValue('2016-08-10', '2016-08-25');
           Polymer.dom(input).setAttribute('start-date', '2016-08-10');
           Polymer.dom(input).setAttribute('start-date', '2016-08-10');
 
@@ -148,7 +147,7 @@
           var input = fixture('attrStartDateEndDate');
           assert.equal(input.startDate, "2016-08-15", "initial start date not set correctly");
           assert.equal(input.endDate, "2016-08-25", "initial end date not set correctly");
-          assert.equal(input.value, getLocalizedDaterange('2016-08-15', '2016-08-25'), 'initial value not set correctly');
+          assert.equal(input.value, getFormattedValue('2016-08-15', '2016-08-25'), 'initial value not set correctly');
 
           var eventCount = 0;
           var expectedValue = "";
@@ -160,7 +159,7 @@
           });
           var inputField = input.$.triggerRange;
 
-          expectedValue = getLocalizedDaterange('2016-08-15', '2016-08-25');
+          expectedValue = getFormattedValue('2016-08-15', '2016-08-25');
           Polymer.dom(input).setAttribute('start-date', '2016-08-15');
           Polymer.dom(input).setAttribute('start-date', '2016-08-15');
           Polymer.dom(input).setAttribute('end-date', '2016-08-25');
@@ -168,19 +167,19 @@
 
           assert.equal(inputField.value, getLocalizedDisplayString('8/15/2016', '8/25/2016'), "display value is not correct");
 
-          expectedValue = getLocalizedDaterange('2016-08-15', '2016-08-30');
+          expectedValue = getFormattedValue('2016-08-15', '2016-08-30');
           Polymer.dom(input).setAttribute('end-date', '2016-08-30');
           Polymer.dom(input).setAttribute('end-date', '2016-08-30');
 
           assert.equal(inputField.value, getLocalizedDisplayString('8/15/2016', '8/30/2016'), "display value is not correct");
 
-          expectedValue = getLocalizedDaterange('2016-08-15', '2016-08-25');
+          expectedValue = getFormattedValue('2016-08-15', '2016-08-25');
           Polymer.dom(input).setAttribute('end-date', '2016-08-25');
           Polymer.dom(input).setAttribute('end-date', '2016-08-25');
 
           assert.equal(inputField.value, getLocalizedDisplayString('8/15/2016', '8/25/2016'), "display value is not correct");
 
-          expectedValue = getLocalizedDaterange('2016-08-10', '2016-08-25');
+          expectedValue = getFormattedValue('2016-08-10', '2016-08-25');
           Polymer.dom(input).setAttribute('start-date', '2016-08-10');
           Polymer.dom(input).setAttribute('start-date', '2016-08-10');
 
@@ -201,7 +200,7 @@
 
           assert.equal(input.startDate, "2016-08-15", "initial start date not set correctly");
           assert.equal(input.endDate, "", "initial end date not set correctly");
-          assert.equal(input.value, getLocalizedDaterange('2016-08-15', ''), 'initial value not set correctly');
+          assert.equal(input.value, getFormattedValue('2016-08-15', ''), 'initial value not set correctly');
 
           var expectedValue = "";
           var eventCount = 0;
@@ -220,13 +219,13 @@
           input.startDate = "2016-08-15";
           assert.equal(inputField.value, "", "display value is not correct");
 
-          expectedValue = getLocalizedDaterange('2016-08-10', '');
+          expectedValue = getFormattedValue('2016-08-10', '');
           input.startDate = "2016-08-10";
           assert.equal(inputField.value, "", "display value is not correct");
           input.startDate = "2016-08-10";
           assert.equal(inputField.value, "", "display value is not correct");
 
-          expectedValue = getLocalizedDaterange('2016-08-25', '');
+          expectedValue = getFormattedValue('2016-08-25', '');
           input.startDate = "2016-08-25";
           assert.equal(inputField.value, "", "display value is not correct");
           input.startDate = "2016-08-25";
@@ -244,7 +243,7 @@
 
           assert.equal(input.startDate, "", "initial start date not set correctly");
           assert.equal(input.endDate, "2016-08-15", "initial end date not set correctly");
-          assert.equal(input.value, getLocalizedDaterange('', '2016-08-15'), 'initial value not set correctly');
+          assert.equal(input.value, getFormattedValue('', '2016-08-15'), 'initial value not set correctly');
 
           var expectedValue = "";
           var eventCount = 0;
@@ -263,13 +262,13 @@
           input.endDate = "2016-08-15";
           assert.equal(inputField.value, "", "display value is not correct");
 
-          expectedValue = getLocalizedDaterange('', '2016-08-10');
+          expectedValue = getFormattedValue('', '2016-08-10');
           input.endDate = "2016-08-10";
           assert.equal(inputField.value, "", "display value is not correct");
           input.endDate = "2016-08-10";
           assert.equal(inputField.value, "", "display value is not correct");
 
-          expectedValue = getLocalizedDaterange('', '2016-08-25');
+          expectedValue = getFormattedValue('', '2016-08-25');
           input.endDate = "2016-08-25";
           assert.equal(inputField.value, "", "display value is not correct");
           input.endDate = "2016-08-25";
@@ -287,7 +286,7 @@
 
             assert.equal(input.startDate, "2016-08-15", "initial start date not set correctly");
             assert.equal(input.endDate, "2016-08-25", "initial end date not set correctly");
-            assert.equal(input.value, getLocalizedDaterange('2016-08-15', '2016-08-25'), 'initial value not set correctly');
+            assert.equal(input.value, getFormattedValue('2016-08-15', '2016-08-25'), 'initial value not set correctly');
 
             var expectedValue = "";
             var eventCount = 0;
