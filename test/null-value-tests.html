@@ -305,20 +305,23 @@
 
         var eventCount = 0;
         input.addEventListener('value-changed', function(event) {
-          assert.equal(event.detail.value, 'lorem ipsum', 'event detail value not set correctly');
-          assert.equal(input.value, 'lorem ipsum', 'event detail value not set correctly');
-
+          assert.equal(event.detail.value, '2016-06-10/2016-06-15', 'event detail value not set correctly');
+          assert.equal(input.value, '2016-06-10/2016-06-15', 'event detail value not set correctly');
           assert.equal(input.valid, true, 'element is invalid');
           eventCount += 1;
         });
 
         var inputElement = input.$.triggerRange;
 
-        inputElement.value = '2016-06-10/2016-06-15';
+        var localizedDateFormat = input._localizedFormat("date");
+        var localizedStartDateStr = moment('2016-06-10', "YYYY-MM-DD", true).format(localizedDateFormat);
+        var localizedEndDateStr = moment('2016-06-15', "YYYY-MM-DD", true).format(localizedDateFormat);
+
+        inputElement.value = localizedStartDateStr + "   -  " + localizedEndDateStr;
         TestHelpers.fireEvent('change', {}, inputElement);
 
         flush(function() {
-          assert.equal(eventCount, 0);
+          assert.equal(eventCount, 1);
           done();
         });
       });

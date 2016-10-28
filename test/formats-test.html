@@ -32,20 +32,6 @@
 
       suite('property values set in code', function() {
 
-        test('format tests', function() {
-          var element = fixture('propertyTests');
-
-          element._flow5_updateDaterangeFromUserInput(" od  01.05.2016    do 31.05.2016        ");
-
-          element._flow5_updateDaterangeFromUserInput("");
-          element._flow5_updateDaterangeFromUserInput("           ");
-
-          element._flow5_updateDaterangeFromUserInput("  asdfjas;d     dfjaisdfs      asdjfias     ");
-
-          element._flow5_updateDaterangeFromUserInput("     ");
-
-        });
-
         test('initially set valid value, clear it next ', function () {
           var element = fixture('propertyTests');
 
@@ -140,6 +126,13 @@
             startMoment.format(localizedFormat) + "              " + endMoment.format(localizedFormat),
             startMoment.format(localizedFormat) + "              " + endMoment.format(localizedFormat) + "        ",
             "                 " + startMoment.format(localizedFormat) + "              " + endMoment.format(localizedFormat),
+            " lorem ipsum " + startMoment.format(localizedFormat) + " " + endMoment.format(localizedFormat) + "",
+            " lorem ipsum " + startMoment.format(localizedFormat) + " lorem ipsum  " + endMoment.format(localizedFormat) + "",
+            " lorem ipsum " + startMoment.format(localizedFormat) + " " + endMoment.format(localizedFormat) + " lorem ipsum ",
+            " lorem ipsum " + startMoment.format(localizedFormat) + " lorem ipsum  " + endMoment.format(localizedFormat) + " lorem ipsum ",
+            "" + startMoment.format(localizedFormat) + "  lorem ipsum " + endMoment.format(localizedFormat) + "",
+            "" + startMoment.format(localizedFormat) + "  lorem ipsum " + endMoment.format(localizedFormat) + " lorem ipsum ",
+            "" + startMoment.format(localizedFormat) + " " + endMoment.format(localizedFormat) + " lorem ipsum ",
           ];
 
           for (var i = 0; i < userInputsThatSetValidValue.length; i++) {

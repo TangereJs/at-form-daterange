@@ -446,10 +446,8 @@
       this._isInternalUpdateValue = true;
 
       if (newValue === null) {
-        this._isBlockFlow5 = true;
         // update display value to empty string
-        this.$.triggerRange.value = "";
-        this._isBlockFlow5 = false;
+        this._setDisplayValue("");
 
         // update datepickers to ... what?
         this._isUpdateDaterangeFromDatePickers = true;
@@ -490,9 +488,7 @@
           this.$.endDatePicker.endDate = localizedEndDateStr;
           this._isUpdateDaterangeFromDatePickers = false;
         } else {
-          this._isBlockFlow5 = true;
-          this.$.triggerRange.value = newValue;
-          this._isBlockFlow5 = false;
+          this._setDisplayValue(newValue);
           this._isUpdateDaterangeFromDatePickers = true;
           this.$.startDatePicker.startDate = "";
           this.$.startDatePicker.endDate = "";
@@ -512,10 +508,8 @@
         this.startDate = "";
         this.endDate = "";
 
-        this._isBlockFlow5 = true;
         // update display value
-        this.$.triggerRange.value = String(newValue);
-        this._isBlockFlow5 = true;
+        this._setDisplayValue(newValue);
 
         // update datepickers
         this._isUpdateDaterangeFromDatePickers = true;
@@ -526,7 +520,11 @@
         this._isUpdateDaterangeFromDatePickers = false;
       }
 
-      if (this.autoValidate) { this.validate(); }
+      if (this.autoValidate) {
+        this._isBlockFlow5 = true;
+        this.validate();
+        this._isBlockFlow5 = false;
+      }
 
       this._fireValueChangedEvent(newValue);
       this._isInternalUpdateValue = false;
@@ -585,10 +583,9 @@
             this._fireValueChangedEvent(outputValue);
           }
         } else {
-          this._isBlockFlow5 = true;
           // update display value
-          this.$.triggerRange.value = this.T("{0} to {1}", startDate, endDate);
-          this._isBlockFlow5 = false;
+          var displayValue = this.T("{0} to {1}", startDate, endDate);
+          this._setDisplayValue(displayValue);
 
           // update date pickers
           this._isUpdateDaterangeFromDatePickers = true;
@@ -611,10 +608,8 @@
         this._fireStartDateChangedEvent(startDate);
         this._fireEndDateChangedEvent(endDate);
 
-        this._isBlockFlow5 = true;
         // update display value
-        this.$.triggerRange.value = "";
-        this._isBlockFlow5 = false;
+        this._setDisplayValue("");
 
         // update datepickers
         this._isUpdateDaterangeFromDatePickers = true;
@@ -640,10 +635,9 @@
         var startDateStr = String(startDate);
         var endDateStr = String(endDate);
 
-        this._isBlockFlow5 = true;
         // update display value
-        this.$.triggerRange.value = this.T("{0} to {1}", startDateStr, endDateStr);
-        this._isBlockFlow5 = false;
+        var displayValue = this.T("{0} to {1}", startDateStr, endDateStr);
+        this._setDisplayValue(displayValue);
 
         // update datepickers
         this._isUpdateDaterangeFromDatePickers = true;
@@ -688,10 +682,9 @@
         // update display value
         this._updateDisplayValue(startDateMoment, endDateMoment, this._displayFormat, this.$.triggerRange);
       } else {
-        this._isBlockFlow5 = true;
         // update display value
-        this.$.triggerRange.value = this.T("{0} to {1}", startDate, endDate);
-        this._isBlockFlow5 = false;
+        var displayValue = this.T("{0} to {1}", startDate, endDate);
+        this._setDisplayValue(displayValue);
       }
 
       // update output value
@@ -726,7 +719,7 @@
         updating datepikcers will not cause update of _displayValue
     */
     _updateDaterangeFromUserInput: function (newValue) {
-
+      this._lastUserInput = newValue;
       newValue = newValue.trim();
       if (!newValue.length) {
         return;
@@ -800,9 +793,12 @@
         this._updateDatePickerDates(endDatePicker, "", "");
         this._isUpdateDaterangeFromDatePickers = false;
         this._isInternalUpdateValue = true;
-        this.value = "";
         this.startDate = "";
+        this._fireStartDateChangedEvent("");
         this.endDate = "";
+        this._fireEndDateChangedEvent("");
+        this.value = "";
+        this._fireValueChangedEvent(this.value);
         this._isInternalUpdateValue = false;
         return;
       }
@@ -819,9 +815,12 @@
         this._updateDatePickerDates(endDatePicker, "", "");
         this._isUpdateDaterangeFromDatePickers = false;
         this._isInternalUpdateValue = true;
-        this.value = inputValue;
         this.startDate = "";
+        this._fireStartDateChangedEvent("");
         this.endDate = "";
+        this._fireEndDateChangedEvent("");
+        this.value = inputValue;
+        this._fireValueChangedEvent(this.value);
         this._isInternalUpdateValue = false;
       } else {
         // we have valid user input
@@ -839,8 +838,11 @@
 
         this._isInternalUpdateValue = true;
         this.startDate = startDateValueString;
+        this._fireStartDateChangedEvent(startDateValueString);
         this.endDate = endDateValueString;
+        this._fireEndDateChangedEvent(endDateValueString);
         this.value = outputValue;
+        this._fireValueChangedEvent(outputValue);
         this._isInternalUpdateValue = false;
       }
     },
@@ -850,6 +852,7 @@
       var endDateDisplayStr = endDateMoment.format(displayFormat);
       var displayResult = this.T("{0} to {1}", startDateDisplayStr, endDateDisplayStr);
 
+      this._lastUserInput = displayResult;
       input.value = displayResult;
     },
 
@@ -1085,6 +1088,17 @@
     _updateDatePickerDates: function(datePicker, startDateString, endDateString) {
       datePicker.startDate = startDateString;
       datePicker.endDate = endDateString;
+    },
+
+    /*
+      As name says, it sets display value for the daterange
+      form-daterange has input field at $.triggerRange
+      this function sets triggerRange value to displayValue
+      and updates _lastUserInput to displayValue to prevent unnecessary flow5 from happening
+    */
+    _setDisplayValue: function (displayValue) {
+      this._lastUserInput = displayValue;
+      this.$.triggerRange.value = displayValue;
     }
   });
 </script>
