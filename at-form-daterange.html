@@ -67,7 +67,7 @@
       <div id="contentContainer" class="at-content-container">
         <div id="triggerContainer" class="input-group">
           <input id="triggerRange" class="at-content has-placeholder date">
-          <at-carbon-icon-button id="triggerRangeIcon" class="icon-background input-group-addon" on-tap="_iconButtonMouseDown" icon="now:calendar"></at-carbon-icon-button>
+          <at-carbon-icon-button id="triggerRangeIcon" class="icon-background input-group-addon" icon="now:calendar"></at-carbon-icon-button>
         </div>
         <at-core-dropdown id="coreDropdown" class="core-dropdown" position="bottomRight">
           <div id="dropdown" class="layout horizontal">
@@ -165,6 +165,11 @@
       }
     },
 
+    listeners: {
+      'triggerRangeIcon.keydown': '_host_onKeydown',
+      'triggerRangeIcon.tap': '_iconButtonMouseDown'
+    },
+
     observers: [
       '_updateDaterangeFromStartAndEndDate(startDate, endDate)',
       '_internalValidStateUpdate(required, startDate, endDate)'
@@ -175,6 +180,28 @@
       type: "daterange",
       events: ["value-changed"]
     }],
+
+    _keyCodes: {
+      ESC: 27
+    },
+
+    _host_onKeydown: function (event) {
+      var keyCodes = this._keyCodes;
+      var keyCode = event.which;
+      var coreDropdown = this.$.coreDropdown;
+
+      switch (keyCode) {
+        case keyCodes.ESC:
+          coreDropdown.hide();
+          break;
+        default:
+          break;
+      }
+    },
+
+    _iconButtonMouseDown: function(event) {
+      this._toggleCoreDropdown(event);
+    },
 
     _hideLabelChanged: function(newValue, oldValue) {
       var label = this.$.label;
@@ -942,10 +969,6 @@
         this._fireEndDateChangedEvent(newEndDate);
       }
       this._isInternalUpdate = false;
-    },
-
-    _iconButtonMouseDown: function(event) {
-      this._toggleCoreDropdown(event);
     },
 
     _toggleCoreDropdown: function (event) {
