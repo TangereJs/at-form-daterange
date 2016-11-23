@@ -1038,18 +1038,18 @@
 
       switch (value) {
         case 'back':
-          this._toggleDropdownPanel('ranges');
+          this._toggleDropdownPanel('ranges', event);
           break;
         case 'startDate':
-          this._toggleDropdownPanel('startDate');
+          this._toggleDropdownPanel('startDate', event);
           break;
         case 'endDate':
-          this._toggleDropdownPanel('endDate');
+          this._toggleDropdownPanel('endDate', event);
           break;
       }
     },
 
-    _toggleDropdownPanel: function(panelId) {
+    _toggleDropdownPanel: function(panelId, event) {
       var rangesPanel = this.$.ranges;
       var customRangeSelection = this.$.customRangeSelection;
       var calendarStart = this.$.calendarStart;
