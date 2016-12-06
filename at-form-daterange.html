@@ -631,7 +631,7 @@
         return Object.prototype.toString.call(obj) === "[object String]" && obj.length === 0;
       }
 
-      if (!this._isReady || this._isInternalUpdateValue) {
+      if (!this._isReady || this._isInternalUpdateValue || this._isUpdateDaterangeFromDatePickers) {
         return;
       }
       this._isInternalUpdateValue = true;
@@ -757,6 +757,12 @@
         return;
       }
       this._isUpdateDaterangeFromDatePickers = true;
+
+      // update output value
+      var outputValue = this.T("{0}/{1}", startDate, endDate);
+      this.value = outputValue;
+      this._fireValueChangedEvent(outputValue);
+
       // startDate and endDate should already be in _valueFormat
       var startDateMoment = moment(startDate, this._valueFormat, true);
       var endDateMoment = moment(endDate, this._valueFormat, true);
@@ -778,10 +784,6 @@
         this._setDisplayValue(displayValue);
       }
 
-      // update output value
-      var outputValue = this.T("{0}/{1}", startDate, endDate);
-      this.value = outputValue;
-      this._fireValueChangedEvent(outputValue);
 
       // update datepickers
       var localizedDateFormat = this._localizedFormat("date");
