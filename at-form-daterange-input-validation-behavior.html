@@ -102,6 +102,13 @@
         return validationResult;
       }
 
+      // schema must have _displayFormat property and _displayFormat must be a string
+      validationResult.isValid = isString(schema._displayFormat);
+      if (!validationResult.isValid) {
+        validationResult.errorMessage = localizer("schema._displayFormat is not a string value.")
+        return validationResult;
+      }
+
       validationResult = _validateValueType(schema.properties.value, value, localizer);
       if (!validationResult.isValid) {
         return validationResult;
@@ -117,7 +124,7 @@
         return validationResult;
       }
 
-      validationResult = _validateStartDateEndDateOrder(value, this._valueFormat, localizer);
+      validationResult = _validateStartDateEndDateOrder(value, this._valueFormat, this._displayFormat, localizer);
 
       return validationResult;
 
@@ -180,7 +187,7 @@
         return validationResult;
       }
 
-      function _validateStartDateEndDateOrder(value, format, localizer)
+      function _validateStartDateEndDateOrder(value, format, displayFormat, localizer)
       {
         var result = {
           isValid: true,
@@ -202,7 +209,7 @@
 
         if (startMoment.isAfter(endMoment)) {
           result.isValid = false;
-          result.errorMessage = localizer("Start date of {0} is after end date of {1}", startDateStr, endDateStr);
+          result.errorMessage = localizer("Start date of {0} is after end date of {1}", startMoment.format(displayFormat), endMoment.format(displayFormat));
         }
 
         return result;
