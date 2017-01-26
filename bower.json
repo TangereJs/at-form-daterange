@@ -11,7 +11,8 @@
     "at-carbon-date-picker": "TangereJs/at-carbon-date-picker#master",
     "at-carbon-moment": "TangereJs/at-carbon-moment#master",
     "at-form-text": "TangereJs/at-form-text#master",
-    "at-doc-viewer": "TangereJs/at-doc-viewer#master"
+    "at-doc-viewer": "TangereJs/at-doc-viewer#master",
+    "iron-label": "PolymerElements/iron-label#master"
   },
   "version": "0.0.1.13"
 }

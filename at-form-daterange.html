@@ -6,6 +6,7 @@
 <link rel="import" href="../at-core-dropdown/at-core-dropdown.html">
 <link rel="import" href="../at-carbon-date-picker/at-carbon-date-picker.html">
 <link rel="import" href="../at-carbon-moment/at-carbon-moment.html">
+<link rel="import" href="../iron-label/iron-label.html">
 <link rel="import" href="at-form-daterange-input-validation-behavior.html">
 
 <!-- This is a new component extracted from the demo.html for polymer 0.5 -->
@@ -117,7 +118,7 @@
 
     </style>
     <div id="atContainer" class="at-container">
-      <label id="label">{{label}}</label>
+      <iron-label id="label" for="triggerRange">{{label}}</iron-label>
       <div id="contentContainer" class="at-content-container">
         <div id="triggerContainer" class="input-group">
           <input id="triggerRange" class="at-content has-placeholder date">
