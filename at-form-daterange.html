@@ -124,37 +124,37 @@
           <input id="triggerRange" class="at-content has-placeholder date">
           <at-carbon-icon-button id="triggerRangeIcon" class="icon-background input-group-addon" icon="now:calendar"></at-carbon-icon-button>
         </div>
-        <at-core-dropdown id="coreDropdown" class="core-dropdown" position="bottomRight">
-          <div id="dropdown" class="">
-            <div id="ranges" class="ranges">
-              <div class="range-item" on-tap="_rangeItemClicked" value="today">{{T("Today")}}</div>
-              <div class="range-item" on-tap="_rangeItemClicked" value="yesterday">{{T("Yesterday")}}</div>
-              <div class="range-item" on-tap="_rangeItemClicked" value="last7days">{{T("Last 7 Days")}}</div>
-              <div class="range-item" on-tap="_rangeItemClicked" value="last30days">{{T("Last 30 Days")}}</div>
-              <div class="range-item" on-tap="_rangeItemClicked" value="thisMonth">{{T("This Month")}}</div>
-              <div class="range-item" on-tap="_rangeItemClicked" value="lastMonth">{{T("Last Month")}}</div>
-              <div class="range-item" on-tap="_rangeItemClicked" value="custom">{{T("Custom")}}</div>
-            </div>
-            <div id="customRangeSelection" class="custom-range hidden">
-              <div class="custom-range-item" on-tap="_customRangeItemClicked" value="back">{{T("Custom")}}</div>
-              <div class="custom-range-item" on-tap="_customRangeItemClicked" value="startDate">{{T("Start")}}: <span id="startDateValue"></span></div>
-              <div class="custom-range-item" on-tap="_customRangeItemClicked" value="endDate">{{T("End")}}: <span id="endDateValue"></span></div>
-            </div>
-            <div id="calendarStart" class="at-carbon-picker-container hidden">
-              <div class="picker-header">Select start date <at-carbon-icon-button class="confirm-icon" on-tap="_datepickerOnTap" icon="now:checkmark"></at-carbon-icon-button></div>
-              <hr class="picker-header-hr"/>
-              <at-carbon-date-picker id="startDatePicker" mode="start-range"></at-carbon-date-picker>
-            </div>
-            <div id="calendarEnd" class="at-carbon-picker-container hidden">
-              <div class="picker-header">Select end date <at-carbon-icon-button class="confirm-icon" on-tap="_datepickerOnTap" icon="now:checkmark"></at-carbon-icon-button></div>
-              <hr class="picker-header-hr"/>
-              <at-carbon-date-picker id="endDatePicker" mode="end-range"></at-carbon-date-picker>
-            </div>
-          </div>
-        </at-core-dropdown>
       </div>
       <div id="hint"></div>
     </div>
+    <at-core-dropdown id="coreDropdown" class="core-dropdown" position="bottomRight" y-offset="2">
+      <div id="dropdown" class="">
+        <div id="ranges" class="ranges">
+          <div class="range-item" on-tap="_rangeItemClicked" value="today">{{T("Today")}}</div>
+          <div class="range-item" on-tap="_rangeItemClicked" value="yesterday">{{T("Yesterday")}}</div>
+          <div class="range-item" on-tap="_rangeItemClicked" value="last7days">{{T("Last 7 Days")}}</div>
+          <div class="range-item" on-tap="_rangeItemClicked" value="last30days">{{T("Last 30 Days")}}</div>
+          <div class="range-item" on-tap="_rangeItemClicked" value="thisMonth">{{T("This Month")}}</div>
+          <div class="range-item" on-tap="_rangeItemClicked" value="lastMonth">{{T("Last Month")}}</div>
+          <div class="range-item" on-tap="_rangeItemClicked" value="custom">{{T("Custom")}}</div>
+        </div>
+        <div id="customRangeSelection" class="custom-range hidden">
+          <div class="custom-range-item" on-tap="_customRangeItemClicked" value="back">{{T("Custom")}}</div>
+          <div class="custom-range-item" on-tap="_customRangeItemClicked" value="startDate">{{T("Start")}}: <span id="startDateValue"></span></div>
+          <div class="custom-range-item" on-tap="_customRangeItemClicked" value="endDate">{{T("End")}}: <span id="endDateValue"></span></div>
+        </div>
+        <div id="calendarStart" class="at-carbon-picker-container hidden">
+          <div class="picker-header">Select start date <at-carbon-icon-button class="confirm-icon" on-tap="_datepickerOnTap" icon="now:checkmark"></at-carbon-icon-button></div>
+          <hr class="picker-header-hr"/>
+          <at-carbon-date-picker id="startDatePicker" mode="start-range"></at-carbon-date-picker>
+        </div>
+        <div id="calendarEnd" class="at-carbon-picker-container hidden">
+          <div class="picker-header">Select end date <at-carbon-icon-button class="confirm-icon" on-tap="_datepickerOnTap" icon="now:checkmark"></at-carbon-icon-button></div>
+          <hr class="picker-header-hr"/>
+          <at-carbon-date-picker id="endDatePicker" mode="end-range"></at-carbon-date-picker>
+        </div>
+      </div>
+    </at-core-dropdown>
   </template>
 </dom-module>
 
@@ -307,10 +307,16 @@
             self.orientation = 'horizontal';
           }
         }
-        if (coreDropdown.isOpen()) {
-          coreDropdown.hide();
-          coreDropdown.show();
-        }
+
+        // @DOC What is going on here?
+        // 1. at-core-dropdown: on attached it moves its internal dropdown-impl to document.body
+        // 2. when resizeUnboundHandler (see above) updates layout that causes polymer-mini.MutationObserver.observe.characterData function to reattach dropdowm-impl to core-dropdown
+        // 3. polymer-mini.MutationObserver.observe.characterData function is executed in a debounce way as microtask
+        // 4. we need to reattach dropdown-impl to document.body so we call _returnImplToDocumentBody
+        // 5. we need to do this as async becuase microtask from 3. needs to complete first
+        self.async(function() {
+          coreDropdown._returnImplToDocumentBody();
+        });
       }
 
       var boundResizeHandler = resizeUnboundHandler.bind(this);
