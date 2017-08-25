@@ -113,7 +113,7 @@
           assert.equal('lorem ipsum', label.textContent, 'laberl textContent not set correctly');
           assert.equal(label.classList.contains('hidden'), false, 'label has hidden css class');
           var displayValue = window.getComputedStyle(label).getPropertyValue('display');
-          assert.equal('block', displayValue, 'label style display property is not correct');
+          assert.equal('inline', displayValue, 'label style display property is not correct');
         });
 
         test('is label hidden', function() {

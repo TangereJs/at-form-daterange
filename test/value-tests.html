@@ -46,9 +46,13 @@
 
           for (var sdIndex = 0; sdIndex < startDates.length; sdIndex++) {
             startDate = startDates[sdIndex];
+            // IE11 fix; setAttribute(name, null) gives empty string value for attribute; in other browsers null becomes string value of "null"
+            if (startDate === null) { startDate = "null"; }
             Polymer.dom(input).setAttribute('start-date', startDate);
             for (var edIndex = 0; edIndex < endDates.length; edIndex++) {
               endDate = endDates[edIndex];
+              // IE11 fix; setAttribute(name, null) gives empty string value for attribute; in other browsers null becomes string value of "null"
+              if (endDate === null) { endDate = "null"; }
               Polymer.dom(input).setAttribute('end-date', endDate);
 
               expectedValue = expectedValues[sdIndex * endDates.length + edIndex];

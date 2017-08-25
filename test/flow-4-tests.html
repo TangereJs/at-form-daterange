@@ -117,7 +117,7 @@
           var isValid = element.validate(true);
           assert.equal(isValid, false, "element valid state not set correctly");
           var errorMessage = Polymer.dom(element.$.hint).textContent;
-          assert.equal(errorMessage, "Start date of 2016-05-31 is after end date of 2016-05-01", "error message not set correctly");
+          assert.equal(errorMessage, element.T("Start date of {0} is after end date of {1}", endDateString, startDateString), "error message not set correctly");
 
         });
 
@@ -191,7 +191,7 @@
           var isValid = element.validate(true);
           assert.equal(isValid, false, "element valid state not set correctly");
           var errorMessage = Polymer.dom(element.$.hint).textContent;
-          assert.equal(errorMessage, "Start date of 2016-05-31 is after end date of 2016-05-01", "error message not set correctly");
+          assert.equal(errorMessage, "Start date of 31.05.2016 is after end date of 01.05.2016", "error message not set correctly");
 
         });
       });
@@ -272,7 +272,7 @@
           var isValid = element.validate(true);
           assert.equal(isValid, false, "element valid state not set correctly");
           var errorMessage = Polymer.dom(element.$.hint).textContent;
-          assert.equal(errorMessage, "Start date of 2016-05-31 is after end date of 2016-05-01", "error message not set correctly");
+          assert.equal(errorMessage, element.T("Start date of {0} is after end date of {1}", endDateString, startDateString), "error message not set correctly");
         });
 
         test('format set in code', function () {
@@ -346,7 +346,7 @@
           var isValid = element.validate(true);
           assert.equal(isValid, false, "element valid state not set correctly");
           var errorMessage = Polymer.dom(element.$.hint).textContent;
-          assert.equal(errorMessage, "Start date of 2016-05-31 is after end date of 2016-05-01", "error message not set correctly");
+          assert.equal(errorMessage, "Start date of 31.05.2016 is after end date of 01.05.2016", "error message not set correctly");
         });
       });
 
