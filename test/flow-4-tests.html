@@ -51,10 +51,23 @@
           assert.equal(element._displayFormat, localizedDateFormat, "format not set correctly");
 
           var inputElement = element.$.triggerRange;
-          var invalidStringValues = [ undefined, 42, 3.14159, true, false, {}, function () { return undefined; }];
+          var invalidStringValues = [ undefined, 42, 3.14159, true, false, {}, "function () { return undefined; }"];
           var expectedValues = [ "undefined", "42", "3.14159", "true", "false", "[object Object]", "function () { return undefined; }"];
 
           for (var i = 0; i < invalidStringValues.length; i++) {
+            /* IE11 only
+              Let invalid value be
+                var invalidValue = function() { return undefined; };
+              
+              When test is run in browser it passes
+              When test is run via Selenium / WebDriver is fails
+              So far, this is a selenium / ie11_webdriver bug. When converting function body to string, webdriver adds additional white space as follows
+                function() { return undefined; } becomes 'function() {     return undefined;     }'
+              
+              webdriver adds additional whitespace between open brace and return and semicolon and close brace
+              to fix this invalidValue is changed from function definition to string
+            */
+
             var invalidValue = invalidStringValues[i];
             var expectedValue = expectedValues[i];
 
@@ -128,7 +141,7 @@
           assert.equal(element._displayFormat, "DD.MM.YYYY", "format not set correctly");
 
           var inputElement = element.$.triggerRange;
-          var invalidStringValues = [ undefined, 42, 3.14159, true, false, {}, function () { return undefined; }];
+          var invalidStringValues = [ undefined, 42, 3.14159, true, false, {}, "function () { return undefined; }"];
           var expectedValues = [ "undefined", "42", "3.14159", "true", "false", "[object Object]", "function () { return undefined; }"];
 
           for (var i = 0; i < invalidStringValues.length; i++) {
@@ -205,7 +218,7 @@
           assert.equal(element._displayFormat, localizedDateFormat, "format not set correctly");
 
           var inputElement = element.$.triggerRange;
-          var invalidStringValues = [ undefined, 42, 3.14159, true, false, {}, function () { return undefined; }];
+          var invalidStringValues = [ undefined, 42, 3.14159, true, false, {}, "function () { return undefined; }"];
           var expectedValues = [ "undefined", "42", "3.14159", "true", "false", "[object Object]", "function () { return undefined; }"];
 
           for (var i = 0; i < invalidStringValues.length; i++) {
@@ -283,7 +296,7 @@
           assert.equal(element._displayFormat, "DD.MM.YYYY", "format not set correctly");
 
           var inputElement = element.$.triggerRange;
-          var invalidStringValues = [ undefined, 42, 3.14159, true, false, {}, function () { return undefined; }];
+          var invalidStringValues = [ undefined, 42, 3.14159, true, false, {}, "function () { return undefined; }"];
           var expectedValues = [ "undefined", "42", "3.14159", "true", "false", "[object Object]", "function () { return undefined; }"];
 
           for (var i = 0; i < invalidStringValues.length; i++) {
