@@ -20,11 +20,11 @@
       }
 
       :host {
-        @apply(--at-form-host);
+        @apply --at-form-host;
       }
 
       #triggerContainer {
-        @apply(--layout-horizontal);
+        @apply --layout-horizontal;
       }
 
       .icon-background {
@@ -468,7 +468,7 @@
         showError = this.autoValidate;
       }
 
-      var inputValue = this.$.triggerRange.value;
+      var inputValue = this.$ ? this.$.triggerRange.value : this.value;
       if ((this.value === null && inputValue !== "") || (this.value !== null && this.value !== inputValue)) {
         this._flow5_updateDaterangeFromUserInput(inputValue);
       }
@@ -481,7 +481,7 @@
 
       // validate user input
       // newValue is user input
-      var newValue = this.$.triggerRange.value;
+      var newValue = this.$ ? this.$.triggerRange.value : this.value;
       var trimmedNewvalue = newValue.trim();
       if (["null", null, ""].indexOf(trimmedNewvalue) === -1) {
 
@@ -512,9 +512,9 @@
     },
 
     _updateUIValidState: function(isValid) {
-      var label = this.$.label;
+      var label = this.$ && this.$.label;
       this.toggleClass('error', !isValid, label);
-      var contentContainer = this.$.contentContainer;
+      var contentContainer = this.$ && this.$.contentContainer;
       this.toggleClass('error', !isValid, contentContainer);
     },
 
