@@ -9,8 +9,6 @@
 <link rel="import" href="../iron-label/iron-label.html">
 <link rel="import" href="at-form-daterange-input-validation-behavior.html">
 
-<!-- This is a new component extracted from the demo.html for polymer 0.5 -->
-
 <dom-module id="at-form-daterange">
   <template>
     <style include="at-form-common"></style>
@@ -115,7 +113,6 @@
         margin: 0 4px;
         opacity: 0.5;
       }
-
     </style>
     <div id="atContainer" class="at-container">
       <iron-label id="label" for="triggerRange">{{label}}</iron-label>
@@ -140,17 +137,27 @@
         </div>
         <div id="customRangeSelection" class="custom-range hidden">
           <div class="custom-range-item" on-tap="_customRangeItemClicked" value="back">{{T("Custom")}}</div>
-          <div class="custom-range-item" on-tap="_customRangeItemClicked" value="startDate">{{T("Start")}}: <span id="startDateValue"></span></div>
-          <div class="custom-range-item" on-tap="_customRangeItemClicked" value="endDate">{{T("End")}}: <span id="endDateValue"></span></div>
+          <div class="custom-range-item" on-tap="_customRangeItemClicked" value="startDate">
+            <span>{{T("Start")}}:</span>
+            <span id="startDateValue"></span>
+          </div>
+          <div class="custom-range-item" on-tap="_customRangeItemClicked" value="endDate">
+            <span>{{T("End")}}:</span>
+            <span id="endDateValue"></span>
+          </div>
         </div>
         <div id="calendarStart" class="at-carbon-picker-container hidden">
-          <div class="picker-header">Select start date <at-carbon-icon-button class="confirm-icon" on-tap="_datepickerOnTap" icon="now:checkmark"></at-carbon-icon-button></div>
-          <hr class="picker-header-hr"/>
+          <div class="picker-header">Select start date
+            <at-carbon-icon-button class="confirm-icon" on-tap="_datepickerOnTap" icon="now:checkmark"></at-carbon-icon-button>
+          </div>
+          <hr class="picker-header-hr" />
           <at-carbon-date-picker id="startDatePicker" mode="start-range"></at-carbon-date-picker>
         </div>
         <div id="calendarEnd" class="at-carbon-picker-container hidden">
-          <div class="picker-header">Select end date <at-carbon-icon-button class="confirm-icon" on-tap="_datepickerOnTap" icon="now:checkmark"></at-carbon-icon-button></div>
-          <hr class="picker-header-hr"/>
+          <div class="picker-header">Select end date
+            <at-carbon-icon-button class="confirm-icon" on-tap="_datepickerOnTap" icon="now:checkmark"></at-carbon-icon-button>
+          </div>
+          <hr class="picker-header-hr" />
           <at-carbon-date-picker id="endDatePicker" mode="end-range"></at-carbon-date-picker>
         </div>
       </div>
@@ -250,7 +257,7 @@
       ESC: 27
     },
 
-    _host_onKeydown: function (event) {
+    _host_onKeydown: function(event) {
       var keyCodes = this._keyCodes;
       var keyCode = event.which;
       var coreDropdown = this.$.coreDropdown;
@@ -277,7 +284,7 @@
       var self = this;
       var coreDropdown = this.$.coreDropdown;
 
-      this._boundResizeHandler = function() {};
+      this._boundResizeHandler = function() { };
       this.orientation = 'horizontal';
       var dropdown = this.$.dropdown;
       var coreDropdown = this.$.coreDropdown;
@@ -366,7 +373,7 @@
       });
 
       this._valueFormat = "YYYY-MM-DD",
-      this._isReady = true;
+        this._isReady = true;
       if (!this._displayFormat) {
         this._displayFormat = this._localizedFormat("date");
       }
@@ -820,7 +827,7 @@
         setting .value will not cause update of _displayValue
         updating datepikcers will not cause update of _displayValue
     */
-    _updateDaterangeFromUserInput: function (newValue) {
+    _updateDaterangeFromUserInput: function(newValue) {
       this._lastUserInput = newValue;
       newValue = newValue.trim();
       if (!newValue.length) {
@@ -949,7 +956,7 @@
       }
     },
 
-    _updateDisplayValue: function (startDateMoment, endDateMoment, displayFormat, input) {
+    _updateDisplayValue: function(startDateMoment, endDateMoment, displayFormat, input) {
       var startDateDisplayStr = startDateMoment.format(displayFormat);
       var endDateDisplayStr = endDateMoment.format(displayFormat);
       var displayResult = this.T("{0} to {1}", startDateDisplayStr, endDateDisplayStr);
@@ -1039,7 +1046,7 @@
       this._isInternalUpdate = false;
     },
 
-    _customRangeItemClicked: function (event) {
+    _customRangeItemClicked: function(event) {
       var target = event.target;
       var value = target.getAttribute('value');
 
@@ -1075,7 +1082,7 @@
       this.$.coreDropdown.show(event, this.$.triggerRangeIcon);
     },
 
-    _toggleCoreDropdown: function (event) {
+    _toggleCoreDropdown: function(event) {
       if (!this.disabled) {
         var coreDropdown = this.$.coreDropdown;
         var relativeTo = this.$.triggerRangeIcon;
@@ -1098,7 +1105,7 @@
       }
     },
 
-    _datepickerOnTap: function (event) {
+    _datepickerOnTap: function(event) {
       this._toggleDropdownPanel('customRangeSelection');
     },
 
@@ -1140,16 +1147,16 @@
       this.fire('start-date-changed', {
         value: newValue
       }, {
-        bubbles: false
-      });
+          bubbles: false
+        });
     },
 
     _fireEndDateChangedEvent: function(newValue) {
       this.fire('end-date-changed', {
         value: newValue
       }, {
-        bubbles: false
-      });
+          bubbles: false
+        });
     },
 
     open: function(evnet) {
@@ -1227,7 +1234,7 @@
       this function sets triggerRange value to displayValue
       and updates _lastUserInput to displayValue to prevent unnecessary flow5 from happening
     */
-    _setDisplayValue: function (displayValue) {
+    _setDisplayValue: function(displayValue) {
       this._lastUserInput = displayValue;
       this.$.triggerRange.value = displayValue;
     }
