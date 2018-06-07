@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <META name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1">
+  <title>at-form-daterange demo</title>
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="../../at-core-form/at-core-form.html">
+  <link rel="import" href="../at-form-daterange.html">
+  <style>
+    .at-core-form {
+      display: block;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .item {
+      display: block;
+      max-width: 960px;
+      margin: 64px auto;
+    }
+  </style>
+</head>
+
+<body>
+  
+  <at-form-daterange label="Standalone daterange" class="item"></at-form-daterange>
+
+  <at-core-form id="coreForm"></at-core-form>
+
+  <script>
+    document.addEventListener('WebComponentsReady', wctReady);
+
+    var schema = {
+      properties: {
+        daterange1: {
+          type: "daterange",
+          label: "Daterange 1",
+          xgridcols: "12"
+        }
+      }
+    };
+
+    function wctReady() {
+      var elt = document.getElementById('coreForm');
+      elt.schema = schema;
+
+      elt.addEventListener('rendered', function() {
+
+        var dr1 = elt.getElement('daterange1');
+        dr1.addEventListener('start-date-changed', function(event) {
+          console.log(`start-date-changed ${event.detail.value}`);
+        });
+        
+        dr1.addEventListener('end-date-changed', function() {
+          console.log(`end-date-changed ${event.detail.value}`);
+        });
+
+      });
+    }
+  </script>
+
+</body>
+
+</html>

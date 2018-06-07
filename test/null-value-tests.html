@@ -56,7 +56,7 @@
       <at-form-daterange format="YYYY-DD-MM" value="null"></at-form-daterange>
     </template>
   </test-fixture>
-  
+
   <test-fixture id="propertyTests">
     <template>
       <at-form-daterange></at-form-daterange>
@@ -165,9 +165,11 @@
           done();
         });
       });
-});
 
-      suite('null tests, value set as property', function() {
+    });
+
+    suite('null tests, value set as property', function() {
+
       test('property value set to null', function(done) {
         var input = fixture('propertyTests');
         input.value = null;

@@ -257,6 +257,23 @@
       ESC: 27
     },
 
+    get _valueFormat() {
+      return "YYYY-MM-DD";
+    },
+
+    get _displayFormat() {
+      if (!this.__displayFormat__) {
+        this.__displayFormat__ = this._localizedFormat("date");
+      }
+      return this.__displayFormat__;
+    },
+
+    set _displayFormat(value) {
+      this.__displayFormat__ = value;
+    },
+
+    _emptyFn: function() { },
+
     _host_onKeydown: function(event) {
       var keyCodes = this._keyCodes;
       var keyCode = event.which;
@@ -332,35 +349,9 @@
 
       var startDatePicker = this.$.startDatePicker;
       var endDatePicker = this.$.endDatePicker;
-      startDatePicker.addEventListener('start-date-changed', function(event) {
-        if (self._isInternalUpdateValue) {
-          return;
-        }
-        self._isInternalUpdateValue = true;
-        var startDateValue = event.detail.value;
-        var localizedDateFormat = self._localizedFormat("date");
-        var startDateMoment = moment(startDateValue, localizedDateFormat, true);
-        if (startDateMoment.isValid()) {
-          var valueFormatStartDateStr = startDateMoment.format(self._valueFormat);
-          self._updateDaterangeFromDatePickers(valueFormatStartDateStr, self.endDate);
-        }
-        self._isInternalUpdateValue = false;
-      });
 
-      endDatePicker.addEventListener('end-date-changed', function(event) {
-        if (self._isInternalUpdateValue) {
-          return;
-        }
-        self._isInternalUpdateValue = true;
-        var endDateValue = event.detail.value;
-        var localizedDateFormat = self._localizedFormat("date");
-        var endDateMoment = moment(endDateValue, localizedDateFormat, true);
-        if (endDateMoment.isValid()) {
-          var valueFormatEndDateStr = endDateMoment.format(self._valueFormat);
-          self._updateDaterangeFromDatePickers(self.startDate, valueFormatEndDateStr);
-        }
-        self._isInternalUpdateValue = false;
-      });
+      startDatePicker.addEventListener('start-date-changed', this._startDatePickerStartDateChangedEventHandler.bind(this));
+      endDatePicker.addEventListener('end-date-changed', this._endDatePickerEndDateChangedEventHandler.bind(this));
 
       this.$.triggerRange.addEventListener('change', function(event) {
         var value = event.target.value;
@@ -372,38 +363,36 @@
         self.validate();
       });
 
-      this._valueFormat = "YYYY-MM-DD",
-        this._isReady = true;
-      if (!this._displayFormat) {
-        this._displayFormat = this._localizedFormat("date");
-      }
-      this._internalValidStateUpdate(this.required, this.startDate, this.endDate);
+      this._isReady = true;
 
       // Handle setting initial values
-      function isString(obj) {
-        return Object.prototype.toString.call(obj) === "[object String]";
-      }
       var value = this.value;
       var startDate = this.startDate;
       var endDate = this.endDate;
-      if (value === null || (isString(value) && value.length > 0)) {
+      if (value === null || (this._isString(value) && value.length > 0)) {
 
         // If value is set, split value into startDate and endDate and update startDate, endDate, _displayValue and date pickers
         // we accept null, and value.length > 0 filters initial value of ""
         // name of the function is _valueChanged on purpose because it follows polymer-js naming convention(s)
-        this._valueChanged(value);
+        this._valueChangedImpl(value);
       } else if (
-        (isString(startDate) && startDate.length > 0) ||
-        (isString(endDate) && endDate.length > 0)
+        (this._isString(startDate) && startDate.length > 0) ||
+        (this._isString(endDate) && endDate.length > 0)
       ) {
-
         // If value is not set, check if startDate and endDate are set and update value, _displayValue and date pickers
         // we do not accept null; startDate and endDate must be non empty strings
-        this._updateDaterangeFromStartAndEndDate(startDate, endDate);
+        this._updateDaterangeFromStartAndEndDateImpl(startDate, endDate);
+
       } else {
         // else set everything to initial values
-        this._valueChanged(this.properties.value.value);
+        this._valueChangedImpl(this.properties.value.value);
       }
+
+      this._internalValidStateUpdate(this.required, this.startDate, this.endDate);
+
+      this._attachValueChangedHandler();
+      this._attachUpdateDaterangeFromStartAndEndDateHandler();
+      this._attachUpdateDaterangeFromUserInputOnValidateHandler();
     },
 
     _disabledChanged: function(newValue, oldValue) {
@@ -421,19 +410,28 @@
     },
 
     _internalValidStateUpdate: function(required, startDate, endDate) {
-      if (this._isReady) {
-        this._isBlockFlow5 = true;
-        this.validate();
-        this._isBlockFlow5 = false;
-      }
+      this._internalValidStateUpdateImpl(required, startDate, endDate);
+    },
+
+    _attachInternalValidStateUpdateHandler: function() {
+      this._internalValidStateUpdate = this._internalValidStateUpdateImpl;
+    },
+
+    _detachInternalValidStateUpdateHandler: function() {
+      this._internalValidStateUpdate = this._emptyFn;
+    },
+
+    _internalValidStateUpdateImpl: function(required, startDate, endDate) {
+      if (!this._isReady) return;
+
+      this._detachUpdateDaterangeFromUserInputOnValidateHandler();
+      this.validate();
+      this._attachUpdateDaterangeFromUserInputOnValidateHandler();
     },
 
     _formatChanged: function(newValue, oldValue) {
-      function isString(obj) {
-        return Object.prototype.toString.call(obj) === "[object String]";
-      }
       var format = newValue;
-      if (!isString(format) || format === "") {
+      if (!this._isString(format) || format === "") {
         return;
       }
 
@@ -470,14 +468,13 @@
     },
 
     validate: function(showError) {
-
       if (showError === undefined) {
         showError = this.autoValidate;
       }
 
       var inputValue = this.$ ? this.$.triggerRange.value : this.value;
       if ((this.value === null && inputValue !== "") || (this.value !== null && this.value !== inputValue)) {
-        this._flow5_updateDaterangeFromUserInput(inputValue);
+        this._updateDaterangeFromUserInputOnValidate(inputValue);
       }
 
       var validationResult = this._validateBaseData();
@@ -519,9 +516,11 @@
     },
 
     _updateUIValidState: function(isValid) {
-      var label = this.$ && this.$.label;
+      if (!this.$) return;
+
+      var label = this.$.label;
       this.toggleClass('error', !isValid, label);
-      var contentContainer = this.$ && this.$.contentContainer;
+      var contentContainer = this.$.contentContainer;
       this.toggleClass('error', !isValid, contentContainer);
     },
 
@@ -538,245 +537,230 @@
           * setting _displayValue will not cause recalculation of .value
           * updating datepikcers will not cause recalculation of .value
     */
-    _valueChanged: function (newValue, oldValue) {
-      function isString(obj) {
-        return Object.prototype.toString.call(obj) === "[object String]";
-      }
-      // !this._isReady ignore initial polymer-js initialization
-      // we manually initialize from ready function
-      // this._isInternalUpdateValue to block feedback
-      if (!this._isReady || this._isInternalUpdateValue) {
-        return;
-      }
-      this._isInternalUpdateValue = true;
+    _valueChanged: function() {
+      // NOTE Flow 1 _valueChanged handler is initally emptyFn because initialization is done in ready function
+      // and _valueChagned handler is attached in ready function
+    },
 
-      if (newValue === null) {
-        // update display value to empty string
-        this._setDisplayValue("");
+    _attachValueChangedHandler: function() { this._valueChanged = this._valueChangedImpl; },
+    _detachValueChangedHandler: function() { this._valueChanged = this._emptyFn; },
 
-        // update datepickers to ... what?
-        this._isUpdateDaterangeFromDatePickers = true;
-        this.$.startDatePicker.startDate = "";
-        this.$.startDatePicker.endDate = "";
-        this.$.endDatePicker.startDate = "";
-        this.$.endDatePicker.endDate = "";
-        this._isUpdateDaterangeFromDatePickers = false;
-        // clear selection from dropdown
-        this._selectedChanged("");
+    _valueChangedImpl: function(newValue, oldValue) {
+      var displayStartDateStr = '';
+      var displayEndDateStr = '';
+      var pickerStartDateStr = '';
+      var pickerEndDateStr = '';
+      var startDateStr = '';
+      var endDateStr = '';
 
-        // update startDate and endDate to null
-        this.startDate = null;
-        this._fireStartDateChangedEvent(startDateStr);
-        this.endDate = null;
-        this._fireEndDateChangedEvent(endDateStr);
-      } else if (isString(newValue) && newValue.length > 0 && newValue.indexOf("/") !== -1) {
+      if (this._isString(newValue) && newValue.length > 0 && newValue.indexOf("/") > -1) {
         // we expect newValue to be in ISO 8601 format <start-date>/<end-date>
         // in our case that is _valueFormat/_valueFormat
         var valueParts = newValue.split("/");
 
-        var startDateStr = valueParts[0];
-        var endDateStr = valueParts[1];
-        var startDateMoment = moment(startDateStr, this._valueFormat, true);
-        var endDateMoment = moment(endDateStr, this._valueFormat, true);
-        if (startDateMoment.isValid() && endDateMoment.isValid()) {
-          // update display value
-          this._updateDisplayValue(startDateMoment, endDateMoment, this._displayFormat, this.$.triggerRange);
-          // update datepickers
-          // datepickers expect strings in _localizedFormat("date") so we need to provide
-          var localizedDateFormat = this._localizedFormat("date");
-          var localizedStartDateStr = startDateMoment.format(localizedDateFormat);
-          var localizedEndDateStr = endDateMoment.format(localizedDateFormat);
-          this._isUpdateDaterangeFromDatePickers = true;
-          this.$.startDatePicker.startDate = localizedStartDateStr;
-          this.$.startDatePicker.endDate = localizedEndDateStr;
-          this.$.endDatePicker.startDate = localizedStartDateStr;
-          this.$.endDatePicker.endDate = localizedEndDateStr;
-          this._isUpdateDaterangeFromDatePickers = false;
-        } else {
-          this._setDisplayValue(newValue);
-          this._isUpdateDaterangeFromDatePickers = true;
-          this.$.startDatePicker.startDate = "";
-          this.$.startDatePicker.endDate = "";
-          this.$.endDatePicker.startDate = "";
-          this.$.endDatePicker.endDate = "";
-          this._isUpdateDaterangeFromDatePickers = false;
+        var localizedFormat = this._localizedFormat("date");
+
+        var startDateMoment = moment(valueParts[0], this._valueFormat, true);
+        var endDateMoment = moment(valueParts[1], this._valueFormat, true);
+        var startDateValid = startDateMoment.isValid();
+        var endDateValid = endDateMoment.isValid();
+
+        if (startDateValid) {
+          displayStartDateStr = startDateMoment.format(this._displayFormat);
+          pickerStartDateStr = startDateMoment.format(localizedFormat);
+          startDateStr = startDateMoment.format(this._valueFormat);
         }
 
-        this.startDate = startDateStr;
-        this._fireStartDateChangedEvent(startDateStr);
-        this.endDate = endDateStr;
-        this._fireEndDateChangedEvent(endDateStr);
+        if (endDateValid) {
+          displayEndDateStr = endDateMoment.format(this._displayFormat);
+          pickerEndDateStr = endDateMoment.format(localizedFormat);
+          endDateStr = endDateMoment.format(this._valueFormat);
+        }
 
-      } else {
-        // string is invalid
-        // update startDate and endDate
-        this.startDate = "";
-        this.endDate = "";
-
-        // update display value
-        this._setDisplayValue(newValue);
-
-        // update datepickers
-        this._isUpdateDaterangeFromDatePickers = true;
-        this.$.startDatePicker.startDate = "";
-        this.$.startDatePicker.endDate = "";
-        this.$.endDatePicker.startDate = "";
-        this.$.endDatePicker.endDate = "";
-        this._isUpdateDaterangeFromDatePickers = false;
+      } else if (newValue === null) {
+        startDateStr = null;
+        endDateStr = null;
       }
 
+      // set startDate and endDate properties
+      this._detachUpdateDaterangeFromStartAndEndDateHandler();
+      this._detachInternalValidStateUpdateHandler();
+
+      this.startDate = startDateStr;
+      this.endDate = endDateStr;
+
+      this._attachInternalValidStateUpdateHandler();
+      this._attachUpdateDaterangeFromStartAndEndDateHandler();
+
+      // handle display value
+      var displayValue = '';
+      if (newValue === null) {
+        displayValue = '';
+
+      } else if (!this._isEmptyString(displayStartDateStr) && !this._isEmptyString(displayEndDateStr)) {
+        displayValue = this.T("{0} to {1}", displayStartDateStr, displayEndDateStr)
+
+      } else {
+        displayValue = newValue;
+      }
+
+      this._setDisplayValue(displayValue);
+
       if (this.autoValidate) {
-        this._isBlockFlow5 = true;
+        this._detachUpdateDaterangeFromUserInputOnValidateHandler();
         this.validate();
-        this._isBlockFlow5 = false;
+        this._attachUpdateDaterangeFromUserInputOnValidateHandler();
       }
 
       this._fireValueChangedEvent(newValue);
-      this._isInternalUpdateValue = false;
     },
 
-    /*
-      Flow 2.
-    */
-    // compute value computes the value from startDate and endDate
+    /**
+     * Flow 2. update interntal state from startDate and endDate when startDate and endDate are set externaly via property or attribute
+     * We do not want to use _updateDaterangeFromStartAndEndDate function to handle scenarios when startDate or endDate are updated internally
+     */
     _updateDaterangeFromStartAndEndDate: function(startDate, endDate) {
-      function isString(obj) {
-        return Object.prototype.toString.call(obj) === "[object String]";
-      }
-      function isEmptyString(obj) {
-        return Object.prototype.toString.call(obj) === "[object String]" && obj.length === 0;
-      }
-
-      if (!this._isReady || this._isInternalUpdateValue || this._isUpdateDaterangeFromDatePickers) {
-        return;
-      }
-      this._isInternalUpdateValue = true;
-
-      var result = '';
-
-      if (isString(startDate) && isString(endDate) && startDate !== "" && endDate !== "") {
-        this._fireStartDateChangedEvent(startDate);
-        this._fireEndDateChangedEvent(endDate);
-
-        var startDateMoment = moment(startDate, this._valueFormat, true);
-        var endDateMoment = moment(endDate, this._valueFormat, true);
-
-        var startDateValid = startDateMoment.isValid();
-        var endDateValid = endDateMoment.isValid()
-
-        if (startDateValid && endDateValid) {
-          // update display value
-          this._updateDisplayValue(startDateMoment, endDateMoment, this._displayFormat, this.$.triggerRange);
-
-          // update date pickers
-          var localizedDateFormat = this._localizedFormat("date");
-          var startDateStr = startDateMoment.format(localizedDateFormat);
-          var endDateStr = endDateMoment.format(localizedDateFormat);
-          this._isUpdateDaterangeFromDatePickers = true;
-          this.$.startDatePicker.startDate = startDateStr;
-          this.$.startDatePicker.endDate = endDateStr;
-          this.$.endDatePicker.startDate = startDateStr;
-          this.$.endDatePicker.endDate = endDateStr;
-          this._isUpdateDaterangeFromDatePickers = false;
-
-          this._selectedChanged("custom");
-
-          // update output value
-          var outputValue = this.T("{0}/{1}", startDate, endDate);
-          if (this.value !== outputValue) {
-            this.value = outputValue;
-            this._fireValueChangedEvent(outputValue);
-          }
-        } else {
-          // update display value
-          var displayValue = this.T("{0} to {1}", startDate, endDate);
-          this._setDisplayValue(displayValue);
-
-          // update date pickers
-          this._isUpdateDaterangeFromDatePickers = true;
-          this.$.startDatePicker.startDate = "";
-          this.$.startDatePicker.endDate = "";
-          this.$.endDatePicker.startDate = "";
-          this.$.endDatePicker.endDate = "";
-          this._isUpdateDaterangeFromDatePickers = false;
-
-          this._selectedChanged("");
-
-          // update output value
-          var outputValue = this.T("{0}/{1}", startDate, endDate);
-          if (this.value !== outputValue) {
-            this.value = outputValue;
-            this._fireValueChangedEvent(outputValue);
-          }
-        }
-      } else if (startDate === "" || endDate === "") {
-        this._fireStartDateChangedEvent(startDate);
-        this._fireEndDateChangedEvent(endDate);
-
-        // update display value
-        this._setDisplayValue("");
-
-        // update datepickers
-        this._isUpdateDaterangeFromDatePickers = true;
-        this.$.startDatePicker.startDate = "";
-        this.$.startDatePicker.endDate = "";
-        this.$.endDatePicker.startDate = "";
-        this.$.endDatePicker.endDate = "";
-        this._isUpdateDaterangeFromDatePickers = false;
-
-        this._selectedChanged("");
-
-        // update output value
-        var outputValue = this.T("{0}/{1}", startDate, endDate);
-        if (this.value !== outputValue) {
-          this.value = outputValue;
-          this._fireValueChangedEvent(outputValue);
-        }
-      } else {
-        this._fireStartDateChangedEvent(startDate);
-        this._fireEndDateChangedEvent(endDate);
-
-        // start date and end date are not strings
-        var startDateStr = String(startDate);
-        var endDateStr = String(endDate);
-
-        // update display value
-        var displayValue = this.T("{0} to {1}", startDateStr, endDateStr);
-        this._setDisplayValue(displayValue);
-
-        // update datepickers
-        this._isUpdateDaterangeFromDatePickers = true;
-        this.$.startDatePicker.startDate = "";
-        this.$.startDatePicker.endDate = "";
-        this.$.endDatePicker.startDate = "";
-        this.$.endDatePicker.endDate = "";
-        this._isUpdateDaterangeFromDatePickers = false;
-
-        this._selectedChanged("");
-
-        // update output value
-        var outputValue = this.T("{0}/{1}", startDateStr, endDateStr);
-        if (this.value !== outputValue) {
-          this.value = outputValue;
-          this._fireValueChangedEvent(outputValue);
-        }
-      }
-
-      this._isInternalUpdateValue = false;
+      // NOTE Flow 2 _updateDaterangeFromStartAndEndDate handler is initally emptyFn because initialization is done in ready function
+      // and _updateDaterangeFromStartAndEndDate handler is attached in ready function    
     },
 
-    /*
-      Flow 3.
-    */
-    _updateDaterangeFromDatePickers: function(startDate, endDate) {
-      if (!this._isReady || this._isUpdateDaterangeFromDatePickers) {
-        return;
+    _attachUpdateDaterangeFromStartAndEndDateHandler: function() { this._updateDaterangeFromStartAndEndDate = this._updateDaterangeFromStartAndEndDateImpl; },
+    _detachUpdateDaterangeFromStartAndEndDateHandler: function() { this._updateDaterangeFromStartAndEndDate = this._emptyFn; },
+
+    _updateDaterangeFromStartAndEndDateImpl: function(startDate, endDate) {
+      var startDateStr = new String(startDate);
+      var endDateStr = new String(endDate);
+      var startDateMoment = moment(startDateStr, this._valueFormat, true);
+      var endDateMoment = moment(endDateStr, this._valueFormat, true);
+
+      this._updateDaterangeFromStartAndEndDateMoments(startDateMoment, endDateMoment);
+    },
+
+    // Its probably better to split this function into three separate parts
+    // 1. update start and end date pickers
+    // 2. update display value 
+    // 3. update output value
+    // becuase we may need a more fine grained control for 
+    // 1. when events are fired and 
+    // 2. when internal functions are attached and detached
+    _updateDaterangeFromStartAndEndDateMoments: function(startDateMoment, endDateMoment) {
+      var startDateValid = startDateMoment.isValid();
+      var endDateValid = endDateMoment.isValid();
+
+      var outputStartDateStr = '';
+      var outputEndDateStr = '';
+      var displayStartDateStr = '';
+      var displayEndDateStr = '';
+      var pickerStartDateStr = '';
+      var pickerEndDateStr = '';
+      var localizedDateFormat = this._localizedFormat("date");
+
+      if (startDateValid) {
+        outputStartDateStr = startDateMoment.format(this._valueFormat);
+        displayStartDateStr = startDateMoment.format(this._displayFormat);
+        pickerStartDateStr = startDateMoment.format(localizedDateFormat);
+
+      } else {
+        var startDateInputStr = startDateMoment.creationData().input;
+        displayStartDateStr = startDateInputStr;
+        outputStartDateStr = startDateInputStr;
       }
-      this._isUpdateDaterangeFromDatePickers = true;
+
+      if (endDateValid) {
+        outputEndDateStr = endDateMoment.format(this._valueFormat);
+        displayEndDateStr = endDateMoment.format(this._displayFormat);
+        pickerEndDateStr = endDateMoment.format(localizedDateFormat);
+
+      } else {
+        var endDateInputStr = endDateMoment.creationData().input;
+        displayEndDateStr = endDateInputStr;
+        outputEndDateStr = endDateInputStr;
+      }
+
+      // update display value
+      var displayValue = displayStartDateStr.length > 0 && displayEndDateStr.length > 0 ? this.T("{0} to {1}", displayStartDateStr, displayEndDateStr) : '';
+      this._setDisplayValue(displayValue);
+
+      // update start and end date pickers
+      this._updateDatePickerDates(this.$.startDatePicker, pickerStartDateStr, pickerEndDateStr);
+      this._updateDatePickerDates(this.$.endDatePicker, pickerStartDateStr, pickerEndDateStr);
 
       // update output value
+      var outputValue = this._isEmptyString(outputStartDateStr) && this._isEmptyString(outputEndDateStr) ? '/' : this.T("{0}/{1}", outputStartDateStr, outputEndDateStr);
+      if (this.value !== outputValue) {
+        // we want to prevent polymer-js from triggering FLOW 1 when this.value is set
+        this._detachValueChangedHandler();
+        this.value = outputValue;
+        this._attachValueChangedHandler();
+
+        // NOTE this can be problematic becuase whoever is handling the event can call functions on at-form-daterange
+        // while daterange still didn't complete the processing 
+        this._fireValueChangedEvent(outputValue);
+      }
+    },
+
+
+    /**
+     * Flow 3. startDatePicker and endDatePicker event management
+     */
+    _attachStartDatePickerStartDateChangedEventHandler: function() { 
+      if (!this._boundStartDateChangedEventHandler) {
+        this._boundStartDateChangedEventHandler = this._startDatePickerStartDateChangedEventHandler.bind(this);
+      }
+      this.$.startDatePicker.addEventListener('start-date-changed', this._boundStartDateChangedEventHandler);
+    },
+    
+    _detachStartDatePickerStartDateChangedEventHandler: function() { 
+      if (!this._boundStartDateChangedEventHandler) return;
+      this.$.startDatePicker.remove('start-date-changed', this._boundStartDateChangedEventHandler);
+    },
+    
+    _startDatePickerStartDateChangedEventHandler: function(event) { 
+      var startDateValue = event.detail.value;
+      var localizedDateFormat = this._localizedFormat("date");
+      var startDateMoment = moment(startDateValue, localizedDateFormat, true);
+      if (startDateMoment.isValid()) {
+        var valueFormatStartDateStr = startDateMoment.format(this._valueFormat);
+        this._updateDaterangeFromDatePickers(valueFormatStartDateStr, this.endDate);
+      }
+    },
+
+    _attachEndDatePickerEndDateChangedEventHandler: function() { 
+      if (!this._boundEndDateChangedEventHandler) {
+        this._boundEndDateChangedEventHandler = this._endDatePickerEndDateChangedEventHandler.bind(this);
+      }
+      this.$.endDatePicker.addEventListener('end-date-changed', this._boundEndDateChangedEventHandler);
+    },
+    
+    _detachEndDatePickerEndDateChangedEventHandler: function() { 
+      if (!this._boundEndDateChangedEventHandler) return;
+      this.$.endDatePicker.removeEventListener('end-date-changed', this._boundEndDateChangedEventHandler);
+    },
+    
+    _endDatePickerEndDateChangedEventHandler: function(event) { 
+      var endDateValue = event.detail.value;
+      var localizedDateFormat = this._localizedFormat("date");
+      var endDateMoment = moment(endDateValue, localizedDateFormat, true);
+      if (endDateMoment.isValid()) {
+        var valueFormatEndDateStr = endDateMoment.format(this._valueFormat);
+        this._updateDaterangeFromDatePickers(this.startDate, valueFormatEndDateStr);
+      }
+    },
+
+    /**
+     * Flow 3. daterange update logic
+     */
+    _updateDaterangeFromDatePickers: function(startDate, endDate) { this._updateDaterangeFromDatePickersImpl(startDate, endDate); },
+
+    _attachUpdateDaterangeFromDatePickersHandler: function() { this._updateDaterangeFromDatePickers = this._updateDaterangeFromDatePickersImpl; },
+    _detachUpdateDaterangeFromDatePickersHandler: function() { this._updateDaterangeFromDatePickers = this.emptyFn; },
+
+    _updateDaterangeFromDatePickersImpl: function(startDate, endDate) {
+      // update output value
+      this._detachValueChangedHandler();
       var outputValue = this.T("{0}/{1}", startDate, endDate);
       this.value = outputValue;
+      this._attachValueChangedHandler();
       this._fireValueChangedEvent(outputValue);
 
       // startDate and endDate should already be in _valueFormat
@@ -784,10 +768,13 @@
       var endDateMoment = moment(endDate, this._valueFormat, true);
 
       // update startDate and endDate
+      this._detachUpdateDaterangeFromStartAndEndDateHandler();
       this.startDate = startDate;
+      this.endDate = endDate;
+      this._attachUpdateDaterangeFromStartAndEndDateHandler();
+
       Polymer.dom(this.$.startDateValue).textContent = startDateMoment.format(this._displayFormat);
       this._fireStartDateChangedEvent(startDate);
-      this.endDate = endDate;
       Polymer.dom(this.$.endDateValue).textContent = endDateMoment.format(this._displayFormat);
       this._fireEndDateChangedEvent(endDate);
 
@@ -800,17 +787,16 @@
         this._setDisplayValue(displayValue);
       }
 
-
       // update datepickers
       var localizedDateFormat = this._localizedFormat("date");
       var startDateStr = startDateMoment.format(localizedDateFormat);
       var endDateStr = endDateMoment.format(localizedDateFormat);
+      this._detachUpdateDaterangeFromDatePickersHandler();
       this.$.startDatePicker.startDate = startDateStr;
       this.$.startDatePicker.endDate = endDateStr;
       this.$.endDatePicker.startDate = startDateStr;
       this.$.endDatePicker.endDate = endDateStr;
-
-      this._isUpdateDaterangeFromDatePickers = false;
+      this._attachUpdateDaterangeFromDatePickersHandler();
     },
 
     /*
@@ -830,9 +816,7 @@
     _updateDaterangeFromUserInput: function(newValue) {
       this._lastUserInput = newValue;
       newValue = newValue.trim();
-      if (!newValue.length) {
-        return;
-      }
+      if (!newValue.length) return;
 
       // get array of valid momentjs objects from user input string
       var validMoments = this._getValidMomentObjectsFromUserInputString(newValue);
@@ -852,24 +836,27 @@
       var startDatePicker = this.$.startDatePicker;
       var endDatePicker = this.$.endDatePicker;
 
-      this._isUpdateDaterangeFromDatePickers = true;
+      this._detachUpdateDaterangeFromDatePickersHandler();
       this._updateDatePickerDates(startDatePicker, startDatePickerString, endDatePickerString);
       this._updateDatePickerDates(endDatePicker, startDatePickerString, endDatePickerString);
       this._isUpdateDaterangeFromDatePickers = false;
+      this._attachUpdateDaterangeFromDatePickersHandler();
 
       var startDateValueString = startDateMoment.format(this._valueFormat);
       var endDateValueString = endDateMoment.format(this._valueFormat);
       var valueString = this.T("{0}/{1}", startDateValueString, endDateValueString);
 
-      // update startDate value, endDate value and value
-      this._isInternalUpdateValue = true;
+      this._detachUpdateDaterangeFromStartAndEndDateHandler();
+      this._detachValueChangedHandler();
       this.startDate = startDateValueString;
-      this._fireStartDateChangedEvent(startDateValueString);
       this.endDate = endDateValueString;
-      this._fireEndDateChangedEvent(endDateValueString);
       this.value = valueString;
+      this._attachValueChangedHandler();
+      this._attachUpdateDaterangeFromStartAndEndDateHandler();
+
+      this._fireStartDateChangedEvent(startDateValueString);
+      this._fireEndDateChangedEvent(endDateValueString);
       this._fireValueChangedEvent(valueString);
-      this._isInternalUpdateValue = false;
 
       this._selectedChanged("custom");
       this.$.coreDropdown.hide();
@@ -878,82 +865,71 @@
     /**
      * Flow 5. update daterange from user input for at-core-form enter usecase
      */
-    _flow5_updateDaterangeFromUserInput: function(inputValue) {
+    _updateDaterangeFromUserInputOnValidate: function(inputValue) {
+      // NOTE Flow 5 _updateDaterangeFromUserInput handler is initally emptyFn because initialization is done in ready function
+      // and _updateDaterangeFromUserInput handler is attached in ready function    
+    },
+
+    _attachUpdateDaterangeFromUserInputOnValidateHandler: function() { this._updateDaterangeFromUserInputOnValidate = this._updateDaterangeFromUserInputOnValidateImpl; },
+    _detachUpdateDaterangeFromUserInputOnValidateHandler: function() { this._updateDaterangeFromUserInputOnValidate = this._emptyFn; },
+
+    _updateDaterangeFromUserInputOnValidateImpl: function(inputValue) {
       /*
         we maintain _lastUserInput to protect against repeated ENTER keypresses
         user can type "lorem ipsum" into the input field and then press ENTER 14 times
         user input should be processed only the first time; other 13 times nothing should be done
       */
-      if (this._lastUserInput && this._lastUserInput === inputValue || this._isBlockFlow5) {
+      if (this._lastUserInput && this._lastUserInput === inputValue) {
         return;
       } else {
         // if user has changed his input remember it
         this._lastUserInput = inputValue;
       }
 
-      var startDatePicker = this.$.startDatePicker;
-      var endDatePicker = this.$.endDatePicker;
+      var pickerStartDateStr = '';
+      var pickerEndDateStr = '';
+      var startDateStr = '';
+      var endDateStr = '';
+      var valueStr = '';
+
       var inputString = inputValue.trim();
 
-      if (inputString === "") {
-        // clear existing value
-        this._isUpdateDaterangeFromDatePickers = true;
-        this._updateDatePickerDates(startDatePicker, "", "");
-        this._updateDatePickerDates(endDatePicker, "", "");
-        this._isUpdateDaterangeFromDatePickers = false;
-        this._isInternalUpdateValue = true;
-        this.startDate = "";
-        this._fireStartDateChangedEvent("");
-        this.endDate = "";
-        this._fireEndDateChangedEvent("");
-        this.value = "";
-        this._fireValueChangedEvent(this.value);
-        this._isInternalUpdateValue = false;
-        return;
+      if (inputString.length > 0) {
+        var resultMoments = this._getValidMomentObjectsFromUserInputString(inputValue);
+
+        if (resultMoments.length == 2) {
+          // we have valid user input
+          var localizedDateFormat = this._localizedFormat("date");
+          pickerStartDateStr = resultMoments[0].format(localizedDateFormat);
+          pickerEndDateStr = resultMoments[1].format(localizedDateFormat);
+          startDateStr = resultMoments[0].format(this._valueFormat);
+          endDateStr = resultMoments[1].format(this._valueFormat);
+          valueStr = this.T("{0}/{1}", startDateStr, endDateStr);
+
+        } else {
+          valueStr = inputValue;
+        }
       }
 
-      /*
-        parse input string
-      */
-      var resultMoments = this._getValidMomentObjectsFromUserInputString(inputValue);
+      // update date pickers
+      this._detachUpdateDaterangeFromDatePickersHandler();
+      this._updateDatePickerDates(this.$.startDatePicker, pickerStartDateStr, pickerEndDateStr);
+      this._updateDatePickerDates(this.$.endDatePicker, pickerStartDateStr, pickerEndDateStr);
+      this._attachUpdateDaterangeFromDatePickersHandler();
+      
+      // update start and end date properties 
+      this._detachUpdateDaterangeFromStartAndEndDateHandler();
+      this.startDate = startDateStr;
+      this.endDate = endDateStr;
+      this._attachUpdateDaterangeFromStartAndEndDateHandler();
+      this._fireStartDateChangedEvent(startDateStr);
+      this._fireEndDateChangedEvent(endDateStr);
 
-      if (resultMoments.length !== 2) {
-        // user input is invalid;
-        this._isUpdateDaterangeFromDatePickers = true;
-        this._updateDatePickerDates(startDatePicker, "", "");
-        this._updateDatePickerDates(endDatePicker, "", "");
-        this._isUpdateDaterangeFromDatePickers = false;
-        this._isInternalUpdateValue = true;
-        this.startDate = "";
-        this._fireStartDateChangedEvent("");
-        this.endDate = "";
-        this._fireEndDateChangedEvent("");
-        this.value = inputValue;
-        this._fireValueChangedEvent(this.value);
-        this._isInternalUpdateValue = false;
-      } else {
-        // we have valid user input
-        var localizedDateFormat = this._localizedFormat("date");
-        var startDatePickerString = resultMoments[0].format(localizedDateFormat);
-        var endDatePickerString = resultMoments[1].format(localizedDateFormat);
-        var startDateValueString = resultMoments[0].format(this._valueFormat);
-        var endDateValueString = resultMoments[1].format(this._valueFormat);
-        var outputValue = this.T("{0}/{1}", startDateValueString, endDateValueString);
-
-        this._isUpdateDaterangeFromDatePickers = true;
-        this._updateDatePickerDates(startDatePicker, startDatePickerString, endDatePickerString);
-        this._updateDatePickerDates(endDatePicker, startDatePickerString, endDatePickerString);
-        this._isUpdateDaterangeFromDatePickers = false;
-
-        this._isInternalUpdateValue = true;
-        this.startDate = startDateValueString;
-        this._fireStartDateChangedEvent(startDateValueString);
-        this.endDate = endDateValueString;
-        this._fireEndDateChangedEvent(endDateValueString);
-        this.value = outputValue;
-        this._fireValueChangedEvent(outputValue);
-        this._isInternalUpdateValue = false;
-      }
+      // update value property
+      this._detachValueChangedHandler();
+      this.value = valueStr;
+      this._attachValueChangedHandler();
+      this._fireValueChangedEvent(valueStr);
     },
 
     _updateDisplayValue: function(startDateMoment, endDateMoment, displayFormat, input) {
@@ -972,14 +948,14 @@
     },
 
     _selectedChanged: function(newValue) {
-      var self = this;
-
-      if (this._isInternalUpdate || newValue === "") {
-        return;
-      }
+      if (newValue.length == 0) return;
 
       var activeItem = this.$$('.range-item.active');
       if (activeItem) {
+        var activeItemValue = activeItem.getAttribute('value');
+        // if item clicked is the same as currently active, return because there is no need to repeat the work
+        if (activeItemValue == newValue && newValue !== "custom") return;
+
         Polymer.dom(activeItem).classList.remove('active');
       }
 
@@ -993,7 +969,7 @@
       if (newValue === 'custom') {
         this.$.coreDropdown.show();
       }
-      this._isInternalUpdate = true;
+
       var startDateMoment = moment();
       var endDateMoment = moment();
       switch (newValue) {
@@ -1033,6 +1009,11 @@
         }
       }
 
+      this._detachUpdateDaterangeFromStartAndEndDateHandler();
+      this._detachInternalValidStateUpdateHandler();
+
+      this._updateDaterangeFromStartAndEndDateMoments(startDateMoment, endDateMoment);
+
       if (startDateMoment.isValid()) {
         this.startDate = startDateMoment.format(this._valueFormat);
         Polymer.dom(this.$.startDateValue).textContent = startDateMoment.format(this._displayFormat);
@@ -1043,7 +1024,9 @@
         Polymer.dom(this.$.endDateValue).textContent = endDateMoment.format(this._displayFormat);
         this._fireEndDateChangedEvent(this.endDate);
       }
-      this._isInternalUpdate = false;
+
+      this._attachUpdateDaterangeFromStartAndEndDateHandler();
+      this._attachInternalValidStateUpdateHandler();
     },
 
     _customRangeItemClicked: function(event) {
@@ -1237,6 +1220,15 @@
     _setDisplayValue: function(displayValue) {
       this._lastUserInput = displayValue;
       this.$.triggerRange.value = displayValue;
+    },
+
+    _isString: function(obj) {
+      return Object.prototype.toString.call(obj) === "[object String]";
+    },
+
+    _isEmptyString: function(obj) {
+      return Object.prototype.toString.call(obj) === "[object String]" && obj.length === 0;
     }
+
   });
 </script>
