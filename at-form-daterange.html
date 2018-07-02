@@ -424,6 +424,21 @@
     _internalValidStateUpdateImpl: function(required, startDate, endDate) {
       if (!this._isReady) return;
 
+      if (this._showErrorsWhenAttached) {
+        this._showErrorsWhenAttached = undefined;
+        this._detachUpdateDaterangeFromUserInputOnValidateHandler();
+        this.validate(true);
+        this._attachUpdateDaterangeFromUserInputOnValidateHandler();
+        return;
+      
+      } else if (this._clearErrorsWhenAttached) {
+        this._clearErrorsWhenAttached = undefined;
+        this._detachUpdateDaterangeFromUserInputOnValidateHandler();
+        this.validate(false);
+        this._attachUpdateDaterangeFromUserInputOnValidateHandler();
+        return;
+      }
+
       this._detachUpdateDaterangeFromUserInputOnValidateHandler();
       this.validate();
       this._attachUpdateDaterangeFromUserInputOnValidateHandler();
@@ -468,9 +483,15 @@
     },
 
     validate: function(showError) {
-      if (showError === undefined) {
-        showError = this.autoValidate;
+      if (!this.$ && this.autoValidate == false && showError == true) {
+        // showError should be true when _internalValidStateUpdate is called from ready after element is attached
+        this._showErrorsWhenAttached = true;
+      
+      } else if (!this.$ && this.autoValidate == true && showError == false) {
+        this._clearErrorsWhenAttached = true;
       }
+
+      if (showError === undefined) { showError = this.autoValidate; }
 
       var inputValue = this.$ ? this.$.triggerRange.value : this.value;
       if ((this.value === null && inputValue !== "") || (this.value !== null && this.value !== inputValue)) {
@@ -503,6 +524,23 @@
         }
 
         if (!validationResult.isValid) {
+          return validationResult.isValid;
+        }
+      }
+
+      // Polymer 2.x
+      // validate startDate and endDate before element is attached to the DOM when value is not set
+      if (!this.$ && this._isString(this.value) && this.value.length == 0) {
+        var startDateMoment = moment(this.startDate);
+        var isStartDateValid = startDateMoment.isValid();
+        var endDateMoment = moment(this.endDate);
+        var isEndDateValid = startDateMoment.isValid();
+        if (isStartDateValid && isEndDateValid && startDateMoment.isAfter(endDateMoment)) {
+          validationResult.isValid = false;
+          validationResult.errorMessage = this.T("Start date of {0} is after end date of {1}", startDateMoment.format(this._displayFormat), endDateMoment.format(this._displayFormat));
+          if (showError) {
+            this._handleValidationResult(validationResult);
+          }
           return validationResult.isValid;
         }
       }
