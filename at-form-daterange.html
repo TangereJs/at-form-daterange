@@ -666,6 +666,10 @@
     _detachUpdateDaterangeFromStartAndEndDateHandler: function() { this._updateDaterangeFromStartAndEndDate = this._emptyFn; },
 
     _updateDaterangeFromStartAndEndDateImpl: function(startDate, endDate) {
+      // if startDate or endDate are undefined do nothing; output value and display Value should not change
+      // there are tests that test for this behavior
+      if (startDate === undefined || endDate === undefined) return;
+
       var startDateStr = new String(startDate);
       var endDateStr = new String(endDate);
       var startDateMoment = moment(startDateStr, this._valueFormat, true);
