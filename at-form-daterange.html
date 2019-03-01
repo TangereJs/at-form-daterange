@@ -9,6 +9,111 @@
 <link rel="import" href="../iron-label/iron-label.html">
 <link rel="import" href="at-form-daterange-input-validation-behavior.html">
 
+<custom-style>
+  <style is="custom-style">
+     :host * {
+        box-sizing: border-box;
+      }
+
+      :host {
+        @apply --at-form-host;
+      }
+
+      #triggerContainer {
+        @apply --layout-horizontal;
+      }
+
+      .icon-background {
+        color: var(--at-form-daterange-icon-text-color);
+        width: 32px;
+        height: 32px;
+      }
+
+      .dropdown-container {
+        position: relative;
+        display: block;
+      }
+
+      .ranges {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        padding: 4px 8px;
+        margin: 4px;
+        min-width: 175px;
+        min-height: 256px;
+      }
+
+      .ranges.hidden {
+        display: none;
+      }
+
+      .ranges .range-item {
+        padding: 4px 8px;
+        margin: 2px 0;
+        cursor: pointer;
+        border-radius: 5px;
+        @apply --at-form-label-font;
+        @apply --at-text-selected;
+      }
+
+      .ranges .range-item.active,
+      .ranges .range-item:hover {
+        @apply --at-text-primary-selected;
+      }
+
+      .custom-range {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        padding: 4px 8px;
+        margin: 4px;
+        min-width: 175px;
+        min-height: 256px;
+      }
+
+      .custom-range.hidden {
+        display: none;
+      }
+
+      .custom-range .custom-range-item {
+        padding: 4px 8px;
+        margin: 2px 0;
+        cursor: pointer;
+        border-radius: 5px;
+        flex: 3;
+        @apply --at-form-label-font;
+        @apply --at-text-selected;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .custom-range .custom-range-item.active,
+      .custom-range .custom-range-item:hover {
+        @apply --at-text-primary-selected;
+      }
+
+      .picker-header {
+        text-align: center;
+        position: relative;
+        line-height: 40px;
+      }
+
+      .picker-header .confirm-icon {
+        position: absolute;
+        right: 0;
+        top: 0;
+      }
+
+      .picker-header-hr {
+        margin: 0 4px;
+        opacity: 0.5;
+      }
+  </style>
+</custom-style>
+
 <dom-module id="at-form-daterange">
   <template>
     <style include="at-form-common"></style>
