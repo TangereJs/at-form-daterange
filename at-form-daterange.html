@@ -34,6 +34,10 @@
         display: block;
       }
 
+      .hideRangeItems {
+        display: none;
+      }
+
       .ranges {
         display: flex;
         flex-direction: column;
@@ -62,39 +66,6 @@
         @apply --at-text-primary-selected;
       }
 
-      .custom-range {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-around;
-        padding: 4px 8px;
-        margin: 4px;
-        min-width: 175px;
-        min-height: 256px;
-      }
-
-      .custom-range.hidden {
-        display: none;
-      }
-
-      .custom-range .custom-range-item {
-        padding: 4px 8px;
-        margin: 2px 0;
-        cursor: pointer;
-        border-radius: 5px;
-        flex: 3;
-        @apply --at-form-label-font;
-        @apply --at-text-selected;
-        display: flex;
-        justify-content: center;
-        flex-direction: column;
-        text-align: center;
-      }
-
-      .custom-range .custom-range-item.active,
-      .custom-range .custom-range-item:hover {
-        @apply --at-text-primary-selected;
-      }
-
       .picker-header {
         text-align: center;
         position: relative;
@@ -110,6 +81,10 @@
       .picker-header-hr {
         margin: 0 4px;
         opacity: 0.5;
+      }
+
+      .hidden {
+        display:none;
       }
   </style>
 </custom-style>
@@ -155,6 +130,10 @@
         display: none;
       }
 
+      .range-item.hidden {
+        display: none;
+      }
+
       .ranges .range-item {
         padding: 4px 8px;
         margin: 2px 0;
@@ -166,39 +145,6 @@
 
       .ranges .range-item.active,
       .ranges .range-item:hover {
-        @apply --at-text-primary-selected;
-      }
-
-      .custom-range {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-around;
-        padding: 4px 8px;
-        margin: 4px;
-        min-width: 175px;
-        min-height: 256px;
-      }
-
-      .custom-range.hidden {
-        display: none;
-      }
-
-      .custom-range .custom-range-item {
-        padding: 4px 8px;
-        margin: 2px 0;
-        cursor: pointer;
-        border-radius: 5px;
-        flex: 3;
-        @apply --at-form-label-font;
-        @apply --at-text-selected;
-        display: flex;
-        justify-content: center;
-        flex-direction: column;
-        text-align: center;
-      }
-
-      .custom-range .custom-range-item.active,
-      .custom-range .custom-range-item:hover {
         @apply --at-text-primary-selected;
       }
 
@@ -232,24 +178,27 @@
     <at-core-dropdown id="coreDropdown" class="core-dropdown" position="bottomRight" y-offset="2">
       <div id="dropdown" class="">
         <div id="ranges" class="ranges">
-          <div class="range-item" on-tap="_rangeItemClicked" value="today">{{T("Today")}}</div>
-          <div class="range-item" on-tap="_rangeItemClicked" value="yesterday">{{T("Yesterday")}}</div>
-          <div class="range-item" on-tap="_rangeItemClicked" value="last7days">{{T("Last 7 Days")}}</div>
-          <div class="range-item" on-tap="_rangeItemClicked" value="last30days">{{T("Last 30 Days")}}</div>
-          <div class="range-item" on-tap="_rangeItemClicked" value="thisMonth">{{T("This Month")}}</div>
-          <div class="range-item" on-tap="_rangeItemClicked" value="lastMonth">{{T("Last Month")}}</div>
-          <div class="range-item" on-tap="_rangeItemClicked" value="custom">{{T("Custom")}}</div>
-        </div>
-        <div id="customRangeSelection" class="custom-range hidden">
-          <div class="custom-range-item" on-tap="_customRangeItemClicked" value="back">{{T("Custom")}}</div>
-          <div class="custom-range-item" on-tap="_customRangeItemClicked" value="startDate">
-            <span>{{T("Start")}}:</span>
-            <span id="startDateValue"></span>
+          <div id="pastRangeItems">
+              <div class="range-item" on-tap="_rangeItemClicked" value="startDate">{{T("Start")}}: <span id="startDateValuePast"></span></div>
+              <div class="range-item" on-tap="_rangeItemClicked" value="endDate">{{T("End")}}: <span id="endDateValuePast"></span></div>
+              <div class="range-item" on-tap="_rangeItemClicked" value="today">{{T("Today")}}</div>
+              <div class="range-item" on-tap="_rangeItemClicked" value="yesterday">{{T("Yesterday")}}</div>
+              <div class="range-item" on-tap="_rangeItemClicked" value="last7days">{{T("Last 7 Days")}}</div>
+              <div class="range-item" on-tap="_rangeItemClicked" value="last30days">{{T("Last 30 Days")}}</div>
+              <div class="range-item" on-tap="_rangeItemClicked" value="thisMonth">{{T("This Month")}}</div>
+              <div class="range-item" on-tap="_rangeItemClicked" value="lastMonth">{{T("Last Month")}}</div>
           </div>
-          <div class="custom-range-item" on-tap="_customRangeItemClicked" value="endDate">
-            <span>{{T("End")}}:</span>
-            <span id="endDateValue"></span>
+          <div id="futureRangeItems">
+              <div class="range-item" on-tap="_rangeItemClicked" value="startDate">{{T("Start")}}: <span id="startDateValueFuture"></span></div>
+              <div class="range-item" on-tap="_rangeItemClicked" value="endDate">{{T("End")}}: <span id="endDateValueFuture"></span></div>
+              <div class="range-item" on-tap="_rangeItemClicked" value="today">{{T("Today")}}</div>
+              <div class="range-item" on-tap="_rangeItemClicked" value="tomorrow">{{T("Tomorrow")}}</div>
+              <div class="range-item" on-tap="_rangeItemClicked" value="next7days">{{T("Next 7 Days")}}</div>
+              <div class="range-item" on-tap="_rangeItemClicked" value="next30days">{{T("Next 30 Days")}}</div>
+              <div class="range-item" on-tap="_rangeItemClicked" value="thisMonth">{{T("This Month")}}</div>
+              <div class="range-item" on-tap="_rangeItemClicked" value="nextMonth">{{T("Next Month")}}</div>
           </div>
+          
         </div>
         <div id="calendarStart" class="at-carbon-picker-container hidden">
           <div class="picker-header">Select start date
@@ -293,6 +242,17 @@
         value: false,
         observer: '_disabledChanged',
         title: 'Field value can not be changed'
+      },
+       /**
+       * Changes the dropdown values. Show past for 'false', and future for 'true'.
+       * @property rangeType
+       * @type Boolean
+       * @default false
+       */
+      rangeType: {
+        type: Boolean,
+        value: false,
+        title: 'Range Type'
       },
 
       /**
@@ -338,7 +298,8 @@
         observer: '_valueChanged',
         value: '',
         title: 'Value'
-      }
+      },
+
     },
 
     listeners: {
@@ -406,6 +367,20 @@
       var self = this;
       var coreDropdown = this.$.coreDropdown;
 
+      // Hide/Show rangeItems based on rangeType
+      var pastRangeItems = this.$.pastRangeItems;
+      var futureRangeItems = this.$.futureRangeItems;
+
+      if(!self.rangeType) {
+        pastRangeItems.classList.add("hideRangeItems");
+        futureRangeItems.classList.remove("hideRangeItems");
+      } else {
+        futureRangeItems.classList.add("hideRangeItems");
+        pastRangeItems.classList.remove("hideRangeItems");
+
+
+      }
+      
       this._boundResizeHandler = function() { };
       this.orientation = 'horizontal';
       var dropdown = this.$.dropdown;
@@ -498,6 +473,8 @@
       this._attachValueChangedHandler();
       this._attachUpdateDaterangeFromStartAndEndDateHandler();
       this._attachUpdateDaterangeFromUserInputOnValidateHandler();
+
+     
     },
 
     _disabledChanged: function(newValue, oldValue) {
@@ -919,10 +896,15 @@
       this.startDate = startDate;
       this.endDate = endDate;
       this._attachUpdateDaterangeFromStartAndEndDateHandler();
-
-      Polymer.dom(this.$.startDateValue).textContent = startDateMoment.format(this._displayFormat);
+      
+      Polymer.dom(this.$.startDateValuePast).textContent = startDateMoment.format(this._displayFormat);
       this._fireStartDateChangedEvent(startDate);
-      Polymer.dom(this.$.endDateValue).textContent = endDateMoment.format(this._displayFormat);
+      Polymer.dom(this.$.endDateValuePast).textContent = endDateMoment.format(this._displayFormat);
+      this._fireEndDateChangedEvent(endDate);
+
+      Polymer.dom(this.$.startDateValueFuture).textContent = startDateMoment.format(this._displayFormat);
+      this._fireStartDateChangedEvent(startDate);
+      Polymer.dom(this.$.endDateValueFuture).textContent = endDateMoment.format(this._displayFormat);
       this._fireEndDateChangedEvent(endDate);
 
       if (startDateMoment.isValid() && endDateMoment.isValid()) {
@@ -1005,7 +987,6 @@
       this._fireEndDateChangedEvent(endDateValueString);
       this._fireValueChangedEvent(valueString);
 
-      this._selectedChanged("custom");
       this.$.coreDropdown.hide();
     },
 
@@ -1089,9 +1070,23 @@
     },
 
     _rangeItemClicked: function(event) {
+
       var value = event.target.getAttribute('value');
-      this.$.coreDropdown.hide();
-      this._selectedChanged(value);
+      
+      switch(value) {
+        case 'startDate':
+          this._toggleDropdownPanel('startDate', event);
+          this._selectedChanged(value);
+          break;
+        case 'endDate':
+          this._toggleDropdownPanel('endDate', event);
+          this._selectedChanged(value);
+          break;
+        default:
+          this.$.coreDropdown.hide();
+          this._selectedChanged(value);
+      }
+      
     },
 
     _selectedChanged: function(newValue) {
@@ -1106,15 +1101,8 @@
         Polymer.dom(activeItem).classList.remove('active');
       }
 
-      if (newValue === 'custom') {
-        this._toggleDropdownPanel('customRangeSelection');
-      }
-
       if (this._boundResizeHandler !== undefined) {
         this._boundResizeHandler();
-      }
-      if (newValue === 'custom') {
-        this.$.coreDropdown.show();
       }
 
       var startDateMoment = moment();
@@ -1122,12 +1110,22 @@
       switch (newValue) {
         case 'today':
           break;
+        case 'tomorrow':
+          startDateMoment.add(1, "days");
+          endDateMoment.add(1, "days");
+          break;
         case 'yesterday':
           startDateMoment.subtract(1, "days");
           endDateMoment.subtract(1, "days");
           break;
+        case 'next7days':
+          endDateMoment.add(6, "days");
+          break;  
         case 'last7days':
           startDateMoment.subtract(6, "days");
+          break;
+        case 'next30days':
+          endDateMoment.add(30, "days");
           break;
         case 'last30days':
           startDateMoment.subtract(30, "days");
@@ -1136,11 +1134,15 @@
           startDateMoment.startOf("month");
           endDateMoment.endOf("month");
           break;
+        case 'nextMonth':
+          startDateMoment.add(1, "months").startOf("month");
+          endDateMoment.add(1, "months").endOf("month");
+          break;
         case 'lastMonth':
           startDateMoment.subtract(1, "months").startOf("month");
           endDateMoment.subtract(1, "months").endOf("month");
           break;
-        case 'custom':
+        case 'startDate':
           if (this.startDate !== '') {
             startDateMoment = moment(this.startDate, this._valueFormat, true);
           }
@@ -1148,6 +1150,17 @@
             endDateMoment = moment(this.endDate, this._valueFormat, true);
           }
           break;
+        case 'endDate':
+          if (this.startDate !== '') {
+           startDateMoment = moment(this.startDate, this._valueFormat, true);
+          }
+          if (this.endDate !== '') {
+            endDateMoment = moment(this.endDate, this._valueFormat, true);
+          }
+          break;
+        
+        
+        
       }
       if (newValue) {
         var liElem = this.$$('.range-item[value=' + newValue + ']');
@@ -1163,12 +1176,18 @@
 
       if (startDateMoment.isValid()) {
         this.startDate = startDateMoment.format(this._valueFormat);
-        Polymer.dom(this.$.startDateValue).textContent = startDateMoment.format(this._displayFormat);
+        Polymer.dom(this.$.startDateValuePast).textContent = startDateMoment.format(this._displayFormat);
+        this._fireStartDateChangedEvent(this.startDate);
+
+        Polymer.dom(this.$.startDateValueFuture).textContent = startDateMoment.format(this._displayFormat);
         this._fireStartDateChangedEvent(this.startDate);
       }
       if (endDateMoment.isValid()) {
         this.endDate = endDateMoment.format(this._valueFormat);
-        Polymer.dom(this.$.endDateValue).textContent = endDateMoment.format(this._displayFormat);
+        Polymer.dom(this.$.endDateValuePast).textContent = endDateMoment.format(this._displayFormat);
+        this._fireEndDateChangedEvent(this.endDate);
+
+        Polymer.dom(this.$.endDateValueFuture).textContent = endDateMoment.format(this._displayFormat);
         this._fireEndDateChangedEvent(this.endDate);
       }
 
@@ -1176,35 +1195,12 @@
       this._attachInternalValidStateUpdateHandler();
     },
 
-    _customRangeItemClicked: function(event) {
-      var target = event.target;
-      var value = target.getAttribute('value');
-
-      if (!value) {
-        value = target.parentElement.getAttribute('value');
-      }
-
-      switch (value) {
-        case 'back':
-          this._toggleDropdownPanel('ranges', event);
-          break;
-        case 'startDate':
-          this._toggleDropdownPanel('startDate', event);
-          break;
-        case 'endDate':
-          this._toggleDropdownPanel('endDate', event);
-          break;
-      }
-    },
-
     _toggleDropdownPanel: function(panelId, event) {
       var rangesPanel = this.$.ranges;
-      var customRangeSelection = this.$.customRangeSelection;
       var calendarStart = this.$.calendarStart;
       var calendarEnd = this.$.calendarEnd;
 
       this.toggleClass('hidden', panelId !== 'ranges', rangesPanel);
-      this.toggleClass('hidden', panelId !== 'customRangeSelection', customRangeSelection);
       this.toggleClass('hidden', panelId !== 'startDate', calendarStart);
       this.toggleClass('hidden', panelId !== 'endDate', calendarEnd);
 
@@ -1236,7 +1232,7 @@
     },
 
     _datepickerOnTap: function(event) {
-      this._toggleDropdownPanel('customRangeSelection');
+      this._toggleDropdownPanel('ranges');
     },
 
     // *ij* the main purpose of this function is to validate startDate and endDate format when they are programmatically set
