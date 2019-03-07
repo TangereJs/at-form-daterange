@@ -250,9 +250,15 @@
        * @default false
        */
       rangeType: {
-        type: Boolean,
-        value: false,
-        title: 'Range Type'
+        type: String,
+        reflectToAttribute: true,
+        value: "past",
+        notify: true,
+        xtype: "enum",
+        xvaluelist: [
+          { title: "past", value: "0" },
+          { title: "future", value: "1" },
+        ]
       },
 
       /**
@@ -309,7 +315,8 @@
 
     observers: [
       '_updateDaterangeFromStartAndEndDate(startDate, endDate)',
-      '_internalValidStateUpdate(required, startDate, endDate)'
+      '_internalValidStateUpdate(required, startDate, endDate)',
+      '_changeRangeType(rangeType)'
     ],
 
     $meta: [{
@@ -336,6 +343,21 @@
 
     set _displayFormat(value) {
       this.__displayFormat__ = value;
+    },
+
+    _changeRangeType: function(t) {
+      var self = this;
+      var pastRangeItems = this.$.pastRangeItems;
+      var futureRangeItems = this.$.futureRangeItems;
+
+      if(t == 0) {
+        futureRangeItems.classList.add("hideRangeItems");
+        pastRangeItems.classList.remove("hideRangeItems");
+      } else {
+        pastRangeItems.classList.add("hideRangeItems");
+        futureRangeItems.classList.remove("hideRangeItems");
+
+      }
     },
 
     _emptyFn: function() { },
@@ -371,12 +393,12 @@
       var pastRangeItems = this.$.pastRangeItems;
       var futureRangeItems = this.$.futureRangeItems;
 
-      if(!self.rangeType) {
-        pastRangeItems.classList.add("hideRangeItems");
-        futureRangeItems.classList.remove("hideRangeItems");
-      } else {
+      if(self.rangeType == 'past') {
         futureRangeItems.classList.add("hideRangeItems");
         pastRangeItems.classList.remove("hideRangeItems");
+      } else {
+        pastRangeItems.classList.add("hideRangeItems");
+        futureRangeItems.classList.remove("hideRangeItems");
 
 
       }
