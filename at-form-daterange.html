@@ -243,16 +243,11 @@
         observer: '_disabledChanged',
         title: 'Field value can not be changed'
       },
-       /**
-       * Changes the dropdown values. Show past for 'false', and future for 'true'.
-       * @property rangeType
-       * @type Boolean
-       * @default false
-       */
+
       rangeType: {
         type: String,
         reflectToAttribute: true,
-        value: "past",
+        value: "0",
         notify: true,
         xtype: "enum",
         xvaluelist: [
@@ -350,7 +345,7 @@
       var pastRangeItems = this.$.pastRangeItems;
       var futureRangeItems = this.$.futureRangeItems;
 
-      if(t == 0) {
+      if(t == "0") {
         futureRangeItems.classList.add("hideRangeItems");
         pastRangeItems.classList.remove("hideRangeItems");
       } else {
@@ -388,20 +383,6 @@
     ready: function() {
       var self = this;
       var coreDropdown = this.$.coreDropdown;
-
-      // Hide/Show rangeItems based on rangeType
-      var pastRangeItems = this.$.pastRangeItems;
-      var futureRangeItems = this.$.futureRangeItems;
-
-      if(self.rangeType == 'past') {
-        futureRangeItems.classList.add("hideRangeItems");
-        pastRangeItems.classList.remove("hideRangeItems");
-      } else {
-        pastRangeItems.classList.add("hideRangeItems");
-        futureRangeItems.classList.remove("hideRangeItems");
-
-
-      }
       
       this._boundResizeHandler = function() { };
       this.orientation = 'horizontal';
