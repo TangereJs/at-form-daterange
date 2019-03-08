@@ -116,6 +116,10 @@
         display: block;
       }
 
+      .hideRangeItems {
+        display: none;
+      }
+
       .ranges {
         display: flex;
         flex-direction: column;
@@ -383,6 +387,7 @@
     ready: function() {
       var self = this;
       var coreDropdown = this.$.coreDropdown;
+
       
       this._boundResizeHandler = function() { };
       this.orientation = 'horizontal';
